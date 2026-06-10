@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack - Rabbit Plushie Dealer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="main-layout">
+        <div id="history-section">
+            <h3>対戦履歴</h3>
+            <ul id="history-log"></ul>
+        </div>
+
+        <div id="game-container">
+            <header>
+                <h1>Blackjack</h1>
+                <div id="balance-container">
+                    所持レンガ: <span id="balance">100</span> 🧱
+                </div>
+            </header>
+
+            <div id="dealer-section">
+                <div id="dealer-info">
+                    <span class="dealer-icon">🐰</span>
+                    <span class="dealer-name">ディーラー: 兎のぬいぐるみ</span>
+                </div>
+                <div id="table-middle">
+                    <div id="deck-pile" class="card-back"></div>
+                    <div id="dealer-cards" class="card-area"></div>
+                </div>
+                <div id="dealer-score" class="score"></div>
+            </div>
+
+            <div id="player-section">
+                <div id="player-info">プレイヤー</div>
+                <div id="player-cards" class="card-area"></div>
+                <div id="player-score-container">
+                    <span class="score-label">合計スコア:</span>
+                    <span id="player-score" class="score-value">0</span>
+                </div>
+            </div>
+
+            <div id="betting-section">
+                <div id="bet-controls">
+                    <button id="bet-minus-10" class="bet-btn">-10</button>
+                    <button id="bet-plus-10" class="bet-btn">+10</button>
+                    <button id="bet-all-in" class="bet-btn">オールイン</button>
+                    <button id="bet-reset" class="bet-btn">リセット</button>
+                </div>
+                <input type="number" id="bet-amount" min="1" value="10">
+                <button id="deal-btn">勝負する（レンガを賭ける）</button>
+            </div>
+
+            <div id="action-section" class="hidden">
+                <div class="action-buttons-row">
+                    <button id="hit-btn" class="action-btn">
+                        <span class="btn-icon">🃏➕</span>
+                        <span class="btn-text">ヒット</span>
+                    </button>
+                    <button id="stand-btn" class="action-btn">
+                        <span class="btn-icon">✋</span>
+                        <span class="btn-text">スタンド</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="message-display"></div>
+            
+            <button id="reset-btn" class="hidden">もう一度遊ぶ</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

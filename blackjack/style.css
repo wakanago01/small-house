@@ -1,0 +1,200 @@
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #0a2f0c; 
+    color: white;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+#main-layout {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    width: 98%;
+    max-width: 1400px;
+    padding: 20px;
+}
+
+#history-section {
+    width: 300px;
+    height: 300px; /* 正方形 */
+    background: rgba(0,0,0,0.6);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+#history-section h3 {
+    margin: 0 0 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 5px;
+    font-size: 18px;
+}
+
+#history-log {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+#history-log li {
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+}
+
+#game-container {
+    background: radial-gradient(circle at center, #2e7d32, #1b5e20);
+    padding: 40px 80px;
+    border-radius: 50% / 30%; /* より横長の楕円 */
+    border: 20px solid #3e2723;
+    box-shadow: 
+        0 50px 100px rgba(0,0,0,0.8),
+        inset 0 0 200px rgba(0,0,0,0.6);
+    flex-grow: 1;
+    max-width: 1000px;
+    text-align: center;
+    transform: perspective(1500px) rotateX(15deg);
+    position: relative;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    transform: rotateX(-15deg);
+}
+
+#table-middle {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    margin: 20px 0;
+}
+
+#deck-pile {
+    width: 80px;
+    height: 120px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 0 #bbb, 2px 2px 0 #bbb, 3px 3px 0 #bbb, 4px 4px 0 #bbb, 5px 5px 15px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.card-area {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    min-height: 150px;
+    perspective: 1000px;
+}
+
+.card {
+    width: 80px;
+    height: 120px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), left 0.5s ease-out, top 0.5s ease-out;
+}
+
+.card.dealing {
+    position: absolute;
+    top: 0;
+    left: -140px;
+    transform: rotateZ(-45deg);
+    opacity: 0;
+}
+
+.card.flipped { transform: rotateY(180deg); }
+
+.card-face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden; border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-size: 28px; font-weight: bold;
+}
+
+.card-front { background-color: white; color: black; transform: rotateY(180deg); }
+.card-back {
+    background-color: #1a237e;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px), linear-gradient(to bottom, #1a237e, #283593);
+    border: 2px solid white;
+}
+
+.card.red .card-front { color: #d32f2f; }
+.card-suit-large { font-size: 40px; }
+
+#player-score-container {
+    background: rgba(0,0,0,0.5);
+    display: inline-block;
+    padding: 10px 30px;
+    border-radius: 25px;
+    margin: 10px 0;
+    border: 3px solid #fbc02d;
+    transform: rotateX(-15deg);
+}
+
+.score-value { font-size: 32px; font-weight: bold; color: #fbc02d; }
+#dealer-info { font-size: 20px; transform: rotateX(-15deg); }
+.dealer-icon { font-size: 44px; }
+
+#betting-section { margin: 20px 0; transform: rotateX(-15deg); }
+.bet-btn {
+    background-color: #5d4037; color: white; border: 1px solid rgba(255,255,255,0.2);
+    padding: 8px 15px; margin: 0 5px; border-radius: 5px; font-weight: bold; cursor: pointer;
+}
+
+.action-buttons-row { display: flex; justify-content: center; gap: 30px; transform: rotateX(-15deg); }
+.action-btn {
+    width: 140px; height: 140px; border-radius: 70px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-size: 20px; box-shadow: 0 12px 24px rgba(0,0,0,0.5); border: 6px solid rgba(255,255,255,0.3);
+    cursor: pointer;
+}
+
+#hit-btn { background-color: #2e7d32; color: white; }
+#stand-btn { background-color: #c62828; color: white; }
+
+#message-display {
+    font-size: 28px; font-weight: bold; margin: 20px 0; min-height: 40px;
+    transform: rotateX(-15deg); text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+#reset-btn { transform: rotateX(-15deg); background-color: #039be5; color: white; }
+
+input[type="number"] {
+    padding: 12px; font-size: 20px; width: 100px; border-radius: 8px; border: none; text-align: center;
+}
+
+#deal-btn {
+    background-color: #fbc02d; color: black; font-weight: bold; padding: 15px 40px;
+    font-size: 22px; border-radius: 10px; margin-left: 10px; cursor: pointer;
+}
+
+.history-win { color: #81c784; }
+.history-loss { color: #e57373; }
+.history-draw { color: #fff176; }
+.hidden { display: none !important; }
+
+/* モバイル対応（必要に応じて） */
+@media (max-width: 900px) {
+    #main-layout { flex-direction: column; }
+    #history-section { width: 90%; height: 200px; }
+}
