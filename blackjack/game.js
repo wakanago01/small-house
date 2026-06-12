@@ -21,6 +21,10 @@ const resetBtn = document.getElementById('reset-btn');
 const bettingSection = document.getElementById('betting-section');
 const actionSection = document.getElementById('action-section');
 const historyLogEl = document.getElementById('history-log');
+const resultOverlay = document.getElementById('result-overlay');
+const betStatusContainer = document.getElementById('bet-status-container');
+const currentBetDisplay = document.getElementById('current-bet-display');
+const betSetupArea = document.getElementById('bet-setup-area');
 
 // ベッティング用ボタン
 const betMinus10Btn = document.getElementById('bet-minus-10');
@@ -79,18 +83,41 @@ function renderCard(card, targetEl, isFlipped = false, animate = false) {
     back.className = 'card-face card-back';
     cardEl.appendChild(front);
     cardEl.appendChild(back);
-    targetEl.appendChild(cardEl);
-
+    
     if (animate) {
+        cardEl.style.opacity = '0';
+        targetEl.appendChild(cardEl);
+
+        const deckPile = document.getElementById('deck-pile');
+        const deckRect = deckPile.getBoundingClientRect();
+        const targetRect = cardEl.getBoundingClientRect();
+        
+        const deltaX = deckRect.left - targetRect.left;
+        const deltaY = deckRect.top - targetRect.top;
+        
+        cardEl.style.transition = 'none';
+        cardEl.style.transform = `translate(${deltaX}px, ${deltaY}px) rotateZ(20deg)`;
         cardEl.classList.add('dealing');
-        setTimeout(() => {
-            cardEl.classList.remove('dealing');
-            if (isFlipped) {
-                setTimeout(() => cardEl.classList.add('flipped'), 300);
-            }
-        }, 50);
-    } else if (isFlipped) {
-        cardEl.classList.add('flipped');
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                cardEl.style.opacity = '1';
+                cardEl.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s';
+                cardEl.style.transform = '';
+                
+                setTimeout(() => {
+                    cardEl.classList.remove('dealing');
+                    if (isFlipped) {
+                        cardEl.classList.add('flipped');
+                    }
+                }, 600);
+            });
+        });
+    } else {
+        targetEl.appendChild(cardEl);
+        if (isFlipped) {
+            cardEl.classList.add('flipped');
+        }
     }
     return cardEl;
 }
@@ -106,12 +133,20 @@ function updateUI() {
 function updateScoreDisplays(showFullDealerScore = false) {
     const pScore = calculateScore(playerHand);
     playerScoreEl.textContent = pScore;
-    if (pScore > 21) playerScoreEl.style.color = '#ff5252';
-    else if (pScore === 21) playerScoreEl.style.color = '#ffeb3b';
-    else playerScoreEl.style.color = '#fbc02d';
+    // プレイヤーはピンク系
+    if (pScore > 21) playerScoreEl.style.color = '#ff69b4'; // HotPink for bust
+    else if (pScore === 21) playerScoreEl.style.color = '#ff00ff'; // Fuchsia for 21
+    else playerScoreEl.style.color = '#ff1493'; // DeepPink default
 
-    if (showFullDealerScore) dealerScoreEl.textContent = `スコア: ${calculateScore(dealerHand)}`;
-    else dealerScoreEl.textContent = 'スコア: ?';
+    // ディーラーは紫系
+    dealerScoreEl.style.color = '#9400d3'; 
+    if (showFullDealerScore) {
+        const dScore = calculateScore(dealerHand);
+        dealerScoreEl.textContent = dScore;
+        if (dScore > 21) dealerScoreEl.style.color = '#ba55d3'; // MediumOrchid for bust
+    } else {
+        dealerScoreEl.textContent = '?';
+    }
 }
 
 function addHistory(result, amount) {
@@ -154,12 +189,18 @@ async function startGame() {
 
     balance -= currentBet;
     updateUI();
+    
+    // ベット額を表示し、設定エリアを隠す
+    currentBetDisplay.textContent = currentBet;
+    betStatusContainer.classList.remove('hidden');
+    betSetupArea.classList.add('hidden');
+
     deck = createDeck();
     playerHand = [deck.pop(), deck.pop()];
     dealerHand = [deck.pop(), deck.pop()];
     gameOver = false;
     messageEl.textContent = '';
-    bettingSection.classList.add('hidden');
+    // bettingSection.classList.add('hidden'); // ここを削除して親要素を表示したままにする
     actionSection.classList.remove('hidden');
     resetBtn.classList.add('hidden');
     dealerCardsEl.innerHTML = '';
@@ -176,8 +217,6 @@ async function startGame() {
     updateScoreDisplays(false);
     await sleep(500);
     renderCard(dealerHand[1], dealerCardsEl, true, true);
-
-    if (calculateScore(playerHand) === 21) setTimeout(() => endGame('ブラックジャック！プレイヤーの勝ち！'), 800);
 }
 
 async function hit() {
@@ -207,16 +246,39 @@ async function stand() {
     const pScore = calculateScore(playerHand);
     const dScore = calculateScore(dealerHand);
     if (dScore > 21) endGame('ディーラーがバースト！プレイヤーの勝ち！');
-    else if (pScore > dScore) endGame('プレイヤーの勝ち！');
+    else if (pScore > dScore) {
+        if (pScore === 21 && playerHand.length === 2) {
+            endGame('ブラックジャック！プレイヤーの勝ち！');
+        } else {
+            endGame('プレイヤーの勝ち！');
+        }
+    }
     else if (pScore < dScore) endGame('ディーラー（兎のぬいぐるみ）の勝ち！');
     else endGame('引き分け (Push)');
 }
 
+function showResultEffect(amount) {
+    resultOverlay.innerHTML = '';
+    resultOverlay.classList.remove('hidden');
+    
+    const pop = document.createElement('div');
+    pop.className = 'result-pop ' + (amount >= 0 ? 'plus' : 'minus');
+    pop.textContent = (amount >= 0 ? '+' : '') + amount;
+    
+    resultOverlay.appendChild(pop);
+    
+    setTimeout(() => {
+        resultOverlay.classList.add('hidden');
+    }, 2000);
+}
+
 function endGame(message) {
     gameOver = true;
-    messageEl.textContent = message;
     let result = 'loss';
     let profit = currentBet;
+    let displayMessage = message;
+    let effectAmount = -currentBet;
+
     if (message.includes('プレイヤーの勝ち')) {
         result = 'win';
         if (message.includes('ブラックジャック')) {
@@ -227,11 +289,20 @@ function endGame(message) {
             balance += currentBet * 2;
             profit = currentBet;
         }
+        effectAmount = profit;
+        displayMessage += ` (+${profit} 🧱)`;
     } else if (message.includes('引き分け')) {
         result = 'draw';
         balance += currentBet;
         profit = 0;
+        effectAmount = 0;
+        displayMessage += ` (±0 🧱)`;
+    } else {
+        displayMessage += ` (-${currentBet} 🧱)`;
     }
+
+    messageEl.textContent = displayMessage;
+    showResultEffect(effectAmount);
     addHistory(result, profit);
     updateUI();
     renderGame(true);
@@ -242,13 +313,16 @@ function endGame(message) {
 
 function resetGame() {
     bettingSection.classList.remove('hidden');
+    betSetupArea.classList.remove('hidden');
+    betStatusContainer.classList.add('hidden');
     resetBtn.classList.add('hidden');
-    messageEl.textContent = 'レンガを賭けて勝負を開始してください。';
+    messageEl.textContent = '';
     dealerCardsEl.innerHTML = '';
     playerCardsEl.innerHTML = '';
-    dealerScoreEl.textContent = '';
+    dealerScoreEl.textContent = '?';
+    dealerScoreEl.style.color = '#9400d3';
     playerScoreEl.textContent = '0';
-    playerScoreEl.style.color = '#fbc02d';
+    playerScoreEl.style.color = '#ff1493';
 }
 
 dealBtn.addEventListener('click', startGame);
@@ -264,4 +338,4 @@ betAllInBtn.addEventListener('click', () => { betAmountEl.value = balance; });
 betResetBtn.addEventListener('click', () => { betAmountEl.value = 10; });
 
 updateUI();
-messageEl.textContent = 'レンガを賭けて勝負を開始してください。';
+messageEl.textContent = '';

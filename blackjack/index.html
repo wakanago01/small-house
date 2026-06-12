@@ -8,9 +8,31 @@
 </head>
 <body>
     <div id="main-layout">
-        <div id="history-section">
-            <h3>対戦履歴</h3>
-            <ul id="history-log"></ul>
+        <div id="left-controls-container">
+            <div id="history-section">
+                <h3>LOG</h3>
+                <ul id="history-log"></ul>
+            </div>
+
+            <div id="betting-section">
+                <h3>BET</h3>
+                <div id="bet-status-container" class="hidden">
+                    <div class="bet-label">BETTING:</div>
+                    <div id="current-bet-display">0</div>
+                </div>
+                <div id="bet-setup-area">
+                    <div id="bet-controls">
+                        <button id="bet-minus-10" class="bet-btn">-10</button>
+                        <button id="bet-plus-10" class="bet-btn">+10</button>
+                        <button id="bet-all-in" class="bet-btn">ALL</button>
+                        <button id="bet-reset" class="bet-btn">CLR</button>
+                    </div>
+                    <div id="bet-input-row">
+                        <input type="number" id="bet-amount" min="1" value="10">
+                        <button id="deal-btn">勝負!</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="game-container">
@@ -21,56 +43,51 @@
                 </div>
             </header>
 
-            <div id="dealer-section">
-                <div id="dealer-info">
-                    <span class="dealer-icon">🐰</span>
-                    <span class="dealer-name">ディーラー: 兎のぬいぐるみ</span>
+            <div id="play-area">
+                <div id="dealer-section">
+                    <div id="dealer-info">
+                        <span class="dealer-icon">🐰</span>
+                    </div>
+                    <div id="dealer-score-container">
+                        <span id="dealer-score" class="score-value">?</span>
+                    </div>
+                    <div id="table-middle">
+                        <div id="dealer-cards" class="card-area"></div>
+                        <div id="deck-pile" class="card-back"></div>
+                    </div>
                 </div>
-                <div id="table-middle">
-                    <div id="deck-pile" class="card-back"></div>
-                    <div id="dealer-cards" class="card-area"></div>
-                </div>
-                <div id="dealer-score" class="score"></div>
-            </div>
 
-            <div id="player-section">
-                <div id="player-info">プレイヤー</div>
-                <div id="player-cards" class="card-area"></div>
-                <div id="player-score-container">
-                    <span class="score-label">合計スコア:</span>
-                    <span id="player-score" class="score-value">0</span>
+                <div id="player-section">
+                    <div id="player-info"></div>
+                    <div id="player-cards" class="card-area"></div>
+                    <div id="player-score-container">
+                        <span id="player-score" class="score-value">0</span>
+                    </div>
                 </div>
-            </div>
 
-            <div id="betting-section">
-                <div id="bet-controls">
-                    <button id="bet-minus-10" class="bet-btn">-10</button>
-                    <button id="bet-plus-10" class="bet-btn">+10</button>
-                    <button id="bet-all-in" class="bet-btn">オールイン</button>
-                    <button id="bet-reset" class="bet-btn">リセット</button>
-                </div>
-                <input type="number" id="bet-amount" min="1" value="10">
-                <button id="deal-btn">勝負する（レンガを賭ける）</button>
-            </div>
-
-            <div id="action-section" class="hidden">
-                <div class="action-buttons-row">
-                    <button id="hit-btn" class="action-btn">
-                        <span class="btn-icon">🃏➕</span>
-                        <span class="btn-text">ヒット</span>
-                    </button>
-                    <button id="stand-btn" class="action-btn">
-                        <span class="btn-icon">✋</span>
-                        <span class="btn-text">スタンド</span>
-                    </button>
+                <div id="side-controls">
+                    <div id="action-section" class="hidden">
+                        <div class="action-buttons-column">
+                            <button id="hit-btn" class="action-btn">
+                                <img src="ヒットボタン.png" alt="ヒット">
+                            </button>
+                            <button id="stand-btn" class="action-btn">
+                                <img src="スタンドボタン.png" alt="スタンド">
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="message-display"></div>
-            
-            <button id="reset-btn" class="hidden">もう一度遊ぶ</button>
+            <div id="game-controls-area">
+                <div id="message-display"></div>
+                <button id="reset-btn" class="hidden">もう一度遊ぶ</button>
+            </div>
         </div>
     </div>
+
+    <!-- 勝敗時の大きな数値エフェクト用 -->
+    <div id="result-overlay" class="hidden"></div>
 
     <script src="game.js"></script>
 </body>
