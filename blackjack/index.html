@@ -3,91 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackjack - Rabbit Plushie Dealer</title>
+    <title>Blackjack - Yume Kawaii Dark Fantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="particles-container"></div>
+    
     <div id="main-layout">
-        <div id="left-controls-container">
-            <div id="history-section">
-                <h3>LOG</h3>
-                <ul id="history-log"></ul>
+        <div id="hamburger-menu">☰</div>
+        
+        <div id="balance-capsule">
+            <span class="icon">🌙</span> <span id="balance">100</span>
+        </div>
+
+        <div id="play-area">
+            <div id="dealer-section">
+                <div id="dealer-score-badge" class="score-badge dealer-score">?</div>
+                <div id="dealer-cards" class="card-area"></div>
             </div>
 
-            <div id="betting-section">
-                <h3>BET</h3>
-                <div id="bet-status-container" class="hidden">
-                    <div class="bet-label">BETTING:</div>
-                    <div id="current-bet-display">0</div>
-                </div>
-                <div id="bet-setup-area">
-                    <div id="bet-controls">
-                        <button id="bet-minus-10" class="bet-btn">-10</button>
-                        <button id="bet-plus-10" class="bet-btn">+10</button>
-                        <button id="bet-all-in" class="bet-btn">ALL</button>
-                        <button id="bet-reset" class="bet-btn">CLR</button>
-                    </div>
-                    <div id="bet-input-row">
-                        <input type="number" id="bet-amount" min="1" value="10">
-                        <button id="deal-btn">勝負!</button>
-                    </div>
-                </div>
+            <div id="deck-area">
+                <div id="deck-pile" class="card-back stacked-deck"></div>
+            </div>
+
+            <div id="rabbit-doll-area">
+                <!-- Glowing area and speech bubble for the rabbit -->
+                <div id="rabbit-speech" class="speech-bubble hidden"></div>
+            </div>
+
+            <div id="center-message" class="hidden"></div>
+
+            <div id="player-section">
+                <div id="player-cards" class="card-area"></div>
+                <div id="player-score-badge" class="score-badge">0</div>
             </div>
         </div>
 
-        <div id="game-container">
-            <header>
-                <h1>Blackjack</h1>
-                <div id="balance-container">
-                    所持レンガ: <span id="balance">100</span> 🧱
+        <div id="bottom-left-controls">
+            <div id="bet-setup-area">
+                <button id="bet-minus" class="circle-btn">-</button>
+                <div id="bet-input-wrapper">
+                    <span id="bet-amount-display">10</span>
                 </div>
-            </header>
-
-            <div id="play-area">
-                <div id="dealer-section">
-                    <div id="dealer-info">
-                        <span class="dealer-icon">🐰</span>
-                    </div>
-                    <div id="dealer-score-container">
-                        <span id="dealer-score" class="score-value">?</span>
-                    </div>
-                    <div id="table-middle">
-                        <div id="dealer-cards" class="card-area"></div>
-                        <div id="deck-pile" class="card-back"></div>
-                    </div>
-                </div>
-
-                <div id="player-section">
-                    <div id="player-info"></div>
-                    <div id="player-cards" class="card-area"></div>
-                    <div id="player-score-container">
-                        <span id="player-score" class="score-value">0</span>
-                    </div>
-                </div>
-
-                <div id="side-controls">
-                    <div id="action-section" class="hidden">
-                        <div class="action-buttons-column">
-                            <button id="hit-btn" class="action-btn">
-                                <img src="ヒットボタン.png" alt="ヒット">
-                            </button>
-                            <button id="stand-btn" class="action-btn">
-                                <img src="スタンドボタン.png" alt="スタンド">
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <button id="bet-plus" class="circle-btn">+</button>
+                <button id="deal-btn" class="glow-btn">DEAL</button>
             </div>
-
-            <div id="game-controls-area">
-                <div id="message-display"></div>
-                <button id="reset-btn" class="hidden">もう一度遊ぶ</button>
+            <div id="current-bet-area" class="hidden">
+                <span class="bet-label">BET</span>
+                <span id="current-bet-display">0</span>
             </div>
+        </div>
+
+        <div id="bottom-right-controls" class="hidden">
+            <button id="surrender-btn" class="action-btn glow-btn">SURRENDER</button>
+            <button id="double-btn" class="action-btn glow-btn">DOUBLE</button>
+            <button id="hit-btn" class="action-btn glow-btn">HIT</button>
+            <button id="stand-btn" class="action-btn glow-btn">STAND</button>
         </div>
     </div>
 
-    <!-- 勝敗時の大きな数値エフェクト用 -->
-    <div id="result-overlay" class="hidden"></div>
+    <!-- Overlays -->
+    <div id="result-overlay" class="hidden">
+        <div id="result-content"></div>
+    </div>
+    
+    <div id="game-over-overlay" class="hidden">
+        <div class="game-over-text">GAME OVER</div>
+        <button id="reset-btn" class="glow-btn">RETRY</button>
+    </div>
 
     <script src="game.js"></script>
 </body>

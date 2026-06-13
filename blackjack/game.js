@@ -2,39 +2,119 @@
 let deck = [];
 let playerHand = [];
 let dealerHand = [];
-let balance = 100; // 初期レンガ
-let currentBet = 0;
+let balance = 100;
+let currentBet = 10;
 let gameOver = false;
+
+let initialBet = 10;
 
 // DOM要素
 const balanceEl = document.getElementById('balance');
 const dealerCardsEl = document.getElementById('dealer-cards');
 const playerCardsEl = document.getElementById('player-cards');
-const dealerScoreEl = document.getElementById('dealer-score');
-const playerScoreEl = document.getElementById('player-score');
-const betAmountEl = document.getElementById('bet-amount');
-const messageEl = document.getElementById('message-display');
+const dealerScoreBadge = document.getElementById('dealer-score-badge');
+const playerScoreBadge = document.getElementById('player-score-badge');
+
+const betSetupArea = document.getElementById('bet-setup-area');
+const currentBetArea = document.getElementById('current-bet-area');
+const betAmountDisplay = document.getElementById('bet-amount-display');
+const currentBetDisplay = document.getElementById('current-bet-display');
+
+const betMinusBtn = document.getElementById('bet-minus');
+const betPlusBtn = document.getElementById('bet-plus');
 const dealBtn = document.getElementById('deal-btn');
+
+const bottomRightControls = document.getElementById('bottom-right-controls');
 const hitBtn = document.getElementById('hit-btn');
 const standBtn = document.getElementById('stand-btn');
-const resetBtn = document.getElementById('reset-btn');
-const bettingSection = document.getElementById('betting-section');
-const actionSection = document.getElementById('action-section');
-const historyLogEl = document.getElementById('history-log');
-const resultOverlay = document.getElementById('result-overlay');
-const betStatusContainer = document.getElementById('bet-status-container');
-const currentBetDisplay = document.getElementById('current-bet-display');
-const betSetupArea = document.getElementById('bet-setup-area');
+const doubleBtn = document.getElementById('double-btn');
+const surrenderBtn = document.getElementById('surrender-btn');
+const rabbitSpeech = document.getElementById('rabbit-speech');
 
-// ベッティング用ボタン
-const betMinus10Btn = document.getElementById('bet-minus-10');
-const betPlus10Btn = document.getElementById('bet-plus-10');
-const betAllInBtn = document.getElementById('bet-all-in');
-const betResetBtn = document.getElementById('bet-reset');
+const resultOverlay = document.getElementById('result-overlay');
+const resultContent = document.getElementById('result-content');
+const gameOverOverlay = document.getElementById('game-over-overlay');
+const resetBtn = document.getElementById('reset-btn');
+
+const particlesContainer = document.getElementById('particles-container');
+
+// 音源の定義
+const sounds = {
+    click: new Audio('音源/カーソル移動6.mp3'),
+    deal: new Audio('音源/カードを扇状に開く.mp3'),
+    knock: new Audio('音源/木のドアをノック1.mp3'),
+    paper: new Audio('音源/紙を広げる2.mp3')
+};
+
+function playSound(name) {
+    if (sounds[name]) {
+        sounds[name].currentTime = 0;
+        sounds[name].play().catch(e => console.log("Audio play blocked:", e));
+    }
+}
+
+// 兎のセリフ管理
+const rabbitDialogues = {
+    start: ["…いらっしゃい。夢の続きを見ましょうか？", "ふふ、また壊しに来たの？", "カードをどうぞ…逃げられないけどね。"],
+    hit: ["もっと欲しいの？欲張りさん。", "それ、本当に正解かしら…？", "ふふ、危ない橋を渡るのね。"],
+    stand: ["そこで止まるの？賢明ね。", "…わたしの番。見届けてあげる。", "さあ、答え合わせをしましょう。"],
+    win: ["おめでとう…次はどうなるかしらね。", "あら、運がいいのね。フフフ。", "…勝っちゃった。つまんないの。"],
+    lose: ["あーあ、壊れちゃった。", "…夢はここでおしまい。ふふ。", "負けちゃったね。痛い？"],
+    bust: ["欲張りすぎると…弾けちゃうわよ？", "あはは！壊れちゃった！", "…自滅。滑稽ね。"],
+    blackjack: ["…最高の夢を見せてくれるのね。", "ブラックジャック…素敵、壊したいわ。", "ふふ、おめでとう。特別なご褒美ね。"],
+    push: ["…引き分け。まだ終わらせてくれないのね。", "おそろい。ふふ、不気味ね。", "…変わらない二人。"],
+    surrender: ["…逃げ出すの？臆病な子。", "ふふ、賢明な判断…なのかなぁ？", "…逃がさない。今は見逃してあげるだけ。"]
+};
+
+let speechTimeout;
+function rabbitSpeak(category) {
+    const messages = rabbitDialogues[category];
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    
+    rabbitSpeech.textContent = msg;
+    rabbitSpeech.classList.remove('hidden');
+    
+    clearTimeout(speechTimeout);
+    speechTimeout = setTimeout(() => {
+        rabbitSpeech.classList.add('hidden');
+    }, 4000);
+}
 
 // カードの定義
 const suits = ['♠', '♥', '♦', '♣'];
 const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+// パーティクル生成
+function createParticles(color = '#ff99cc', count = 30) {
+    for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // ランダムな位置、サイズ、アニメーション時間
+        const size = Math.random() * 8 + 2;
+        const left = Math.random() * 100;
+        const duration = Math.random() * 3 + 2;
+        const delay = Math.random() * 2;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${left}vw`;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.backgroundColor = color;
+        particle.style.boxShadow = `0 0 ${size * 2}px ${color}`;
+        
+        particlesContainer.appendChild(particle);
+        
+        // アニメーション終了後に削除
+        setTimeout(() => {
+            particle.remove();
+        }, (duration + delay) * 1000);
+    }
+}
+
+// 常時飛んでいる星
+setInterval(() => createParticles('#ffb3e6', 2), 1000);
 
 function createDeck() {
     let newDeck = [];
@@ -70,57 +150,122 @@ function calculateScore(hand) {
     return score;
 }
 
+// Yume Kawaii suit display – traditional symbols
+const suitClass = { '♥': 'suit-heart', '♦': 'suit-diamond', '♣': 'suit-club', '♠': 'suit-spade' };
+
 function renderCard(card, targetEl, isFlipped = false, animate = false) {
     const cardEl = document.createElement('div');
     cardEl.className = 'card';
-    if (card.suit === '♥' || card.suit === '♦') {
-        cardEl.classList.add('red');
-    }
+
+    const sc = suitClass[card.suit];
+
     const front = document.createElement('div');
     front.className = 'card-face card-front';
-    front.innerHTML = `<div>${card.value}</div><div class="card-suit-large">${card.suit}</div>`;
+
+    // --- Center artwork by card type ---
+    const centerHTML = `
+        <div class="card-center number-center">
+            <div class="center-suit ${sc}">${card.suit}</div>
+        </div>`;
+
+    front.innerHTML = `
+        <div class="card-value-top ${sc}">
+            <span class="card-rank">${card.value}</span>
+            <span class="card-suit-mini">${card.suit}</span>
+        </div>
+        ${centerHTML}
+        <div class="card-value-bottom ${sc}">
+            <span class="card-rank">${card.value}</span>
+            <span class="card-suit-mini">${card.suit}</span>
+        </div>
+    `;
+
     const back = document.createElement('div');
     back.className = 'card-face card-back';
     cardEl.appendChild(front);
     cardEl.appendChild(back);
-    
-    if (animate) {
-        cardEl.style.opacity = '0';
-        targetEl.appendChild(cardEl);
 
+    targetEl.appendChild(cardEl);
+
+    if (animate) {
         const deckPile = document.getElementById('deck-pile');
+
+        // Temporarily highlight deck
+        deckPile.classList.add('glow');
+        setTimeout(() => deckPile.classList.remove('glow'), 400);
+
+        // Get coordinates
         const deckRect = deckPile.getBoundingClientRect();
         const targetRect = cardEl.getBoundingClientRect();
-        
         const deltaX = deckRect.left - targetRect.left;
         const deltaY = deckRect.top - targetRect.top;
-        
+
+        // Card starts at deck position, face down
         cardEl.style.transition = 'none';
-        cardEl.style.transform = `translate(${deltaX}px, ${deltaY}px) rotateZ(20deg)`;
+        cardEl.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.8)`;
+        cardEl.style.opacity = '0.7';
         cardEl.classList.add('dealing');
 
+        // Particle trail
+        const trailInterval = setInterval(() => {
+            const rect = cardEl.getBoundingClientRect();
+            createTrailParticle(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }, 30);
+
+        // Animate: fly from deck to destination
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+                cardEl.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease';
+                cardEl.style.transform = 'translate(0, 0) scale(1)';
                 cardEl.style.opacity = '1';
-                cardEl.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s';
-                cardEl.style.transform = '';
-                
+
+                // After arriving, flip the card face-up
                 setTimeout(() => {
+                    clearInterval(trailInterval);
                     cardEl.classList.remove('dealing');
+                    cardEl.style.transform = '';
+                    cardEl.style.transition = '';
+                    cardEl.style.opacity = '';
                     if (isFlipped) {
                         cardEl.classList.add('flipped');
                     }
-                }, 600);
+                }, 500);
             });
         });
     } else {
-        targetEl.appendChild(cardEl);
-        if (isFlipped) {
-            cardEl.classList.add('flipped');
-        }
+        if (isFlipped) cardEl.classList.add('flipped');
     }
+
     return cardEl;
 }
+
+function createTrailParticle(x, y) {
+    const particle = document.createElement('div');
+    particle.className = 'card-trail';
+    // Add some random scatter
+    const offsetX = (Math.random() - 0.5) * 10;
+    const offsetY = (Math.random() - 0.5) * 10;
+    particle.style.left = `${x + offsetX}px`;
+    particle.style.top = `${y + offsetY}px`;
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 600);
+}
+
+// Rabbit Doll Magic
+function triggerRabbitMagic() {
+    const deckArea = document.getElementById('deck-area');
+    if (!deckArea) return;
+    const glow = document.createElement('div');
+    glow.className = 'magic-glow-pulse';
+    deckArea.appendChild(glow);
+    setTimeout(() => glow.remove(), 3000);
+}
+
+setInterval(() => {
+    if (Math.random() > 0.6) { // 40% chance every 4s
+        triggerRabbitMagic();
+    }
+}, 4000);
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -128,47 +273,19 @@ function sleep(ms) {
 
 function updateUI() {
     balanceEl.textContent = balance;
+    betAmountDisplay.textContent = currentBet;
+    currentBetDisplay.textContent = currentBet;
 }
 
 function updateScoreDisplays(showFullDealerScore = false) {
     const pScore = calculateScore(playerHand);
-    playerScoreEl.textContent = pScore;
-    // プレイヤーはピンク系
-    if (pScore > 21) playerScoreEl.style.color = '#ff69b4'; // HotPink for bust
-    else if (pScore === 21) playerScoreEl.style.color = '#ff00ff'; // Fuchsia for 21
-    else playerScoreEl.style.color = '#ff1493'; // DeepPink default
+    playerScoreBadge.textContent = pScore;
 
-    // ディーラーは紫系
-    dealerScoreEl.style.color = '#9400d3'; 
     if (showFullDealerScore) {
-        const dScore = calculateScore(dealerHand);
-        dealerScoreEl.textContent = dScore;
-        if (dScore > 21) dealerScoreEl.style.color = '#ba55d3'; // MediumOrchid for bust
+        dealerScoreBadge.textContent = calculateScore(dealerHand);
     } else {
-        dealerScoreEl.textContent = '?';
+        dealerScoreBadge.textContent = dealerHand.length > 1 ? getCardValue(dealerHand[1]) : '?';
     }
-}
-
-function addHistory(result, amount) {
-    const li = document.createElement('li');
-    const timestamp = new Date().toLocaleTimeString();
-    let resultClass = '';
-    let profitText = '';
-    if (result === 'win') {
-        resultClass = 'history-win';
-        profitText = `+${amount}`;
-    } else if (result === 'loss') {
-        resultClass = 'history-loss';
-        profitText = `-${amount}`;
-    } else {
-        resultClass = 'history-draw';
-        profitText = '±0';
-    }
-    li.innerHTML = `
-        <span>[${timestamp}] ${result === 'win' ? '勝利' : result === 'loss' ? '敗北' : '引分'}</span>
-        <span class="${resultClass}">${profitText} 🧱 (残: ${balance})</span>
-    `;
-    historyLogEl.prepend(li);
 }
 
 function renderGame(showFullDealerHand) {
@@ -183,159 +300,328 @@ function renderGame(showFullDealerHand) {
 }
 
 async function startGame() {
-    currentBet = parseInt(betAmountEl.value);
-    if (isNaN(currentBet) || currentBet <= 0) { alert('有効なレンガの数値を入力してください。'); return; }
-    if (currentBet > balance) { alert('レンガが足りません！'); return; }
+    playSound('click');
+    rabbitSpeak('start');
+    if (currentBet > balance) {
+        currentBet = balance;
+        updateUI();
+    }
+    if (currentBet <= 0 || balance <= 0) { 
+        showGameOver();
+        return; 
+    }
 
     balance -= currentBet;
     updateUI();
     
-    // ベット額を表示し、設定エリアを隠す
-    currentBetDisplay.textContent = currentBet;
-    betStatusContainer.classList.remove('hidden');
     betSetupArea.classList.add('hidden');
+    currentBetArea.classList.remove('hidden');
 
     deck = createDeck();
     playerHand = [deck.pop(), deck.pop()];
     dealerHand = [deck.pop(), deck.pop()];
     gameOver = false;
-    messageEl.textContent = '';
-    // bettingSection.classList.add('hidden'); // ここを削除して親要素を表示したままにする
-    actionSection.classList.remove('hidden');
-    resetBtn.classList.add('hidden');
+    
     dealerCardsEl.innerHTML = '';
     playerCardsEl.innerHTML = '';
-    updateScoreDisplays(false);
+    dealerScoreBadge.textContent = '?';
+    playerScoreBadge.textContent = '0';
+    
+    bottomRightControls.classList.add('hidden');
 
-    await sleep(300);
+    await sleep(200);
+    playSound('deal');
     renderCard(playerHand[0], playerCardsEl, true, true);
     updateScoreDisplays(false);
-    await sleep(500);
+    await sleep(400);
     renderCard(dealerHand[0], dealerCardsEl, false, true); 
-    await sleep(500);
+    updateScoreDisplays(false);
+    await sleep(400);
     renderCard(playerHand[1], playerCardsEl, true, true);
     updateScoreDisplays(false);
-    await sleep(500);
+    await sleep(400);
     renderCard(dealerHand[1], dealerCardsEl, true, true);
+    
+    // Auto-blackjack check removed: Player must now press STAND even with 21.
+
+    bottomRightControls.classList.remove('hidden');
+    hitBtn.disabled = false;
+    standBtn.disabled = false;
+    
+    // Double Down & Surrender are only allowed if balance/state permits
+    doubleBtn.classList.remove('hidden');
+    doubleBtn.disabled = (balance < currentBet);
+    surrenderBtn.classList.remove('hidden');
+    surrenderBtn.disabled = false;
+}
+
+async function surrender() {
+    playSound('click');
+    rabbitSpeak('surrender');
+    hitBtn.disabled = true;
+    standBtn.disabled = true;
+    doubleBtn.disabled = true;
+    surrenderBtn.disabled = true;
+
+    // Return half the bet
+    const refund = Math.floor(currentBet / 2);
+    balance += refund;
+    const loss = currentBet - refund;
+    updateUI();
+
+    await endGame('surrender', -loss);
+}
+
+async function doubleDown() {
+    playSound('click');
+    hitBtn.disabled = true;
+    standBtn.disabled = true;
+    doubleBtn.disabled = true;
+    surrenderBtn.disabled = true; // Cannot surrender after doubling
+
+    // Double the bet
+    balance -= currentBet;
+    initialBet = currentBet; // Store for resetting
+    currentBet *= 2;
+    updateUI();
+
+    // 1. Knock sound
+    playSound('knock');
+    await sleep(1000);
+
+    const newCard = deck.pop();
+    playerHand.push(newCard);
+
+    // 2. Play paper sound while moving the card
+    playSound('paper');
+    renderCard(newCard, playerCardsEl, true, true);
+    updateScoreDisplays(false);
+
+    await sleep(1000);
+
+    if (calculateScore(playerHand) > 21) {
+        await endGame('bust');
+    } else {
+        await stand();
+    }
 }
 
 async function hit() {
+    playSound('click');
+    rabbitSpeak('hit');
+    hitBtn.disabled = true;
+    standBtn.disabled = true;
+    doubleBtn.disabled = true; // Cannot double down after hitting
+    surrenderBtn.disabled = true; // Cannot surrender after hitting
+    
+    // 1. Knock sound
+    playSound('knock');
+    // 2. Wait while knock is playing (approx 1s delay)
+    await sleep(1000);
+    
     const newCard = deck.pop();
     playerHand.push(newCard);
+    
+    // 3. Play paper sound while moving the card
+    playSound('paper');
     renderCard(newCard, playerCardsEl, true, true);
     updateScoreDisplays(false);
+    
     if (calculateScore(playerHand) > 21) {
-        hitBtn.disabled = true; standBtn.disabled = true;
         await sleep(600);
-        endGame('バースト！ディーラー（兎のぬいぐるみ）の勝ち！');
+        await endGame('bust');
+    } else {
+        hitBtn.disabled = false;
+        standBtn.disabled = false;
     }
 }
 
 async function stand() {
-    hitBtn.disabled = true; standBtn.disabled = true;
+    playSound('click');
+    rabbitSpeak('stand');
+    hitBtn.disabled = true;
+    standBtn.disabled = true;
+    
     renderGame(true);
-    updateScoreDisplays(true);
-    await sleep(1000);
+    await sleep(800);
+    
     while (calculateScore(dealerHand) < 17) {
         const newCard = deck.pop();
         dealerHand.push(newCard);
+        playSound('paper');
         renderCard(newCard, dealerCardsEl, true, true);
         updateScoreDisplays(true);
-        await sleep(1000);
+        await sleep(800);
     }
+    
     const pScore = calculateScore(playerHand);
     const dScore = calculateScore(dealerHand);
-    if (dScore > 21) endGame('ディーラーがバースト！プレイヤーの勝ち！');
+    
+    if (dScore > 21) endGame('win');
     else if (pScore > dScore) {
-        if (pScore === 21 && playerHand.length === 2) {
-            endGame('ブラックジャック！プレイヤーの勝ち！');
-        } else {
-            endGame('プレイヤーの勝ち！');
-        }
+        if (pScore === 21 && playerHand.length === 2) endGame('blackjack');
+        else endGame('win');
     }
-    else if (pScore < dScore) endGame('ディーラー（兎のぬいぐるみ）の勝ち！');
-    else endGame('引き分け (Push)');
+    else if (pScore < dScore) endGame('lose');
+    else endGame('push');
 }
 
-function showResultEffect(amount) {
-    resultOverlay.innerHTML = '';
+function showOverlayEffect(type, profit = 0) {
     resultOverlay.classList.remove('hidden');
+    resultContent.className = '';
     
-    const pop = document.createElement('div');
-    pop.className = 'result-pop ' + (amount >= 0 ? 'plus' : 'minus');
-    pop.textContent = (amount >= 0 ? '+' : '') + amount;
+    let amountText = profit > 0 ? `+${profit}` : profit < 0 ? `${profit}` : `±0`;
     
-    resultOverlay.appendChild(pop);
+    switch(type) {
+        case 'win':
+            resultContent.innerHTML = `<div class="victory-text-win">YOU WIN<div class="result-amount win">${amountText}</div></div>`;
+            createParticles('#ff66cc', 50); // Pink particles
+            createParticles('#fff', 30); // Sparkles
+            break;
+        case 'lose':
+            resultContent.innerHTML = `<div class="victory-text-lose">YOU LOSE<div class="result-amount lose">${amountText}</div></div>`;
+            createParticles('#4b0082', 50); // Dark purple mist
+            break;
+        case 'blackjack':
+            resultContent.innerHTML = `<div class="radiant-light"></div><div class="victory-text-bj">BLACKJACK<div class="result-amount bj">${amountText}</div></div>`;
+            createParticles('#00ffff', 50); // Cyan/Star burst
+            createParticles('#ff00ff', 50); // Magenta burst
+            break;
+        case 'push':
+            resultContent.innerHTML = `<div style="color: #ccc; text-shadow: 0 0 10px #fff; font-size: 80px; text-align: center;">PUSH<div class="result-amount">${amountText}</div></div>`;
+            break;
+        case 'surrender':
+            resultContent.innerHTML = `<div style="color: #ff99cc; text-shadow: 0 0 15px #ff00ff; font-size: 80px; text-align: center;">SURRENDER<div class="result-amount lose">${amountText}</div></div>`;
+            createParticles('#ffb3e6', 30);
+            break;
+    }
     
     setTimeout(() => {
         resultOverlay.classList.add('hidden');
-    }, 2000);
+        resetRound();
+    }, 2500);
 }
 
-function endGame(message) {
-    gameOver = true;
-    let result = 'loss';
-    let profit = currentBet;
-    let displayMessage = message;
-    let effectAmount = -currentBet;
+function showGameOver() {
+    gameOverOverlay.classList.remove('hidden');
+    createParticles('#ff0000', 30);
+}
 
-    if (message.includes('プレイヤーの勝ち')) {
-        result = 'win';
-        if (message.includes('ブラックジャック')) {
-            const winAmount = Math.floor(currentBet * 1.5);
-            balance += currentBet + winAmount;
-            profit = winAmount;
-        } else {
+async function endGame(result, fixedProfit = null) {
+    gameOver = true;
+    bottomRightControls.classList.add('hidden');
+    
+    renderGame(true);
+    
+    let profit = fixedProfit !== null ? fixedProfit : 0;
+    const pScore = calculateScore(playerHand);
+
+    if (fixedProfit === null) {
+        // Sequential BLACKJACK -> YOU WIN only for natural 21 (2 cards)
+        if (result === 'blackjack' && playerHand.length === 2) {
+            rabbitSpeak('blackjack');
+            resultOverlay.classList.remove('hidden');
+            resultContent.className = '';
+            resultContent.innerHTML = `<div class="radiant-light"></div><div class="victory-text-bj">BLACKJACK</div>`;
+            createParticles('#00ffff', 50);
+            createParticles('#ff00ff', 50);
+            await sleep(2000);
+            resultOverlay.classList.add('hidden');
+
+            balance += Math.floor(currentBet * 2.5);
+            profit = Math.floor(currentBet * 1.5);
+            result = 'win'; // Proceed to show YOU WIN
+        } else if (result === 'win') {
+            rabbitSpeak('win');
             balance += currentBet * 2;
             profit = currentBet;
+        } else if (result === 'blackjack') {
+            // This case handles if 'blackjack' was passed but it's not a natural 21
+            rabbitSpeak('win');
+            balance += currentBet * 2;
+            profit = currentBet;
+            result = 'win';
+        } else if (result === 'push') {
+            rabbitSpeak('push');
+            balance += currentBet;
+            profit = 0;
+        } else if (result === 'bust') {
+            rabbitSpeak('bust');
+            // Sequential BUST -> YOU LOSE display
+            resultOverlay.classList.remove('hidden');
+            resultContent.className = '';
+            resultContent.innerHTML = `<div style="color: #ff3333; text-shadow: 0 0 25px #ff0000, 0 0 50px #800000; font-size: 100px; font-weight: bold; letter-spacing: 10px;">BUST</div>`;
+            createParticles('#ff0000', 40);
+            await sleep(2000);
+            resultOverlay.classList.add('hidden');
+            
+            profit = -currentBet;
+            result = 'lose'; // Change result to 'lose' to show the YOU LOSE screen next
+        } else {
+            rabbitSpeak('lose');
+            profit = -currentBet;
         }
-        effectAmount = profit;
-        displayMessage += ` (+${profit} 🧱)`;
-    } else if (message.includes('引き分け')) {
-        result = 'draw';
-        balance += currentBet;
-        profit = 0;
-        effectAmount = 0;
-        displayMessage += ` (±0 🧱)`;
-    } else {
-        displayMessage += ` (-${currentBet} 🧱)`;
     }
-
-    messageEl.textContent = displayMessage;
-    showResultEffect(effectAmount);
-    addHistory(result, profit);
+    
+    showOverlayEffect(result, profit);
     updateUI();
-    renderGame(true);
-    actionSection.classList.add('hidden');
-    resetBtn.classList.remove('hidden');
-    hitBtn.disabled = false; standBtn.disabled = false;
 }
 
-function resetGame() {
-    bettingSection.classList.remove('hidden');
+function resetRound() {
+    if (balance <= 0) {
+        showGameOver();
+        return;
+    }
+    
+    // Reset bet to the amount before double down if needed
+    currentBet = initialBet;
+    
     betSetupArea.classList.remove('hidden');
-    betStatusContainer.classList.add('hidden');
-    resetBtn.classList.add('hidden');
-    messageEl.textContent = '';
+    currentBetArea.classList.add('hidden');
+    
     dealerCardsEl.innerHTML = '';
     playerCardsEl.innerHTML = '';
-    dealerScoreEl.textContent = '?';
-    dealerScoreEl.style.color = '#9400d3';
-    playerScoreEl.textContent = '0';
-    playerScoreEl.style.color = '#ff1493';
+    dealerScoreBadge.textContent = '?';
+    playerScoreBadge.textContent = '0';
+    
+    // Check bet limit
+    if (currentBet > balance) {
+        currentBet = balance;
+    }
+    updateUI();
 }
 
+function fullReset() {
+    balance = 100;
+    currentBet = 10;
+    initialBet = 10;
+    updateUI();
+    gameOverOverlay.classList.add('hidden');
+    resetRound();
+}
+
+// Event Listeners
 dealBtn.addEventListener('click', startGame);
 hitBtn.addEventListener('click', hit);
 standBtn.addEventListener('click', stand);
-resetBtn.addEventListener('click', resetGame);
-betMinus10Btn.addEventListener('click', () => { 
-    let newVal = (parseInt(betAmountEl.value) || 0) - 10;
-    betAmountEl.value = Math.max(1, newVal); 
+doubleBtn.addEventListener('click', doubleDown);
+surrenderBtn.addEventListener('click', surrender);
+resetBtn.addEventListener('click', () => {
+    playSound('click');
+    fullReset();
 });
-betPlus10Btn.addEventListener('click', () => { betAmountEl.value = (parseInt(betAmountEl.value) || 0) + 10; });
-betAllInBtn.addEventListener('click', () => { betAmountEl.value = balance; });
-betResetBtn.addEventListener('click', () => { betAmountEl.value = 10; });
 
+betMinusBtn.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = Math.max(10, currentBet - 10);
+    updateUI();
+});
+
+betPlusBtn.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = Math.min(balance, currentBet + 10);
+    updateUI();
+});
+
+// Initialize
 updateUI();
-messageEl.textContent = '';
