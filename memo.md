@@ -3,7 +3,7 @@
 ーminigame
 ・スロット           mop
 ・ブラックジャック   wakanago
-・ポーカー          
+・ポーカー          mei39
 ・ルーレット        teaflower
 ・競馬              
 ・ハイアンドロー　   takusvg
