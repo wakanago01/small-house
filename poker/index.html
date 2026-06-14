@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>月夜のポーカー</title>
+    <link rel="stylesheet" href="ui/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- メニュー -->
+        <div id="main-menu" class="screen">
+            <h1 class="title">🌙 月夜のポーカー ✨</h1>
+            <div class="menu-buttons">
+                <button onclick="pokerApp.ui.showScreen('difficulty-select')">ゲーム開始 🎀</button>
+                <button onclick="pokerApp.showHowTo()">遊び方 🌙</button>
+                <button onclick="pokerApp.showRanks()">役一覧 ⭐</button>
+                <button onclick="alert('カジノへ戻ります')">戻る</button>
+            </div>
+        </div>
+
+        <!-- 難易度 -->
+        <div id="difficulty-select" class="screen hidden">
+            <h2 class="sub-title">難易度を選んでね</h2>
+            <div class="menu-buttons">
+                <button onclick="pokerApp.startSetDifficulty('Easy')">Easy</button>
+                <button onclick="pokerApp.startSetDifficulty('Normal')">Normal</button>
+            </div>
+        </div>
+
+        <!-- ベット -->
+        <div id="bet-screen" class="screen hidden">
+            <div class="status-bar">所持Renga: <span id="current-renga">0</span></div>
+            <div class="bet-display">現在のベット: <span id="bet-amount">10</span></div>
+            <button onclick="pokerApp.adjustBet(10)">+10</button>
+            <button onclick="pokerApp.adjustBet(-10)">-10</button>
+            <button onclick="pokerApp.confirmBet()">決定 ✦</button>
+        </div>
+
+        <!-- ゲームプレイ -->
+        <div id="play-screen" class="screen hidden">
+            <div id="cpu-area" class="cpu-container"></div>
+            <div id="player-area">
+                <div id="player-hand" class="hand"></div>
+                <button onclick="pokerApp.exchange()">カードを交換する 🎀</button>
+                <div id="game-message">Bet: <span id="info-bet">0</span></div>
+            </div>
+        </div>
+
+        <!-- 結果 -->
+        <div id="result-screen" class="screen hidden">
+            <h2 id="result-title">RESULT</h2>
+            <div id="result-details"></div>
+            <button onclick="pokerApp.ui.showScreen('main-menu')">戻る</button>
+        </div>
+
+        <div id="overlay" class="overlay hidden" onclick="document.getElementById('overlay').classList.add('hidden')">
+            <div class="overlay-content" onclick="event.stopPropagation()">
+                <div id="overlay-text"></div>
+                <button onclick="document.getElementById('overlay').classList.add('hidden')">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- スクリプト読み込み順序に注意 -->
+    <script src="utils/save_manager.js"></script>
+    <script src="utils/player_manager.js"></script>
+    <script src="games/poker.js"></script>
+    <script src="ui/poker_ui.js"></script>
+    <script>
+        class PokerApp {
+            constructor() {
+                this.player = new PlayerManager({ renga: 50000, hunger: 100, items: [] });
+                this.ui = new PokerUI(this);
+                this.difficulty = 'Easy';
+                this.bet = 10;
+                this.deck = null;
+                this.playerHand = [];
+                this.cpuHands = [];
+                this.selected = new Set();
+            }
+
+            startSetDifficulty(diff) {
+                this.difficulty = diff;
+                this.ui.updateRenga(this.player.renga);
+                this.ui.showScreen('bet-screen');
+            }
+
+            adjustBet(amt) {
+                if (this.bet + amt >= 10 && this.bet + amt <= this.player.renga) {
+                    this.bet += amt;
+                    this.ui.updateBet(this.bet);
+                }
+            }
+
+            confirmBet() {
+                this.deck = new Deck();
+                this.playerHand = Array.from({length:5}, () => this.deck.draw());
+                this.cpuHands = Array.from({length: this.difficulty === 'Easy' ? 1 : 3}, () => 
+                    Array.from({length:5}, () => this.deck.draw())
+                );
+                this.selected.clear();
+                this.ui.renderPlayerHand(this.playerHand);
+                this.ui.renderCpuHands(this.cpuHands, true);
+                this.ui.showScreen('play-screen');
+            }
+
+            toggleSelection(idx) {
+                if (this.selected.has(idx)) this.selected.delete(idx);
+                else this.selected.add(idx);
+            }
+
+            exchange() {
+                this.selected.forEach(i => this.playerHand[i] = this.deck.draw());
+                this.cpuHands.forEach(hand => {
+                    const [rank] = PokerHand.evaluate(hand);
+                    if (rank === 0) [0,1,2].forEach(i => hand[i] = this.deck.draw());
+                });
+                this.determineWinner();
+            }
+
+            determineWinner() {
+                const [pRank, pVals] = PokerHand.evaluate(this.playerHand);
+                let result = "WIN";
+                this.cpuHands.forEach(h => {
+                    const [cRank] = PokerHand.evaluate(h);
+                    if (cRank > pRank) result = "LOSE";
+                });
+
+                if (result === "WIN") this.player.renga += this.bet;
+                else this.player.renga -= this.bet;
+
+                this.ui.renderPlayerHand(this.playerHand, false);
+                this.ui.renderCpuHands(this.cpuHands, false);
+                this.ui.showResult(result, pRank, this.bet);
+            }
+
+            showHowTo() { this.ui.showOverlay("遊び方", "Rengaを賭けて勝負！強い役を作ろう。"); }
+            showRanks() { this.ui.showOverlay("役一覧", "ロイヤルフラッシュ、フルハウス、ペアなど。"); }
+        }
+        const pokerApp = new PokerApp();
+    </script>
+</body>
+</html>
