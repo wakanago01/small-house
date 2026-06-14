@@ -12,12 +12,12 @@ body {
     background-color: var(--bg-dark);
     display: flex; justify-content: center; align-items: center;
     height: 100vh; overflow: hidden;
-    font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', serif;
+    font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
 }
 
 #game-container {
     width: 1280px; height: 720px;
-    background-image: url('assets/poker背景.png');
+    background-image: url('../assets/poker背景.png'); /* パスを修正 */
     background-size: 100% 100%;
     position: relative;
     box-shadow: 0 0 50px rgba(0,0,0,1);
@@ -27,25 +27,26 @@ body {
 .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
 .hidden { display: none !important; }
 
-/* 背景のボタンに重ねる用のスタイル */
+/* 背景のボタンに重ねる用 */
 .invisible-btn {
     background: transparent;
     border: none;
     cursor: pointer;
     color: var(--lavender);
-    font-size: 1.5rem;
-    text-shadow: 0 0 10px var(--primary-purple);
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px #000;
     transition: 0.3s;
 }
 .invisible-btn:hover {
     color: var(--star-gold);
-    text-shadow: 0 0 20px var(--star-gold);
+    transform: scale(1.1);
 }
 
-/* カードの配置（背景の枠に合わせるための絶対配置） */
+/* カードの配置 */
 #player-hand {
     position: absolute;
-    bottom: 120px; /* 背景に合わせて調整 */
+    bottom: 120px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -54,7 +55,7 @@ body {
 
 #cpu-area {
     position: absolute;
-    top: 100px; /* 背景に合わせて調整 */
+    top: 100px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -63,7 +64,7 @@ body {
 
 .exchange-btn-container {
     position: absolute;
-    bottom: 50px; /* 背景のボタン位置に合わせて調整 */
+    bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -93,6 +94,11 @@ body {
     border: 3px solid var(--pastel-pink);
 }
 
+.card .suit { font-size: 2.2rem; }
+.card .rank { font-size: 1.6rem; font-weight: bold; }
+.card.red { color: #d40000; }
+.card.black { color: #000; }
+
 /* メニューボタン */
 .menu-buttons {
     position: absolute;
@@ -105,17 +111,25 @@ body {
 }
 
 .menu-buttons button {
-    background: rgba(43, 22, 70, 0.8);
+    background: rgba(43, 22, 70, 0.9);
     color: var(--lavender);
-    border: 1px solid var(--pastel-pink);
+    border: 1px solid var(--lavender);
     padding: 15px 40px;
     border-radius: 30px;
     cursor: pointer;
-    min-width: 300px;
+    min-width: 250px;
+    font-size: 1.2rem;
     transition: 0.3s;
 }
 
 .menu-buttons button:hover {
     background: var(--lavender);
     color: var(--primary-purple);
+}
+
+.status-box {
+    background: rgba(0,0,0,0.6);
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
 }
