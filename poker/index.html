@@ -7,39 +7,53 @@
 </head>
 <body>
     <div id="game-container">
+        <!-- 音声切り替えボタン -->
+        <div id="sound-toggle" onclick="pokerApp.ui.toggleMute()">
+            <span id="sound-icon">🔊</span>
+        </div>
+
+        <!-- 常設Renga表示 -->
+        <div id="permanent-renga-display">
+            <span id="permanent-renga">0</span>
+        </div>
+
         <!-- メインメニュー -->
         <div id="main-menu" class="screen">
-            <h1 style="text-align:center; color:var(--moon-gold); font-size:4rem; margin-top:100px; text-shadow:0 0 20px #000;">ポーカー</h1>
-            <div class="menu-buttons">
-                <button onclick="pokerApp.ui.showScreen('difficulty-select')">ゲーム開始</button>
-                <button onclick="pokerApp.showHowTo()">遊び方</button>
-                <button onclick="pokerApp.showRanks()">役一覧</button>
-                <button onclick="alert('カジノへ戻ります')">戻る</button>
+            <div class="centered-content">
+                <h1 style="text-align:center; color:#ffffff; font-size:4rem; margin-bottom:50px; text-shadow:0 0 20px #000;">ポーカー</h1>
+                <div class="menu-buttons">
+                    <button onclick="pokerApp.ui.showScreen('difficulty-select')">ゲーム開始</button>
+                    <button onclick="pokerApp.showHowTo()">遊び方</button>
+                    <button onclick="pokerApp.showRanks()">役一覧</button>
+                    <button onclick="alert('カジノへ戻ります')">戻る</button>
+                </div>
             </div>
         </div>
 
         <!-- 難易度選択 -->
         <div id="difficulty-select" class="screen hidden">
-            <div class="menu-buttons">
-                <h2>難易度を選択してください</h2>
-                <button onclick="pokerApp.startSetDifficulty('Easy')">Easy</button>
-                <button onclick="pokerApp.startSetDifficulty('Normal')">Normal</button>
-                <button onclick="pokerApp.ui.showScreen('main-menu')">戻る</button>
+            <div class="centered-content">
+                <div class="menu-buttons">
+                    <h2 style="color:white; margin-bottom:30px; text-shadow:2px 2px 4px #000;">難易度を選択してください</h2>
+                    <button onclick="pokerApp.startSetDifficulty('Easy')">Easy</button>
+                    <button onclick="pokerApp.startSetDifficulty('Normal')">Normal</button>
+                    <button onclick="pokerApp.ui.showScreen('main-menu')">戻る</button>
+                </div>
             </div>
         </div>
 
         <!-- ベット -->
         <div id="bet-screen" class="screen hidden">
-            <div style="position:absolute; top:180px; width:100%; text-align:center;">
+            <div class="centered-content">
                 <div class="status-box">
-                    <div style="font-size:1.5rem; color:var(--star-gold); margin-bottom:10px;">所持Renga：<span id="current-renga">0</span></div>
-                    <div style="font-size:2.5rem; margin-bottom:30px;">ベット額：<span id="bet-amount">10</span></div>
-                    <div>
-                        <button onclick="pokerApp.adjustBet(10)">+10</button>
-                        <button onclick="pokerApp.adjustBet(100)">+100</button>
-                        <button onclick="pokerApp.adjustBet(-10)">-10</button>
+                    <div style="font-size:1.5rem; color:#ffffff; margin-bottom:10px;">所持Renga：<span id="current-renga">0</span></div>
+                    <div style="font-size:2.5rem; margin-bottom:30px; color:#ffffff;">ベット額：<span id="bet-amount">10</span></div>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <button onclick="pokerApp.adjustBet(10)" style="padding:10px 20px;">+10</button>
+                        <button onclick="pokerApp.adjustBet(100)" style="padding:10px 20px;">+100</button>
+                        <button onclick="pokerApp.adjustBet(-10)" style="padding:10px 20px;">-10</button>
                     </div>
-                    <button onclick="pokerApp.confirmBet()" style="margin-top:40px; padding:15px 60px; font-size:1.5rem; background:#4b0082; color:white; border:1px solid white; cursor:pointer; border-radius:10px;">決定</button>
+                    <button onclick="pokerApp.confirmBet()" style="margin-top:40px; padding:15px 60px; font-size:1.5rem; background:#4b0082; color:white; border:1px solid white; cursor:pointer; border-radius:10px; width:100%;">決定</button>
                 </div>
             </div>
         </div>
@@ -48,36 +62,33 @@
         <div id="play-screen" class="screen hidden">
             <div id="cpu-area"></div>
             
-            <div id="game-message" style="position:absolute; top:45%; width:100%; text-align:center; color:var(--lavender); font-size:1.2rem; text-shadow:2px 2px 4px #000;"></div>
+            <div id="game-message" style="position:absolute; top:45%; width:100%; text-align:center; color:#ffffff; font-size:1.2rem; text-shadow:2px 2px 4px #000;"></div>
 
             <div id="player-hand" class="hand"></div>
 
-            <div class="exchange-btn-container">
-                <button class="invisible-btn" onclick="pokerApp.exchange()">カード交換</button>
-            </div>
-
-            <div style="position:absolute; bottom:20px; right:30px; background:rgba(0,0,0,0.5); padding:5px 15px; border-radius:10px;">
-                ベット：<span id="info-bet">0</span> Renga
+            <div id="action-buttons" class="exchange-btn-container" style="display:flex; gap:20px;">
+                <button id="exchange-btn" class="invisible-btn" onclick="pokerApp.exchange()">カード交換</button>
+                <button id="stand-btn" class="invisible-btn" onclick="pokerApp.stand()">そのまま勝負</button>
             </div>
         </div>
 
         <!-- 結果画面 -->
         <div id="result-screen" class="screen hidden">
-            <div style="position:absolute; top:35%; width:100%; text-align:center;">
-                <h2 id="result-title" style="font-size:5rem; text-shadow:0 0 20px #000;">RESULT</h2>
-                <div id="result-details" style="font-size:2rem; margin:20px 0; color:white; text-shadow:2px 2px 4px #000;"></div>
-                <div style="display:flex; justify-content:center; gap:20px;">
-                    <button onclick="pokerApp.ui.showScreen('difficulty-select')" style="padding:15px 40px; border-radius:30px; cursor:pointer;">もう一度遊ぶ</button>
-                    <button onclick="pokerApp.ui.showScreen('main-menu')" style="padding:15px 40px; border-radius:30px; cursor:pointer;">戻る</button>
+            <div class="centered-content">
+                <h2 id="result-title" style="font-size:5rem; text-shadow:0 0 20px #000; margin-bottom:20px;">RESULT</h2>
+                <div id="result-details" style="font-size:2rem; margin-bottom:40px; text-shadow:2px 2px 4px #000;"></div>
+                <div class="menu-buttons" style="flex-direction:row; gap:20px;">
+                    <button onclick="pokerApp.ui.showScreen('difficulty-select')" style="min-width:200px;">もう一度遊ぶ</button>
+                    <button onclick="pokerApp.ui.showScreen('main-menu')" style="min-width:200px;">戻る</button>
                 </div>
             </div>
         </div>
 
         <!-- オーバーレイ -->
         <div id="overlay" class="overlay hidden" onclick="pokerApp.ui.hideOverlay()" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;">
-            <div class="overlay-content" onclick="event.stopPropagation()" style="background:#2b1646; padding:40px; border:2px solid var(--lavender); border-radius:15px; max-width:70%; color:white;">
+            <div class="overlay-content" onclick="event.stopPropagation()">
                 <div id="overlay-text"></div>
-                <button onclick="pokerApp.ui.hideOverlay()" style="margin-top:20px; padding:10px 30px; cursor:pointer;">閉じる</button>
+                <button onclick="pokerApp.ui.hideOverlay()" style="margin-top:20px; padding:10px 30px; cursor:pointer; background:var(--primary-purple); color:white; border:1px solid white; border-radius:20px;">閉じる</button>
             </div>
         </div>
     </div>
@@ -97,6 +108,7 @@
                 this.playerHand = [];
                 this.cpuHands = [];
                 this.selected = new Set();
+                this.ui.updateRenga(this.player.renga);
             }
 
             startSetDifficulty(diff) {
@@ -119,10 +131,14 @@
                     Array.from({length:5}, () => this.deck.draw())
                 );
                 this.selected.clear();
-                this.ui.renderPlayerHand(this.playerHand);
+                const pEval = PokerHand.evaluate(this.playerHand);
+                this.ui.renderPlayerHand(this.playerHand, true, pEval.rankIndices, PokerHand.RANK_NAMES[pEval.rank]);
                 this.ui.renderCpuHands(this.cpuHands, true);
+                document.getElementById('action-buttons').style.display = 'flex';
                 this.ui.showScreen('play-screen');
                 document.getElementById('game-message').innerText = "交換するカードを選んでください。";
+                document.getElementById('exchange-btn').disabled = false;
+                document.getElementById('stand-btn').disabled = false;
             }
 
             toggleSelection(idx) {
@@ -130,50 +146,148 @@
                 else this.selected.add(idx);
             }
 
-            exchange() {
-                this.selected.forEach(i => this.playerHand[i] = this.deck.draw());
+            stand() {
+                this.selected.clear();
+                this.exchange();
+            }
+
+            async exchange() {
+                document.getElementById('action-buttons').style.display = 'none';
+                const replacedIndices = Array.from(this.selected);
+                const newCards = replacedIndices.map(() => this.deck.draw());
+                replacedIndices.forEach((idx, i) => { this.playerHand[idx] = newCards[i]; });
+                const pEval = PokerHand.evaluate(this.playerHand);
+                const rankName = PokerHand.RANK_NAMES[pEval.rank];
+
+                if (replacedIndices.length > 0) {
+                    await this.ui.flipCards(replacedIndices, newCards, this.playerHand, pEval.rankIndices, rankName);
+                }
+
                 this.cpuHands.forEach(hand => {
-                    const [rank] = PokerHand.evaluate(hand);
+                    const evalResult = PokerHand.evaluate(hand);
+                    const rank = evalResult.rank;
                     if (rank === 0) [0,1,2].forEach(i => hand[i] = this.deck.draw());
                     else if (rank === 1) {
-                        const val = PokerHand.evaluate(hand)[1][0];
-                        hand.forEach((c, idx) => { if (c.value !== val) hand[idx] = this.deck.draw(); });
+                        const pairIndices = evalResult.rankIndices;
+                        hand.forEach((c, idx) => { if (!pairIndices.includes(idx)) hand[idx] = this.deck.draw(); });
                     }
                 });
                 this.determineWinner();
             }
 
             determineWinner() {
-                const [pRank, pVals] = PokerHand.evaluate(this.playerHand);
+                const pEval = PokerHand.evaluate(this.playerHand);
+                const cpuEvals = this.cpuHands.map(h => PokerHand.evaluate(h));
                 let winCount = 0;
                 let loseCount = 0;
+                let topCpuIdx = -1;
+                let topCpuEval = null;
 
-                this.cpuHands.forEach(h => {
-                    const [cRank, cVals] = PokerHand.evaluate(h);
-                    if (pRank > cRank) winCount++;
-                    else if (pRank < cRank) loseCount++;
+                cpuEvals.forEach((cEval, idx) => {
+                    let playerWinsAgainstThisCpu = false;
+                    if (pEval.rank > cEval.rank) playerWinsAgainstThisCpu = true;
+                    else if (pEval.rank < cEval.rank) playerWinsAgainstThisCpu = false;
                     else {
-                        for (let i = 0; i < pVals.length; i++) {
-                            if (pVals[i] > cVals[i]) { winCount++; break; }
-                            if (pVals[i] < cVals[i]) { loseCount++; break; }
+                        for (let i = 0; i < pEval.compareValues.length; i++) {
+                            if (pEval.compareValues[i] > cEval.compareValues[i]) { playerWinsAgainstThisCpu = true; break; }
+                            if (pEval.compareValues[i] < cEval.compareValues[i]) { playerWinsAgainstThisCpu = false; break; }
                         }
+                    }
+                    if (playerWinsAgainstThisCpu) winCount++;
+                    else loseCount++;
+                    if (!topCpuEval) { topCpuIdx = idx; topCpuEval = cEval; }
+                    else {
+                        let thisCpuStronger = false;
+                        if (cEval.rank > topCpuEval.rank) thisCpuStronger = true;
+                        else if (cEval.rank === topCpuEval.rank) {
+                            for (let i = 0; i < cEval.compareValues.length; i++) {
+                                if (cEval.compareValues[i] > topCpuEval.compareValues[i]) { thisCpuStronger = true; break; }
+                                if (cEval.compareValues[i] < topCpuEval.compareValues[i]) break;
+                            }
+                        }
+                        if (thisCpuStronger) { topCpuIdx = idx; topCpuEval = cEval; }
                     }
                 });
 
                 let result = "DRAW";
-                if (winCount === this.cpuHands.length) result = "WIN";
-                else if (loseCount > 0) result = "LOSE";
+                let winnerMsg = "";
+                if (winCount === this.cpuHands.length) {
+                    result = "WIN";
+                    winnerMsg = "あなたの完全勝利です！";
+                } else if (loseCount > 0) {
+                    result = "LOSE";
+                    winnerMsg = `CPU ${topCpuIdx + 1} が最強の役（${PokerHand.RANK_NAMES[topCpuEval.rank]}）を揃えました。`;
+                }
 
                 if (result === "WIN") this.player.renga += this.bet;
                 else if (result === "LOSE") this.player.renga -= this.bet;
-
-                this.ui.renderPlayerHand(this.playerHand, false);
-                this.ui.renderCpuHands(this.cpuHands, false);
-                setTimeout(() => this.ui.showResult(result, pRank, this.bet), 800);
+                this.ui.updateRenga(this.player.renga);
+                this.ui.renderPlayerHand(this.playerHand, false, pEval.rankIndices, PokerHand.RANK_NAMES[pEval.rank]);
+                this.ui.renderCpuHands(this.cpuHands, false, cpuEvals);
+                setTimeout(() => this.ui.showResult(result, pEval.rank, this.bet, winnerMsg), 2500);
             }
 
-            showHowTo() { this.ui.showOverlay("遊び方", "ポーカーで勝負します。不要なカードを交換して、相手より強い役を作りましょう。"); }
-            showRanks() { this.ui.showOverlay("役一覧", "ロイヤルストレートフラッシュ、ストレート、フラッシュ、スリーカード、ペアなどがあります。"); }
+            showHowTo() {
+                this.ui.showOverlay("🌙 月夜のポーカー 遊び方", `
+                    <div style="text-align:left; line-height:1.6;">
+                        <p>このゲームは、5枚の手札で強い「役」を作り、対戦相手（影）と競うゲームです。</p>
+                        <ol>
+                            <li><b>ベット:</b> 最初に賭けるRengaを決めます。</li>
+                            <li><b>配布:</b> 全員に5枚ずつカードが配られます。この時、すでに役ができているカードは光って表示されます。</li>
+                            <li><b>交換:</b> 不要なカードを選択（クリック）して「カード交換」を押すと、新しいカードに変わります。交換したくない場合は「そのまま勝負」を選びます。</li>
+                            <li><b>勝負:</b> 全員のカードを公開し、一番強い役を持っている人が勝利です！</li>
+                        </ol>
+                        <p style="color:var(--star-gold);">※同じ役の場合は、カードの数字の強さ（A > K > ... > 2）で勝敗が決まります。</p>
+                    </div>
+                `);
+            }
+
+            showRanks() {
+                this.ui.showOverlay("⭐ 役一覧（強い順）", `
+                    <div style="text-align:left;">
+                        <div class="rank-item">
+                            <h3>1. ロイヤルストレートフラッシュ</h3>
+                            <p>同じマークで「10・J・Q・K・A」が揃った最強の役。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>2. ストレートフラッシュ</h3>
+                            <p>同じマークで、数字が連続している5枚。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>3. フォーカード</h3>
+                            <p>同じ数字のカードが4枚揃った状態。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>4. フルハウス</h3>
+                            <p>同じ数字3枚（スリーカード）と、別の同じ数字2枚（ペア）の組み合わせ。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>5. フラッシュ</h3>
+                            <p>5枚すべてのマークが同じ状態。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>6. ストレート</h3>
+                            <p>マークに関係なく、5枚の数字が連続している状態。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>7. スリーカード</h3>
+                            <p>同じ数字のカードが3枚揃った状態。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>8. ツーペア</h3>
+                            <p>同じ数字のペアが2組ある状態。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>9. ワンペア</h3>
+                            <p>同じ数字のペアが1組ある状態。</p>
+                        </div>
+                        <div class="rank-item">
+                            <h3>10. ハイカード</h3>
+                            <p>上記の役が一つも成立していない状態（役なし）。</p>
+                        </div>
+                    </div>
+                `);
+            }
         }
         const pokerApp = new PokerApp();
     </script>

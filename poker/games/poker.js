@@ -34,23 +34,63 @@ const PokerHand = {
     RANK_NAMES: ["ハイカード", "ワンペア", "ツーペア", "スリーカード", "ストレート", "フラッシュ", "フルハウス", "フォーカード", "ストレートフラッシュ", "ロイヤルストレートフラッシュ"],
     
     evaluate(cards) {
-        const values = cards.map(c => c.value).sort((a, b) => b - a);
-        const suits = cards.map(c => c.suit);
-        const counts = values.reduce((acc, v) => (acc[v] = (acc[v] || 0) + 1, acc), {});
+        // カードをインデックス付きで保持
+        const indexedCards = cards.map((c, i) => ({ card: c, index: i }));
+        const values = indexedCards.map(ic => ic.card.value).sort((a, b) => b - a);
+        const suits = indexedCards.map(ic => ic.card.suit);
+        
+        const counts = {};
+        indexedCards.forEach(ic => counts[ic.card.value] = (counts[ic.card.value] || 0) + 1);
+        
         const sortedCounts = Object.entries(counts).sort((a, b) => b[1] - a[1] || b[0] - a[0]);
+        
         const isFlush = new Set(suits).size === 1;
         let isStraight = new Set(values).size === 5 && (values[0] - values[4] === 4);
-        if (!isStraight && values.join(',') === '14,5,4,3,2') isStraight = true;
+        
+        // A-5 Straight
+        if (!isStraight && values.join(',') === '14,5,4,3,2') {
+            isStraight = true;
+        }
 
-        if (isFlush && isStraight && values[0] === 14 && values[4] === 10) return [9, values];
-        if (isFlush && isStraight) return [8, values];
-        if (sortedCounts[0][1] === 4) return [7, [Number(sortedCounts[0][0])]];
-        if (sortedCounts[0][1] === 3 && sortedCounts[1][1] === 2) return [6, [Number(sortedCounts[0][0])]];
-        if (isFlush) return [5, values];
-        if (isStraight) return [4, values];
-        if (sortedCounts[0][1] === 3) return [3, [Number(sortedCounts[0][0])]];
-        if (sortedCounts[0][1] === 2 && sortedCounts[1][1] === 2) return [2, [Number(sortedCounts[0][0]), Number(sortedCounts[1][0])]];
-        if (sortedCounts[0][1] === 2) return [1, [Number(sortedCounts[0][0])]];
-        return [0, values];
+        let rank = 0;
+        let rankIndices = [];
+        let compareValues = values;
+
+        if (isFlush && isStraight && values[0] === 14 && values[4] === 10) {
+            rank = 9; rankIndices = [0,1,2,3,4];
+        } else if (isFlush && isStraight) {
+            rank = 8; rankIndices = [0,1,2,3,4];
+        } else if (sortedCounts[0][1] === 4) {
+            rank = 7;
+            const val = Number(sortedCounts[0][0]);
+            indexedCards.forEach(ic => { if (ic.card.value === val) rankIndices.push(ic.index); });
+            compareValues = [val, Number(sortedCounts[1][0])];
+        } else if (sortedCounts[0][1] === 3 && sortedCounts[1][1] === 2) {
+            rank = 6;
+            rankIndices = [0,1,2,3,4];
+            compareValues = [Number(sortedCounts[0][0]), Number(sortedCounts[1][0])];
+        } else if (isFlush) {
+            rank = 5; rankIndices = [0,1,2,3,4];
+        } else if (isStraight) {
+            rank = 4; rankIndices = [0,1,2,3,4];
+        } else if (sortedCounts[0][1] === 3) {
+            rank = 3;
+            const val = Number(sortedCounts[0][0]);
+            indexedCards.forEach(ic => { if (ic.card.value === val) rankIndices.push(ic.index); });
+            compareValues = [val, ...values.filter(v => v !== val)];
+        } else if (sortedCounts[0][1] === 2 && sortedCounts[1][1] === 2) {
+            rank = 2;
+            const v1 = Number(sortedCounts[0][0]);
+            const v2 = Number(sortedCounts[1][0]);
+            indexedCards.forEach(ic => { if (ic.card.value === v1 || ic.card.value === v2) rankIndices.push(ic.index); });
+            compareValues = [v1, v2, ...values.filter(v => v !== v1 && v !== v2)];
+        } else if (sortedCounts[0][1] === 2) {
+            rank = 1;
+            const val = Number(sortedCounts[0][0]);
+            indexedCards.forEach(ic => { if (ic.card.value === val) rankIndices.push(ic.index); });
+            compareValues = [val, ...values.filter(v => v !== val)];
+        }
+
+        return { rank, compareValues, rankIndices };
     }
 };
