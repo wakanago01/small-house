@@ -2,71 +2,90 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>月夜のポーカー</title>
+    <title>月夜のポーカー - small-house</title>
     <link rel="stylesheet" href="ui/style.css">
 </head>
 <body>
     <div id="game-container">
-        <!-- メニュー -->
+        <!-- メインメニュー -->
         <div id="main-menu" class="screen">
-            <h1 class="title">🌙 月夜のポーカー ✨</h1>
+            <h1 style="text-align:center; color:var(--moon-gold); font-size:4rem; margin-top:80px; text-shadow:0 0 20px var(--primary-purple);">月夜のポーカー</h1>
             <div class="menu-buttons">
-                <button onclick="pokerApp.ui.showScreen('difficulty-select')">ゲーム開始 🎀</button>
-                <button onclick="pokerApp.showHowTo()">遊び方 🌙</button>
-                <button onclick="pokerApp.showRanks()">役一覧 ⭐</button>
-                <button onclick="alert('カジノへ戻ります')">戻る</button>
+                <button onclick="pokerApp.ui.showScreen('difficulty-select')">運命の対峙を開始する 🎀</button>
+                <button onclick="pokerApp.showHowTo()">禁忌の教典 🌙</button>
+                <button onclick="pokerApp.showRanks()">序列の理 ⭐</button>
+                <button onclick="alert('夜の帳へ消える...')">カジノへ戻る</button>
             </div>
         </div>
 
-        <!-- 難易度 -->
+        <!-- 難易度選択 -->
         <div id="difficulty-select" class="screen hidden">
-            <h2 class="sub-title">難易度を選んでね</h2>
             <div class="menu-buttons">
-                <button onclick="pokerApp.startSetDifficulty('Easy')">Easy</button>
-                <button onclick="pokerApp.startSetDifficulty('Normal')">Normal</button>
+                <h2 style="color:var(--pastel-pink)">対峙する影を選んでください</h2>
+                <button onclick="pokerApp.startSetDifficulty('Easy')">月うさぎの微睡 🐇</button>
+                <button onclick="pokerApp.startSetDifficulty('Normal')">星屑の断罪 ⚖️</button>
+                <button onclick="pokerApp.ui.showScreen('main-menu')">戻る</button>
             </div>
         </div>
 
         <!-- ベット -->
         <div id="bet-screen" class="screen hidden">
-            <div class="status-bar">所持Renga: <span id="current-renga">0</span></div>
-            <div class="bet-display">現在のベット: <span id="bet-amount">10</span></div>
-            <button onclick="pokerApp.adjustBet(10)">+10</button>
-            <button onclick="pokerApp.adjustBet(-10)">-10</button>
-            <button onclick="pokerApp.confirmBet()">決定 ✦</button>
-        </div>
-
-        <!-- ゲームプレイ -->
-        <div id="play-screen" class="screen hidden">
-            <div id="cpu-area" class="cpu-container"></div>
-            <div id="player-area">
-                <div id="player-hand" class="hand"></div>
-                <button onclick="pokerApp.exchange()">カードを交換する 🎀</button>
-                <div id="game-message">Bet: <span id="info-bet">0</span></div>
+            <div style="position:absolute; top:200px; width:100%; text-align:center;">
+                <div style="font-size:1.5rem; color:var(--star-gold); margin-bottom:20px;">魂の重み：<span id="current-renga">0</span> Renga</div>
+                <div style="font-size:3rem; margin-bottom:40px;">捧げる額：<span id="bet-amount">10</span></div>
+                <div>
+                    <button onclick="pokerApp.adjustBet(10)">+10</button>
+                    <button onclick="pokerApp.adjustBet(100)">+100</button>
+                    <button onclick="pokerApp.adjustBet(-10)">-10</button>
+                </div>
+                <button onclick="pokerApp.confirmBet()" style="margin-top:50px; padding:20px 60px; font-size:1.5rem; background:rgba(200,50,50,0.3); color:white; border:1px solid white; cursor:pointer;">契約を交わす ✦</button>
             </div>
         </div>
 
-        <!-- 結果 -->
-        <div id="result-screen" class="screen hidden">
-            <h2 id="result-title">RESULT</h2>
-            <div id="result-details"></div>
-            <button onclick="pokerApp.ui.showScreen('main-menu')">戻る</button>
+        <!-- ゲーム画面 -->
+        <div id="play-screen" class="screen hidden">
+            <!-- CPUの手札（背景の指定位置へ） -->
+            <div id="cpu-area"></div>
+            
+            <div id="game-message" style="position:absolute; top:45%; width:100%; text-align:center; color:var(--pastel-pink); font-style:italic;"></div>
+
+            <!-- プレイヤーの手札（背景の指定位置へ） -->
+            <div id="player-hand" class="hand"></div>
+
+            <!-- 交換ボタン（背景のボタン位置へ） -->
+            <div class="exchange-btn-container">
+                <button class="invisible-btn" onclick="pokerApp.exchange()">運命を書き換える 🎀</button>
+            </div>
+
+            <div style="position:absolute; bottom:20px; right:30px; opacity:0.7">契約額: <span id="info-bet">0</span> Renga</div>
         </div>
 
-        <div id="overlay" class="overlay hidden" onclick="document.getElementById('overlay').classList.add('hidden')">
-            <div class="overlay-content" onclick="event.stopPropagation()">
+        <!-- 結果画面 -->
+        <div id="result-screen" class="screen hidden">
+            <div style="position:absolute; top:40%; width:100%; text-align:center;">
+                <h2 id="result-title" style="font-size:5rem;">RESULT</h2>
+                <div id="result-details" style="font-size:2rem; margin:20px 0;"></div>
+                <div style="display:flex; justify-content:center; gap:20px;">
+                    <button onclick="pokerApp.ui.showScreen('difficulty-select')" style="padding:10px 30px;">再び深淵へ</button>
+                    <button onclick="pokerApp.ui.showScreen('main-menu')" style="padding:10px 30px;">理に戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="overlay" class="overlay hidden" onclick="pokerApp.ui.hideOverlay()" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; z-index:1000;">
+            <div class="overlay-content" onclick="event.stopPropagation()" style="background:#1a0b2e; padding:40px; border:2px solid var(--primary-purple); border-radius:15px; max-width:70%;">
                 <div id="overlay-text"></div>
-                <button onclick="document.getElementById('overlay').classList.add('hidden')">閉じる</button>
+                <button onclick="pokerApp.ui.hideOverlay()" style="margin-top:20px;">閉じる</button>
             </div>
         </div>
     </div>
 
-    <!-- スクリプト読み込み順序に注意 -->
     <script src="utils/save_manager.js"></script>
     <script src="utils/player_manager.js"></script>
     <script src="games/poker.js"></script>
     <script src="ui/poker_ui.js"></script>
     <script>
+        // ... (前のスクリプトと同じ)
         class PokerApp {
             constructor() {
                 this.player = new PlayerManager({ renga: 50000, hunger: 100, items: [] });
@@ -102,6 +121,7 @@
                 this.ui.renderPlayerHand(this.playerHand);
                 this.ui.renderCpuHands(this.cpuHands, true);
                 this.ui.showScreen('play-screen');
+                document.getElementById('game-message').innerText = "交換する因果を選び、運命を書き換えなさい。";
             }
 
             toggleSelection(idx) {
@@ -114,28 +134,45 @@
                 this.cpuHands.forEach(hand => {
                     const [rank] = PokerHand.evaluate(hand);
                     if (rank === 0) [0,1,2].forEach(i => hand[i] = this.deck.draw());
+                    else if (rank === 1) {
+                        const val = PokerHand.evaluate(hand)[1][0];
+                        hand.forEach((c, idx) => { if (c.value !== val) hand[idx] = this.deck.draw(); });
+                    }
                 });
                 this.determineWinner();
             }
 
             determineWinner() {
                 const [pRank, pVals] = PokerHand.evaluate(this.playerHand);
-                let result = "WIN";
+                let winCount = 0;
+                let loseCount = 0;
+
                 this.cpuHands.forEach(h => {
-                    const [cRank] = PokerHand.evaluate(h);
-                    if (cRank > pRank) result = "LOSE";
+                    const [cRank, cVals] = PokerHand.evaluate(h);
+                    if (pRank > cRank) winCount++;
+                    else if (pRank < cRank) loseCount++;
+                    else {
+                        for (let i = 0; i < pVals.length; i++) {
+                            if (pVals[i] > cVals[i]) { winCount++; break; }
+                            if (pVals[i] < cVals[i]) { loseCount++; break; }
+                        }
+                    }
                 });
 
+                let result = "DRAW";
+                if (winCount === this.cpuHands.length) result = "WIN";
+                else if (loseCount > 0) result = "LOSE";
+
                 if (result === "WIN") this.player.renga += this.bet;
-                else this.player.renga -= this.bet;
+                else if (result === "LOSE") this.player.renga -= this.bet;
 
                 this.ui.renderPlayerHand(this.playerHand, false);
                 this.ui.renderCpuHands(this.cpuHands, false);
-                this.ui.showResult(result, pRank, this.bet);
+                setTimeout(() => this.ui.showResult(result, pRank, this.bet), 800);
             }
 
-            showHowTo() { this.ui.showOverlay("遊び方", "Rengaを賭けて勝負！強い役を作ろう。"); }
-            showRanks() { this.ui.showOverlay("役一覧", "ロイヤルフラッシュ、フルハウス、ペアなど。"); }
+            showHowTo() { this.ui.showOverlay("禁忌の教典", "Rengaを捧げ、影と対峙せよ。不要な因果を捨て、より強い役を揃えれば、汝の魂は守られるであろう。"); }
+            showRanks() { this.ui.showOverlay("序列の理", "ロイヤルストレートフラッシュ（最強）からハイカード（最弱）までの階級が存在します。"); }
         }
         const pokerApp = new PokerApp();
     </script>
