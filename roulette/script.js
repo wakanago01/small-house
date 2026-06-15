@@ -1,33 +1,7 @@
 console.log("script loaded");
-const canvas = document.getElementById("rouletteCanvas");
-
-const rect = canvas.getBoundingClientRect();
-const radius = canvas.width * 0.45;
-
-canvas.width = rect.width;
-canvas.height = rect.height;
-
-const ctx = canvas.getContext("2d");
-
-ctx.arc(
-    centerX,
-    centerY,
-    canvas.width * 0.15,
-    0,
-    Math.PI * 2
-);
 
 const canvas = document.getElementById("rouletteCanvas");
 const ctx = canvas.getContext("2d");
-
-function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-
-    drawRoulette();
-}
 
 const rouletteNumbers = [
     0,
@@ -44,6 +18,16 @@ const redNumbers = [
     30,32,34,36
 ];
 
+function resizeCanvas() {
+
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    drawRoulette();
+}
+
 function drawRoulette() {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -59,20 +43,20 @@ function drawRoulette() {
     rouletteNumbers.forEach((number, index) => {
 
         const startAngle =
-            (index * angleSize) - Math.PI / 2;
+            index * angleSize - Math.PI / 2;
 
         const endAngle =
             startAngle + angleSize;
 
         let color;
 
-        if (number === 0) {
+        if(number === 0){
             color = "#1fa84a";
         }
-        else if (redNumbers.includes(number)) {
+        else if(redNumbers.includes(number)){
             color = "#c62828";
         }
-        else {
+        else{
             color = "#111111";
         }
 
