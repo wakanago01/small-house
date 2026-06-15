@@ -72,33 +72,47 @@ document.addEventListener("click", (e) => {
 // ベットUI生成
 // ----------------------
 function createBetTable() {
-
     const betTable = document.getElementById("betTable");
     betTable.innerHTML = "";
+
+    // 0 cell container
+    const zeroWrapper = document.createElement("div");
+    zeroWrapper.id = "zeroWrapper";
+    
+    const zeroCell = document.createElement("button");
+    zeroCell.className = "betCell zeroCell";
+    zeroCell.textContent = "0";
+    zeroCell.dataset.bet = "0";
+    zeroCell.style.background = "#1fa84a";
+    zeroWrapper.appendChild(zeroCell);
+    betTable.appendChild(zeroWrapper);
 
     const grid = document.createElement("div");
     grid.id = "numberGrid";
 
-    for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 12; col++) {
-
+    for (let col = 0; col < 12; col++) {
+        const column = document.createElement("div");
+        column.className = "betColumn";
+        for (let row = 0; row < 3; row++) {
             const number = col * 3 + (3 - row);
-
             const cell = document.createElement("button");
             cell.className = "betCell";
-            cell.textContent = number;
             cell.dataset.bet = number;
+            
+            const numLabel = document.createElement("span");
+            numLabel.className = "numLabel";
+            numLabel.textContent = number;
+            cell.appendChild(numLabel);
 
-            if (number === 0) {
-                cell.style.background = "#1fa84a";
-            } else if (redSet.has(number)) {
+            if (redSet.has(number)) {
                 cell.style.background = "#c62828";
             } else {
                 cell.style.background = "#111111";
             }
 
-            grid.appendChild(cell);
+            column.appendChild(cell);
         }
+        grid.appendChild(column);
     }
 
     betTable.appendChild(grid);
@@ -107,16 +121,23 @@ function createBetTable() {
     outside.id = "outsideBets";
 
     const list = [
-        "RED","BLACK","ODD","EVEN",
-        "1-18","19-36",
-        "1st12","2nd12","3rd12"
+        { id: "1st12", label: "1st 12" },
+        { id: "2nd12", label: "2nd 12" },
+        { id: "3rd12", label: "3rd 12" },
+        { id: "1-18", label: "1-18" },
+        { id: "EVEN", label: "EVEN" },
+        { id: "RED", label: "RED", color: "#c62828" },
+        { id: "BLACK", label: "BLACK", color: "#111" },
+        { id: "ODD", label: "ODD" },
+        { id: "19-36", label: "19-36" }
     ];
 
-    list.forEach(bet => {
+    list.forEach(item => {
         const btn = document.createElement("button");
         btn.className = "outsideBet";
-        btn.textContent = bet;
-        btn.dataset.bet = bet;
+        btn.textContent = item.label;
+        btn.dataset.bet = item.id;
+        if (item.color) btn.style.background = item.color;
         outside.appendChild(btn);
     });
 
@@ -127,22 +148,38 @@ function createBetTable() {
 // ベット処理
 // ----------------------
 document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-bet]");
+    if (!btn || spinning) return;
 
-    if (!e.target.dataset.bet) return;
-    if (spinning) return;
-
-    const bet = e.target.dataset.bet;
+    const bet = btn.dataset.bet;
     const amount = selectedChip;
 
-    if (balance < amount) return;
+    if (balance < amount) {
+        setMessage("Rengaが足りないよ。");
+        return;
+    }
 
     balance -= amount;
-
     bets[bet] = (bets[bet] || 0) + amount;
 
     updateBalance();
-    setMessage(`${bet} に ${amount} Renga ベット`);
+    updateBetVisuals(btn, bets[bet]);
+    setMessage(`${bet} に ${amount} Renga ベットしたね。`);
 });
+
+function updateBetVisuals(btn, totalAmount) {
+    let chip = btn.querySelector(".betChip");
+    if (!chip) {
+        chip = document.createElement("div");
+        chip.className = "betChip";
+        btn.appendChild(chip);
+    }
+    chip.textContent = totalAmount >= 1000 ? (totalAmount / 1000) + "k" : totalAmount;
+}
+
+function clearBetsVisuals() {
+    document.querySelectorAll(".betChip").forEach(c => c.remove());
+}
 
 // ----------------------
 // ルーレット描画
@@ -258,88 +295,85 @@ function getWinningNumber() {
 // 配当計算
 // ----------------------
 function resolveBets(result) {
-
     let win = 0;
+    let hitBets = [];
 
     for (const key in bets) {
-
         const amount = bets[key];
+        let payout = 0;
 
         if (!isNaN(key)) {
-            if (parseInt(key) === result) win += amount * 35;
+            if (parseInt(key) === result) payout = 36; // 35:1 + original bet
         }
+        else if (key === "RED" && redSet.has(result)) payout = 2;
+        else if (key === "BLACK" && result !== 0 && !redSet.has(result)) payout = 2;
+        else if (key === "ODD" && result % 2 === 1) payout = 2;
+        else if (key === "EVEN" && result !== 0 && result % 2 === 0) payout = 2;
+        else if (key === "1-18" && result >= 1 && result <= 18) payout = 2;
+        else if (key === "19-36" && result >= 19 && result <= 36) payout = 2;
+        else if (key === "1st12" && result >= 1 && result <= 12) payout = 3;
+        else if (key === "2nd12" && result >= 13 && result <= 24) payout = 3;
+        else if (key === "3rd12" && result >= 25 && result <= 36) payout = 3;
 
-        else if (key === "RED" && redSet.has(result)) win += amount * 2;
-        else if (key === "BLACK" && result !== 0 && !redSet.has(result)) win += amount * 2;
-
-        else if (key === "ODD" && result % 2 === 1) win += amount * 2;
-        else if (key === "EVEN" && result !== 0 && result % 2 === 0) win += amount * 2;
-
-        else if (key === "1-18" && result >= 1 && result <= 18) win += amount * 2;
-        else if (key === "19-36" && result >= 19 && result <= 36) win += amount * 2;
-
-        else if (key === "1st12" && result <= 12) win += amount * 3;
-        else if (key === "2nd12" && result >= 13 && result <= 24) win += amount * 3;
-        else if (key === "3rd12" && result >= 25 && result <= 36) win += amount * 3;
+        if (payout > 0) {
+            win += amount * payout;
+            hitBets.push(key);
+        }
     }
 
     balance += win;
 
     if (win > 0) {
-        setMessage(`当たり！ +${win} Renga`, "win");
+        setMessage(`当たり！ [${hitBets.join(", ")}] +${win.toLocaleString()} Renga`, "win");
     } else {
-        setMessage("外れだよ。Rabbitは静かに見ている", "lose");
+        setMessage("外れだよ。Rabbitは静かに見ている...", "lose");
     }
 
     bets = {};
     updateBalance();
+    setTimeout(clearBetsVisuals, 2000);
 }
 
 // ----------------------
 // スピン
 // ----------------------
 function spinRoulette() {
-
     if (spinning) return;
     if (Object.keys(bets).length === 0) {
-        setMessage("ベットしてね");
+        setMessage("どこかにベットして。");
         return;
     }
 
     spinning = true;
     ballVisible = false;
+    clearBetsVisuals(); // Optional: clear before spin or keep until end
 
-    let speed = Math.random() * 0.3 + 0.4;
+    let speed = Math.random() * 0.15 + 0.35;
+    let friction = 0.988;
 
     function animate() {
-
         rotation += speed;
-        speed *= 0.985;
+        speed *= friction;
 
         drawRoulette();
 
-        if (speed > 0.002) {
+        if (speed > 0.001) {
             requestAnimationFrame(animate);
         } else {
-
             spinning = false;
-
             const result = getWinningNumber();
-
+            
+            // Winning angle calculation refinement
             const index = rouletteNumbers.indexOf(result);
             const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-
-            ballAngle =
-                index * angleSize -
-                Math.PI / 2 +
-                angleSize / 2;
-
+            
+            // The result is what's at the TOP (fixed pointer).
+            // Rotation rotates the board. Pointer is -PI/2.
+            ballAngle = -Math.PI / 2; 
             ballVisible = true;
 
             drawRoulette();
-
-            setMessage(`結果は ${result}`);
-
+            setMessage(`結果は... ${result}！`);
             resolveBets(result);
         }
     }
@@ -352,6 +386,22 @@ function spinRoulette() {
 // ----------------------
 document.getElementById("spinButton")
     .addEventListener("click", spinRoulette);
+
+// Add a clear button if you have one, or just handle it here
+const clearBtn = document.createElement("button");
+clearBtn.id = "clearButton";
+clearBtn.textContent = "CLEAR";
+clearBtn.onclick = () => {
+    if (spinning) return;
+    for (const key in bets) {
+        balance += bets[key];
+    }
+    bets = {};
+    updateBalance();
+    clearBetsVisuals();
+    setMessage("ベットをリセットしたよ。");
+};
+document.getElementById("controls").appendChild(clearBtn);
 
 createBetTable();
 updateBalance();

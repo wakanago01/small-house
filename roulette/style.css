@@ -72,31 +72,88 @@ body {
 }
 
 #betTable {
-    width: 75%;
-    height: 60%;
-    border-radius: 20px;
+    width: 90%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
+#zeroWrapper {
+    width: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
+    margin-bottom: 4px;
+}
 
-    background: rgba(0,0,0,0.15);
+.zeroCell {
+    width: 100%;
+    height: 50px;
 }
 
 #numberGrid {
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    display: flex;
+    gap: 4px;
+}
+
+.betColumn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     gap: 4px;
 }
 
 .betCell {
-    height: 45px;
+    width: 100%;
+    height: 60px;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     color: white;
     font-weight: bold;
     cursor: pointer;
+    position: relative;
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.betCell:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    z-index: 10;
+}
+
+.numLabel {
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.betChip {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 28px;
+    height: 28px;
+    background: #ffd54f;
+    color: #333;
+    border-radius: 50%;
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #333;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    pointer-events: none;
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
 }
 
 #outsideBets {
@@ -110,21 +167,99 @@ body {
 .outsideBet {
     height: 50px;
     border: none;
-    border-radius: 10px;
+    border-radius: 6px;
     background: rgba(255,255,255,0.12);
     color: white;
     font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.1s;
+}
+.outsideBet:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+#chipSelector {
+    position: absolute;
+    bottom: 120px;
+    right: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chip {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.3);
+    background: #333;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.chip:hover {
+    transform: scale(1.1);
+    border-color: #fff;
+}
+
+.chip.active {
+    background: #7c5ac2;
+    border-color: #ffd54f;
+    box-shadow: 0 0 20px #ffd54f;
+    transform: scale(1.2);
+}
+
+#controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+#spinButton, #clearButton {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3);
 }
 
 #spinButton {
-    margin-top: 15px;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 10px;
-
     background: #7c5ac2;
-    color: white;
-    font-weight: bold;
+    min-width: 120px;
+}
+
+#spinButton:hover {
+    background: #9575cd;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 20px rgba(124, 90, 194, 0.4);
+}
+
+#spinButton:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 rgba(0,0,0,0.3);
+}
+
+#clearButton {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#clearButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+#clearButton:active {
+    transform: translateY(2px);
 }
 
 #messageBox {
