@@ -32,7 +32,7 @@ function init() {
 function createHitboxes() {
     // 0 hitbox
     const zero = document.createElement('div');
-    zero.className = 'hitbox zero';
+    zero.className = 'hitbox zero num-hitbox';
     zero.dataset.bet = '0';
     zero.onclick = (e) => handleBetClick(e, '0');
     boardHitbox.appendChild(zero);
@@ -53,16 +53,29 @@ function createHitboxes() {
         }
     }
 
-    // Outside/Column hitboxes added as needed to match rureto.png locations
+    // Outside hitboxes (Red/Black etc.) - Should be added to match rureto.png
+    // For now, ensuring existing ones have 'outside-hitbox'
 }
 
 function setupEventListeners() {
+    spinBtn.innerHTML = 'SPIN';
     spinBtn.onclick = spin;
     
-    document.getElementById('clear-btn').onclick = () => {
+    const clearBtn = document.getElementById('clear-btn');
+    clearBtn.innerHTML = 'CLEAR';
+    clearBtn.onclick = () => {
         if (isSpinning) return;
         bets = [];
         document.querySelectorAll('.chip-marker').forEach(c => c.remove());
+    };
+
+    const undoBtn = document.getElementById('undo-btn');
+    undoBtn.innerHTML = 'UNDO';
+    undoBtn.onclick = () => {
+        if (isSpinning || bets.length === 0) return;
+        bets.pop();
+        const chips = document.querySelectorAll('.chip-marker');
+        if (chips.length > 0) chips[chips.length - 1].remove();
     };
 
     document.querySelectorAll('.chip-hitbox').forEach(btn => {

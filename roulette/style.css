@@ -85,26 +85,35 @@ body {
     display: grid;
     grid-template-columns: 80px 1fr 80px;
     grid-template-rows: 1fr 80px;
-    gap: 5px;
+    gap: 2px;
     padding: 20px;
-    /* This grid must align with the rureto.png betting board */
 }
 
+/* Base Hitbox - No border, no background, pure transparency */
 .hitbox {
     background: transparent;
     cursor: pointer;
     transition: var(--transition);
-    border-radius: 4px;
+    border-radius: 2px;
     position: relative;
-    border: 1px solid transparent;
+    border: none;
 }
 
-/* HOVER EFFECT - Subtle Lavender Glow, thin border, and light scale */
-.hitbox:hover {
-    background: rgba(212, 181, 232, 0.15);
-    box-shadow: 0 0 20px rgba(212, 181, 232, 0.4);
-    border: 1px solid rgba(212, 181, 232, 0.3);
-    transform: scale(1.02) translateY(-2px); /* Slight lift */
+/* Number Hitboxes - Minimal reaction */
+.num-hitbox:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 15px rgba(212, 181, 232, 0.15);
+    transform: scale(1.01) translateY(-1px);
+}
+
+/* RED/BLACK and other outside bets - Light button feel */
+.outside-hitbox {
+    background: rgba(255, 255, 255, 0.03);
+}
+.outside-hitbox:hover {
+    background: rgba(212, 181, 232, 0.12);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
 }
 
 #numbers-grid {
@@ -115,70 +124,76 @@ body {
 }
 
 .hitbox.zero {
-    grid-row: 1 / 2; /* Adjust if the image layout is different */
+    grid-row: 1 / 4; /* Zero usually spans all 3 rows on a standard board */
 }
 
-/* CHIPS ON IMAGE - Visual feedback (Glowing Light/Chip) */
+/* CHIPS ON IMAGE - Visual feedback (Subtle Glowing Light) */
 .chip-marker {
     position: absolute;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: radial-gradient(circle, #fff 0%, rgba(212, 181, 232, 0.8) 40%, rgba(180, 140, 255, 0.4) 100%);
-    box-shadow: 0 0 15px rgba(180, 140, 255, 0.8), inset 0 0 5px #fff;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(212, 181, 232, 0.6) 60%, transparent 100%);
+    box-shadow: 0 0 10px rgba(212, 181, 232, 0.5);
     pointer-events: none;
     z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.chip-marker::after {
-    content: '';
-    width: 60%;
-    height: 60%;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-}
-
-/* CONTROLS HITBOXES - Over rureto.png buttons */
+/* CONTROLS HITBOXES - Aligned with rureto.png buttons */
 #controls-hitbox {
-    height: 150px;
+    height: 120px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    padding-bottom: 20px;
+    align-items: center;
+    padding: 0 40px 20px;
 }
 
-#chip-selection-hitbox { display: flex; gap: 15px; }
+#chip-selection-hitbox { display: flex; gap: 20px; }
 .chip-hitbox {
-    width: 60px; height: 60px;
+    width: 55px; height: 55px;
     background: transparent;
     border: none;
     cursor: pointer;
     border-radius: 50%;
     transition: var(--transition);
 }
-.chip-hitbox:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
-.chip-hitbox.active { box-shadow: 0 0 20px #fff; border: 2px solid #fff; }
+.chip-hitbox:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+.chip-hitbox.active { 
+    background: rgba(212, 181, 232, 0.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
 
-#action-hitbox { display: flex; gap: 20px; align-items: center; }
+#action-hitbox { display: flex; gap: 25px; align-items: center; }
 .hitbox-btn {
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
     transition: var(--transition);
-    min-width: 80px;
-    min-height: 40px;
+    min-width: 90px;
+    min-height: 45px;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
 }
-.hitbox-btn:hover { background: rgba(212, 181, 232, 0.2); border-radius: 10px; }
+.hitbox-btn:hover { 
+    background: rgba(212, 181, 232, 0.2); 
+    box-shadow: 0 0 20px rgba(212, 181, 232, 0.3);
+    transform: translateY(-2px);
+}
 
-/* SPIN BUTTON HITBOX - Over the heart image */
+/* SPIN BUTTON - High Priority Action */
 #spin-btn {
-    width: 100px; height: 100px;
+    width: 110px; height: 110px;
+    background: rgba(255, 100, 150, 0.05);
+    border: none;
     clip-path: polygon(50% 15%, 80% 0%, 100% 20%, 100% 50%, 50% 100%, 0% 50%, 0% 20%, 20% 0%);
 }
-#spin-btn:hover { transform: scale(1.05); background: rgba(247, 216, 239, 0.3); }
+#spin-btn:hover { 
+    transform: scale(1.08); 
+    background: rgba(255, 180, 210, 0.2);
+    box-shadow: 0 0 30px rgba(255, 180, 210, 0.4);
+}
 
 /* WINNING GLOW - Over original image cell */
 .winning-glow {
