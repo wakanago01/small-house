@@ -96,26 +96,49 @@ body {
     transition: var(--transition);
     border-radius: 4px;
     position: relative;
+    border: 1px solid transparent;
 }
 
-/* HOVER EFFECT - Subtle Lavender Glow only */
+/* HOVER EFFECT - Subtle Lavender Glow, thin border, and light scale */
 .hitbox:hover {
-    background: var(--accent-lavender);
-    box-shadow: 0 0 15px var(--accent-glow);
-    transform: scale(1.03);
+    background: rgba(212, 181, 232, 0.15);
+    box-shadow: 0 0 20px rgba(212, 181, 232, 0.4);
+    border: 1px solid rgba(212, 181, 232, 0.3);
+    transform: scale(1.02) translateY(-2px); /* Slight lift */
 }
 
-/* CHIPS ON IMAGE - Visual feedback */
+#numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+}
+
+.hitbox.zero {
+    grid-row: 1 / 2; /* Adjust if the image layout is different */
+}
+
+/* CHIPS ON IMAGE - Visual feedback (Glowing Light/Chip) */
 .chip-marker {
     position: absolute;
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: #d4af37;
-    border: 2px dashed #fff;
+    background: radial-gradient(circle, #fff 0%, rgba(212, 181, 232, 0.8) 40%, rgba(180, 140, 255, 0.4) 100%);
+    box-shadow: 0 0 15px rgba(180, 140, 255, 0.8), inset 0 0 5px #fff;
     pointer-events: none;
     z-index: 100;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chip-marker::after {
+    content: '';
+    width: 60%;
+    height: 60%;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 /* CONTROLS HITBOXES - Over rureto.png buttons */

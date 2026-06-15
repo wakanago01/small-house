@@ -79,13 +79,19 @@ function handleBetClick(e, betType) {
     
     bets.push({ type: betType, amount: currentChipValue });
 
-    // Visual feedback: Place a chip directly on the background illustration
-    const rect = e.target.getBoundingClientRect();
+    // Visual feedback: Place a glowing chip marker centered on the hitbox
+    const target = e.currentTarget;
     const chip = document.createElement('div');
     chip.className = 'chip-marker';
-    chip.style.left = (e.clientX - 15) + 'px';
-    chip.style.top = (e.clientY - 15) + 'px';
-    document.body.appendChild(chip);
+    
+    // Position at the center of the hitbox
+    // We append to the hitbox itself so it moves with the hover lift effect
+    target.appendChild(chip);
+    
+    // Center it relative to the hitbox
+    chip.style.left = '50%';
+    chip.style.top = '50%';
+    chip.style.transform = 'translate(-50%, -50%)';
 }
 
 // --- Wheel Graphics (Transparent Overlay) ---
