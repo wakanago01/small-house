@@ -51,18 +51,14 @@ body{
     align-items:center;
 }
 
-#roulettePlaceholder{
-    width:420px;
-    height:420px;
+#rouletteCanvas{
+    width:90%;
+    aspect-ratio:1 / 1;
+
+    max-width:500px;
+    max-height:500px;
 
     border-radius:50%;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    color:white;
-    font-size:36px;
 
     background:rgba(0,0,0,0.15);
 
@@ -90,10 +86,10 @@ body{
 }
 
 #betTable{
-    width:80%;
-    height:70%;
+    width:90%;
+    height:75%;
 
-    margin-top:20px;
+    min-width:300px;
 
     border:none;
 
