@@ -1,137 +1,189 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body{
-    width:100vw;
-    height:100vh;
-    overflow:hidden;
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 
-    font-family:sans-serif;
+    font-family: sans-serif;
 
-    background-image:url("img/background.png");
-    background-size:cover;
-    background-position:center;
+    background-image: url("img/background.png");
+    background-size: cover;
+    background-position: center;
 }
 
-#game{
-    width:100%;
-    height:100%;
+#game {
+    width: 100%;
+    height: 100%;
 
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
 }
 
-#topBar{
-    height:80px;
+#topBar {
+    height: 80px;
 
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    padding:0 40px;
+    padding: 0 40px;
 
-    color:white;
-    font-size:28px;
-    font-weight:bold;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
 }
 
-#gameArea{
-    flex:1;
-    display:flex;
+#gameArea {
+    flex: 1;
+    display: flex;
 }
 
-#rouletteArea{
-    width:55%;
+#rouletteArea {
+    width: 55%;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#rouletteCanvas{
-    width:90%;
-    aspect-ratio:1 / 1;
+#rouletteCanvas {
+    width: 90%;
+    aspect-ratio: 1 / 1;
 
-    max-width:500px;
-    max-height:500px;
+    max-width: 500px;
+    max-height: 500px;
 
-    border-radius:50%;
+    border-radius: 50%;
 
-    background:rgba(0,0,0,0.15);
+    background: rgba(0,0,0,0.15);
 
-    backdrop-filter:blur(4px);
+    backdrop-filter: blur(4px);
 
     box-shadow:
         inset 0 0 30px rgba(255,255,255,0.05),
         0 0 20px rgba(0,0,0,0.3);
 }
 
-#betArea{
-    width:45%;
+#betArea {
+    width: 45%;
 
-    display:flex;
-    flex-direction:column;
-    align-items:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.betTitle{
-    margin-top:90px;
+.betTitle {
+    margin-top: 90px;
 
-    color:white;
-    font-size:32px;
-    font-weight:bold;
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
 }
 
-#betTable{
-    width:75%;
-    height:60%;
+#betTable {
+    width: 75%;
+    height: 60%;
 
-    min-width:30px;
+    border-radius: 20px;
 
-    border:none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    border-radius:20px;
+    background: rgba(0,0,0,0.15);
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    color:white;
-    font-size:24px;
-
-    background:rgba(0,0,0,0.15);
-
-    backdrop-filter:blur(4px);
+    backdrop-filter: blur(4px);
 
     box-shadow:
         inset 0 0 30px rgba(255,255,255,0.05),
         0 0 20px rgba(0,0,0,0.3);
 }
 
-#messageBox{
-    height:90px;
-
-    display:flex;
-    align-items:center;
-
-    padding-left:30px;
-
-    color:white;
-
-    font-size:24px;
-
-    text-shadow:
-        0 0 10px rgba(255,255,255,0.5);
+#numberGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
 }
 
-#controls{
-    width:100%;
+.betCell {
+    height: 45px;
 
-    display:flex;
-    justify-content:center;
+    border: none;
+    border-radius: 8px;
 
-    margin-top:20px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#outsideBets {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 15px;
+}
+
+.outsideBet {
+    height: 50px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: rgba(255,255,255,0.12);
+    color: white;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.outsideBet:hover {
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.2);
+}
+
+#messageBox {
+    height: 90px;
+
+    display: flex;
+    align-items: center;
+
+    padding-left: 30px;
+
+    color: white;
+    font-size: 24px;
+
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+#controls {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#spinButton {
+    padding: 12px 30px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #7c5ac2;
+    color: white;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#spinButton:hover {
+    transform: scale(1.05);
 }
