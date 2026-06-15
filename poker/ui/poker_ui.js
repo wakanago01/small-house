@@ -141,6 +141,53 @@ class PokerUI {
         });
     }
 
+    async dealInitialCards(playerHand, cpuHands) {
+        // コンテナのクリア
+        document.getElementById('player-hand').innerHTML = '';
+        const cpuArea = document.getElementById('cpu-area');
+        cpuArea.innerHTML = '';
+
+        const isNormal = cpuHands.length === 3;
+        const cpuContainers = cpuHands.map((hand, i) => {
+            const cpuEl = document.createElement('div');
+            cpuEl.className = isNormal ? `cpu-player pos-${i}` : `cpu-player pos-easy`;
+            cpuEl.innerHTML = `
+                <h4 style="text-shadow:2px 2px 4px #000; margin:5px; color:white;">CPU ${i+1}</h4>
+                <div class="hand cpu-hand"></div>
+            `;
+            cpuArea.appendChild(cpuEl);
+            return cpuEl.querySelector('.cpu-hand');
+        });
+
+        // 1枚ずつ順番に配る
+        const totalCards = 5;
+        for (let cardIdx = 0; cardIdx < totalCards; cardIdx++) {
+            // CPUに配る
+            for (let cpuIdx = 0; cpuIdx < cpuHands.length; cpuIdx++) {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card back deal-animation';
+                cardEl.innerHTML = '<div style="font-size:2rem">🌙</div>';
+                cpuContainers[cpuIdx].appendChild(cardEl);
+                this.playAudio('deal');
+                await new Promise(r => setTimeout(r, 80));
+            }
+            // プレイヤーに配る
+            const card = playerHand[cardIdx];
+            const color = (card.suit === 'H' || card.suit === 'D') ? 'red' : 'black';
+            const cardEl = document.createElement('div');
+            cardEl.className = `card ${color} deal-animation`;
+            cardEl.innerHTML = `
+                <div class="rank">${card.rank}</div>
+                <div class="suit">${this.suitMap[card.suit]}</div>
+                <div class="rank" style="transform: rotate(180deg)">${card.rank}</div>
+            `;
+            document.getElementById('player-hand').appendChild(cardEl);
+            this.playAudio('deal');
+            await new Promise(r => setTimeout(r, 80));
+        }
+        await new Promise(r => setTimeout(r, 500));
+    }
+
     async flipCards(indices, newCards, currentHand, highlightIndices, rankName) {
         this.playAudio('flip');
         const container = document.getElementById('player-hand');
@@ -244,5 +291,25 @@ class PokerUI {
     hideOverlay() {
         document.getElementById('overlay').classList.add('hidden');
         this.playAudio('click');
+    }
+
+    toggleBetActions(show) {
+        document.getElementById('bet-actions').style.display = show ? 'flex' : 'none';
+    }
+
+    togglePot(show, val = 0, yourBet = 0) {
+        const potEl = document.getElementById('pot-display');
+        const permBetEl = document.getElementById('permanent-bet-display');
+        
+        potEl.style.display = show ? 'block' : 'none';
+        if (permBetEl) permBetEl.style.display = show ? 'block' : 'none';
+
+        if (show) {
+            document.getElementById('current-pot').innerText = val.toLocaleString();
+            const yourBetEls = [document.getElementById('your-total-bet'), document.getElementById('your-total-bet-permanent')];
+            yourBetEls.forEach(el => {
+                if (el) el.innerText = yourBet.toLocaleString();
+            });
+        }
     }
 }

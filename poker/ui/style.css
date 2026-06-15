@@ -131,6 +131,35 @@ body {
     transform: translateX(-50%);
 }
 
+.betting-actions {
+    position: absolute;
+    bottom: 45px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+}
+
+.action-btn {
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    border-radius: 20px;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+.btn-fold { background: #666; color: white; }
+.btn-check { background: var(--primary-purple); color: white; }
+.btn-raise { background: var(--star-gold); color: var(--bg-dark); border-color: var(--star-gold); }
+
+.action-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
 .card {
     width: 95px; height: 135px;
     background: #fff;
@@ -165,6 +194,21 @@ body {
     box-shadow: 0 0 20px var(--star-gold);
     border: 3px solid var(--star-gold);
     z-index: 10;
+}
+
+@keyframes deal-card {
+    0% {
+        transform: translate(-50%, -150%) scale(0) rotate(720deg);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.deal-animation {
+    animation: deal-card 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 .card .suit { font-size: 2.2rem; }

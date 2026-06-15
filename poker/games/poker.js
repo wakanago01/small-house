@@ -33,6 +33,9 @@ class Deck {
 const PokerHand = {
     RANK_NAMES: ["ハイカード", "ワンペア", "ツーペア", "スリーカード", "ストレート", "フラッシュ", "フルハウス", "フォーカード", "ストレートフラッシュ", "ロイヤルストレートフラッシュ"],
     
+    // 役ごとの配当倍率
+    PAYOUT_MULTIPLIERS: [1, 1, 1.5, 2, 3, 4, 6, 10, 20, 50],
+    
     evaluate(cards) {
         // カードをインデックス付きで保持
         const indexedCards = cards.map((c, i) => ({ card: c, index: i }));
