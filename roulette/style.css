@@ -8,7 +8,6 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-
     font-family: sans-serif;
 
     background-image: url("img/background.png");
@@ -19,18 +18,15 @@ body {
 #game {
     width: 100%;
     height: 100%;
-
     display: flex;
     flex-direction: column;
 }
 
 #topBar {
     height: 80px;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     padding: 0 40px;
 
     color: white;
@@ -45,7 +41,6 @@ body {
 
 #rouletteArea {
     width: 55%;
-
     display: flex;
     justify-content: center;
     align-items: center;
@@ -53,42 +48,32 @@ body {
 
 #rouletteCanvas {
     width: 90%;
-    aspect-ratio: 1 / 1;
-
+    aspect-ratio: 1/1;
     max-width: 500px;
     max-height: 500px;
 
     border-radius: 50%;
-
     background: rgba(0,0,0,0.15);
 
     backdrop-filter: blur(4px);
-
-    box-shadow:
-        inset 0 0 30px rgba(255,255,255,0.05),
-        0 0 20px rgba(0,0,0,0.3);
 }
 
 #betArea {
     width: 45%;
-
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .betTitle {
-    margin-top: 90px;
-
+    margin-top: 60px;
     color: white;
     font-size: 32px;
-    font-weight: bold;
 }
 
 #betTable {
     width: 75%;
     height: 60%;
-
     border-radius: 20px;
 
     display: flex;
@@ -96,12 +81,6 @@ body {
     align-items: center;
 
     background: rgba(0,0,0,0.15);
-
-    backdrop-filter: blur(4px);
-
-    box-shadow:
-        inset 0 0 30px rgba(255,255,255,0.05),
-        0 0 20px rgba(0,0,0,0.3);
 }
 
 #numberGrid {
@@ -113,10 +92,8 @@ body {
 
 .betCell {
     height: 45px;
-
     border: none;
     border-radius: 8px;
-
     color: white;
     font-weight: bold;
     cursor: pointer;
@@ -127,63 +104,35 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 6px;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 .outsideBet {
     height: 50px;
-
     border: none;
     border-radius: 10px;
-
     background: rgba(255,255,255,0.12);
     color: white;
     font-weight: bold;
-
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-.outsideBet:hover {
-    transform: scale(1.05);
-    background: rgba(255,255,255,0.2);
-}
-
-#messageBox {
-    height: 90px;
-
-    display: flex;
-    align-items: center;
-
-    padding-left: 30px;
-
-    color: white;
-    font-size: 24px;
-
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
-}
-
-#controls {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
 }
 
 #spinButton {
+    margin-top: 15px;
     padding: 12px 30px;
-
     border: none;
     border-radius: 10px;
 
     background: #7c5ac2;
     color: white;
     font-weight: bold;
-
-    cursor: pointer;
 }
 
-#spinButton:hover {
-    transform: scale(1.05);
+#messageBox {
+    height: 90px;
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
+
+    color: white;
+    font-size: 24px;
 }
