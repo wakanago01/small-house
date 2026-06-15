@@ -145,7 +145,9 @@
             }
 
             adjustBet(amt) {
-                if (this.bet + amt >= 10 && this.bet + amt <= this.player.renga) {
+                const minBet = 10;
+                // 借金状態でも最低10Rengaは賭けられるように制限を緩和
+                if (this.bet + amt >= minBet) {
                     this.bet += amt;
                     this.ui.updateBet(this.bet);
                 }
@@ -178,7 +180,7 @@
 
                 const pEval = PokerHand.evaluate(this.playerHand);
                 this.ui.renderPlayerHand(this.playerHand, true, pEval.rankIndices, PokerHand.RANK_NAMES[pEval.rank]);
-                this.ui.renderCpuHands(this.cpuHands, true);
+                await this.ui.renderCpuHands(this.cpuHands, true); // 初期状態は非表示
                 
                 this.phase = 'bet1';
                 this.ui.toggleBetActions(true);
@@ -207,9 +209,8 @@
                 if (action === 'raise') {
                     const raiseAmt = this.yourTotalBet; // 現在の賭け金をさらに上乗せ（倍にする）
                     if (this.player.renga < raiseAmt) {
-                        alert("Rengaが足りません！");
-                        this.ui.toggleBetActions(true);
-                        return;
+                        alert("Rengaが足りません！借金してでも賭けますか？");
+                        // 借金状態を許可する場合はこのまま引く
                     }
                     this.player.renga -= raiseAmt;
                     this.yourTotalBet += raiseAmt;
@@ -276,7 +277,7 @@
                 }
             }
 
-            determineWinner() {
+            async determineWinner() {
                 this.ui.togglePot(false);
                 const pEval = PokerHand.evaluate(this.playerHand);
                 const cpuEvals = this.cpuHands.map(h => PokerHand.evaluate(h));
@@ -333,13 +334,16 @@
                     finalAward = 0;
                 }
 
+                // 順番に開示するアニメーションを待機
+                document.getElementById('game-message').innerText = "手札を開示します...";
+                this.ui.renderPlayerHand(this.playerHand, false, pEval.rankIndices, PokerHand.RANK_NAMES[pEval.rank]);
+                await this.ui.renderCpuHands(this.cpuHands, false, cpuEvals);
+
                 this.player.renga += finalAward;
                 this.ui.updateRenga(this.player.renga);
-                this.ui.renderPlayerHand(this.playerHand, false, pEval.rankIndices, PokerHand.RANK_NAMES[pEval.rank]);
-                this.ui.renderCpuHands(this.cpuHands, false, cpuEvals);
                 
                 const displayAmount = (result === "WIN") ? finalAward : this.yourTotalBet;
-                setTimeout(() => this.ui.showResult(result, pEval.rank, displayAmount, winnerMsg), 2500);
+                setTimeout(() => this.ui.showResult(result, pEval.rank, displayAmount, winnerMsg), 1000);
             }
 
             showHowTo() {

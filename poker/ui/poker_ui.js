@@ -217,53 +217,74 @@ class PokerUI {
         this.renderPlayerHand(currentHand, false, highlightIndices, rankName);
     }
 
-    renderCpuHands(hands, hidden = true, highlightInfo = []) {
+    async renderCpuHands(hands, hidden = true, highlightInfo = []) {
         const container = document.getElementById('cpu-area');
-        container.innerHTML = '';
         const isNormal = hands.length === 3;
         
-        hands.forEach((hand, i) => {
-            const cpuEl = document.createElement('div');
-            cpuEl.className = isNormal ? `cpu-player pos-${i}` : `cpu-player pos-easy`;
-            
-            let rankLabel = "";
-            let currentHighlights = [];
-            if (!hidden && highlightInfo[i]) {
-                rankLabel = `<div class="cpu-rank-label">${PokerHand.RANK_NAMES[highlightInfo[i].rank]}</div>`;
-                currentHighlights = highlightInfo[i].rankIndices;
-            }
-
-            cpuEl.innerHTML = `
-                <h4 style="text-shadow:2px 2px 4px #000; margin:5px; color:white;">CPU ${i+1}</h4>
-                <div class="hand cpu-hand"></div>
-                ${rankLabel}
-            `;
-            const handEl = cpuEl.querySelector('.cpu-hand');
-            
-            hand.forEach((card, cardIdx) => {
-                const cardEl = document.createElement('div');
-                if (hidden) {
+        if (hidden) {
+            // 初期配布時などは一気に（あるいは非表示状態で）描画
+            container.innerHTML = '';
+            hands.forEach((hand, i) => {
+                const cpuEl = document.createElement('div');
+                cpuEl.className = isNormal ? `cpu-player pos-${i}` : `cpu-player pos-easy`;
+                cpuEl.innerHTML = `
+                    <h4 style="text-shadow:2px 2px 4px #000; margin:5px; color:white;">CPU ${i+1}</h4>
+                    <div class="hand cpu-hand"></div>
+                `;
+                const handEl = cpuEl.querySelector('.cpu-hand');
+                hand.forEach(() => {
+                    const cardEl = document.createElement('div');
                     cardEl.className = 'card back';
                     cardEl.innerHTML = '<div style="font-size:2rem">🌙</div>';
-                } else {
+                    handEl.appendChild(cardEl);
+                });
+                container.appendChild(cpuEl);
+            });
+        } else {
+            // 勝負の開示：一人ずつ順番にめくる
+            const cpuElements = container.querySelectorAll('.cpu-player');
+            for (let i = 0; i < hands.length; i++) {
+                const hand = hands[i];
+                const cpuEl = cpuElements[i];
+                const handEl = cpuEl.querySelector('.cpu-hand');
+                
+                let rankLabel = "";
+                let currentHighlights = [];
+                if (highlightInfo[i]) {
+                    rankLabel = `<div class="cpu-rank-label">${PokerHand.RANK_NAMES[highlightInfo[i].rank]}</div>`;
+                    currentHighlights = highlightInfo[i].rankIndices;
+                }
+
+                // 手札をクリアして表向きに再描画
+                handEl.innerHTML = '';
+                hand.forEach((card, cardIdx) => {
+                    const cardEl = document.createElement('div');
                     const color = (card.suit === 'H' || card.suit === 'D') ? 'red' : 'black';
                     cardEl.className = `card ${color}`;
                     if (currentHighlights.includes(cardIdx)) cardEl.classList.add('highlight');
                     cardEl.innerHTML = `<div class="rank">${card.rank}</div><div class="suit">${this.suitMap[card.suit]}</div>`;
-                }
-                handEl.appendChild(cardEl);
-            });
-            container.appendChild(cpuEl);
-        });
-        if (!hidden) this.playAudio('deal');
+                    handEl.appendChild(cardEl);
+                });
+
+                // 役ラベルを表示
+                const existingLabel = cpuEl.querySelector('.cpu-rank-label');
+                if (existingLabel) existingLabel.remove();
+                cpuEl.insertAdjacentHTML('beforeend', rankLabel);
+
+                this.playAudio('flip');
+                await new Promise(r => setTimeout(r, 800)); // 0.8秒待って次へ
+            }
+        }
     }
 
     showResult(result, pRank, bet, winnerMsg = "") {
         const titleEl = document.getElementById('result-title');
+        titleEl.style.textAlign = "center";
         if (result === "WIN") {
             titleEl.innerText = "勝利！";
             titleEl.style.color = "var(--star-gold)";
             this.playAudio('win');
+            this.createWinEffect(); // キラキラ演出
         } else if (result === "LOSE") {
             titleEl.innerText = "敗北...";
             titleEl.style.color = "#ff4444";
@@ -274,12 +295,43 @@ class PokerUI {
         
         const detailEl = document.getElementById('result-details');
         const rankName = PokerHand.RANK_NAMES[pRank];
+        detailEl.style.textAlign = "center";
         detailEl.innerHTML = `
-            <div style="color: white; font-size: 1.2rem;">${winnerMsg}</div>
-            <div style="color: white; margin-top: 10px;">汝の役：${rankName}</div>
-            <div style="font-size:3rem; margin-top:10px; color: white;">${result === "WIN" ? '+' : (result === "LOSE" ? '-' : '')}${bet.toLocaleString()} Renga</div>
+            <div style="color: white; font-size: 1.2rem; text-align: center;">${winnerMsg}</div>
+            <div style="color: white; margin-top: 10px; text-align: center;">汝の役：${rankName}</div>
+            <div style="font-size:3rem; margin-top:10px; color: white; text-align: center;">${result === "WIN" ? '+' : (result === "LOSE" ? '-' : '')}${bet.toLocaleString()} Renga</div>
         `;
         this.showScreen('result-screen');
+    }
+
+    createWinEffect() {
+        const container = document.getElementById('game-container');
+        const starCount = 60;
+        const starTypes = ['✦', '✧', '✨', '・'];
+
+        for (let i = 0; i < starCount; i++) {
+            setTimeout(() => {
+                const star = document.createElement('div');
+                star.className = 'win-particle';
+                star.innerText = starTypes[Math.floor(Math.random() * starTypes.length)];
+                
+                // 画面全体に広がるよう修正 (半角%を使用)
+                star.style.left = (Math.random() * 100) + '%';
+                // 主張しすぎない小さなサイズ
+                star.style.fontSize = (Math.random() * 0.8 + 0.5) + 'rem';
+                // 左右のゆらぎ幅をランダムに設定
+                const drift = (Math.random() - 0.5) * 200; // -100px 〜 100px
+                star.style.setProperty('--drift', `${drift}px`);
+                // 落下速度にバリエーション
+                star.style.animationDuration = (Math.random() * 1.5 + 2.5) + 's';
+                
+                container.appendChild(star);
+
+                setTimeout(() => {
+                    star.remove();
+                }, 4000);
+            }, i * 40);
+        }
     }
 
     showOverlay(title, content) {
