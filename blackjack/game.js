@@ -153,7 +153,7 @@ function calculateScore(hand) {
 // Yume Kawaii suit display – traditional symbols
 const suitClass = { '♥': 'suit-heart', '♦': 'suit-diamond', '♣': 'suit-club', '♠': 'suit-spade' };
 
-function renderCard(card, targetEl, isFlipped = false, animate = false) {
+function renderCard(card, targetEl, isFlipped = false, animate = false, onComplete = null) {
     const cardEl = document.createElement('div');
     cardEl.className = 'card';
 
@@ -215,7 +215,7 @@ function renderCard(card, targetEl, isFlipped = false, animate = false) {
         // Animate: fly from deck to destination
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                cardEl.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease';
+                cardEl.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s ease';
                 cardEl.style.transform = 'translate(0, 0) scale(1)';
                 cardEl.style.opacity = '1';
 
@@ -229,11 +229,13 @@ function renderCard(card, targetEl, isFlipped = false, animate = false) {
                     if (isFlipped) {
                         cardEl.classList.add('flipped');
                     }
-                }, 500);
+                    if (onComplete) onComplete();
+                }, 800);
             });
         });
     } else {
         if (isFlipped) cardEl.classList.add('flipped');
+        if (onComplete) onComplete();
     }
 
     return cardEl;
@@ -318,8 +320,8 @@ async function startGame() {
     currentBetArea.classList.remove('hidden');
 
     deck = createDeck();
-    playerHand = [deck.pop(), deck.pop()];
-    dealerHand = [deck.pop(), deck.pop()];
+    playerHand = [];
+    dealerHand = [];
     gameOver = false;
     
     dealerCardsEl.innerHTML = '';
@@ -329,18 +331,39 @@ async function startGame() {
     
     bottomRightControls.classList.add('hidden');
 
-    await sleep(200);
+    await sleep(400);
     playSound('deal');
-    renderCard(playerHand[0], playerCardsEl, true, true);
-    updateScoreDisplays(false);
-    await sleep(400);
-    renderCard(dealerHand[0], dealerCardsEl, false, true); 
-    updateScoreDisplays(false);
-    await sleep(400);
-    renderCard(playerHand[1], playerCardsEl, true, true);
-    updateScoreDisplays(false);
-    await sleep(400);
-    renderCard(dealerHand[1], dealerCardsEl, true, true);
+    
+    // Player Card 1
+    const p1 = deck.pop();
+    renderCard(p1, playerCardsEl, true, true, () => {
+        playerHand.push(p1);
+        updateScoreDisplays(false);
+    });
+    await sleep(800);
+    
+    // Dealer Card 1 (Face down)
+    const d1 = deck.pop();
+    renderCard(d1, dealerCardsEl, false, true, () => {
+        dealerHand.push(d1);
+        updateScoreDisplays(false);
+    }); 
+    await sleep(800);
+    
+    // Player Card 2
+    const p2 = deck.pop();
+    renderCard(p2, playerCardsEl, true, true, () => {
+        playerHand.push(p2);
+        updateScoreDisplays(false);
+    });
+    await sleep(800);
+    
+    // Dealer Card 2 (Face up)
+    const d2 = deck.pop();
+    renderCard(d2, dealerCardsEl, true, true, () => {
+        dealerHand.push(d2);
+        updateScoreDisplays(false);
+    });
     
     // Auto-blackjack check removed: Player must now press STAND even with 21.
 
@@ -390,14 +413,15 @@ async function doubleDown() {
     await sleep(1000);
 
     const newCard = deck.pop();
-    playerHand.push(newCard);
 
     // 2. Play paper sound while moving the card
     playSound('paper');
-    renderCard(newCard, playerCardsEl, true, true);
-    updateScoreDisplays(false);
+    renderCard(newCard, playerCardsEl, true, true, () => {
+        playerHand.push(newCard);
+        updateScoreDisplays(false);
+    });
 
-    await sleep(1000);
+    await sleep(1200);
 
     if (calculateScore(playerHand) > 21) {
         await endGame('bust');
@@ -420,15 +444,18 @@ async function hit() {
     await sleep(1000);
     
     const newCard = deck.pop();
-    playerHand.push(newCard);
     
     // 3. Play paper sound while moving the card
     playSound('paper');
-    renderCard(newCard, playerCardsEl, true, true);
-    updateScoreDisplays(false);
+    renderCard(newCard, playerCardsEl, true, true, () => {
+        playerHand.push(newCard);
+        updateScoreDisplays(false);
+    });
+    
+    await sleep(1000);
     
     if (calculateScore(playerHand) > 21) {
-        await sleep(600);
+        await sleep(200);
         await endGame('bust');
     } else {
         hitBtn.disabled = false;
@@ -447,11 +474,12 @@ async function stand() {
     
     while (calculateScore(dealerHand) < 17) {
         const newCard = deck.pop();
-        dealerHand.push(newCard);
         playSound('paper');
-        renderCard(newCard, dealerCardsEl, true, true);
-        updateScoreDisplays(true);
-        await sleep(800);
+        renderCard(newCard, dealerCardsEl, true, true, () => {
+            dealerHand.push(newCard);
+            updateScoreDisplays(true);
+        });
+        await sleep(1000);
     }
     
     const pScore = calculateScore(playerHand);

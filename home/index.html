@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small House - Home</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Cinzel for ornate text, Noto Sans JP for Japanese readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body class="fade-in">
+    <!-- Animated background layers -->
+    <div id="bg-stars"></div>
+    <div id="bg-overlay"></div>
+
+    <div id="app-container">
+        <!-- TOP STATUS BAR -->
+        <header id="top-status-bar">
+            <!-- Center: Financial Status -->
+            <div class="glass-panel status-center">
+                <div class="status-item">
+                    <span class="label">COINS</span>
+                    <span id="stat-coins" class="value">1,000</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">DEBT</span>
+                    <span id="stat-debt" class="value">50,000</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">REMAINING</span>
+                    <span id="stat-debt-rem" class="value">49,000</span>
+                </div>
+            </div>
+
+            <!-- Right: Survival Status -->
+            <div class="glass-panel status-right">
+                <div class="status-meter-group">
+                    <div class="meter-item">
+                        <span class="label">HUNGER</span>
+                        <div class="meter-bar"><div id="bar-hunger" class="fill" style="width: 80%;"></div></div>
+                    </div>
+                    <div class="meter-item">
+                        <span class="label">STRESS</span>
+                        <div class="meter-bar"><div id="bar-stress" class="fill" style="width: 20%;"></div></div>
+                    </div>
+                </div>
+                <div class="status-item survival">
+                    <span class="label">SURVIVAL</span>
+                    <span id="stat-days" class="value">DAY 1</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="main-layout">
+            <!-- LEFT SIDEBAR -->
+            <aside id="left-sidebar" class="glass-panel">
+                <div class="sidebar-section">
+                    <h3 class="section-title">PSYCHOLOGICAL</h3>
+                    <div class="stat-row">
+                        <span class="icon">🍔</span>
+                        <div class="meter-group">
+                            <span>Hunger</span>
+                            <div class="meter-bar small"><div id="side-bar-hunger" class="fill" style="width: 80%;"></div></div>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="icon">🧠</span>
+                        <div class="meter-group">
+                            <span>Stress</span>
+                            <div class="meter-bar small"><div id="side-bar-stress" class="fill" style="width: 20%;"></div></div>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="icon">🍷</span>
+                        <div class="meter-group">
+                            <span>Alcohol</span>
+                            <div class="meter-bar small"><div id="side-bar-alcohol" class="fill" style="width: 45%;"></div></div>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="icon">🚬</span>
+                        <div class="meter-group">
+                            <span>Cigarette</span>
+                            <div class="meter-bar small"><div id="side-bar-cigarette" class="fill" style="width: 10%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section action-buttons">
+                    <button class="action-btn glow-btn" onclick="handleAction('play')">PLAY GAMES</button>
+                    <button class="action-btn glow-btn" onclick="handleAction('food')">BUY FOOD</button>
+                    <button class="action-btn glow-btn" onclick="handleAction('alcohol')">BUY ALCOHOL</button>
+                    <button class="action-btn glow-btn" onclick="handleAction('smoke')">BUY CIGARETTES</button>
+                    <button class="action-btn glow-btn special" onclick="handleAction('sleep')">SLEEP</button>
+                </div>
+            </aside>
+
+            <!-- CENTER CONTENT -->
+            <main id="center-content">
+                <div class="game-grid">
+                    <!-- SLOT -->
+                    <div class="game-card glass-panel floating" onclick="playGame('slot')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">🎰</div>
+                            <h2 class="game-title">SLOT</h2>
+                            <p class="game-desc">運命の歯車を回して。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
+                    <!-- BLACKJACK -->
+                    <div class="game-card glass-panel floating" onclick="playGame('blackjack')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">🃏</div>
+                            <h2 class="game-title">BLACKJACK</h2>
+                            <p class="game-desc">21に秘められた甘い罠。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
+                    <!-- POKER -->
+                    <div class="game-card glass-panel floating" onclick="playGame('poker')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">🎭</div>
+                            <h2 class="game-title">POKER</h2>
+                            <p class="game-desc">嘘と真実の境界線で。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
+                    <!-- HIGH & LOW -->
+                    <div class="game-card glass-panel floating" onclick="playGame('highlow')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">↕️</div>
+                            <h2 class="game-title">HIGH & LOW</h2>
+                            <p class="game-desc">上か下か。それだけのこと。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
+                    <!-- HORSE RACE -->
+                    <div class="game-card glass-panel floating" onclick="playGame('horserace')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">🐎</div>
+                            <h2 class="game-title">HORSE RACE</h2>
+                            <p class="game-desc">夢を託して走れ。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
+                    <!-- ROULETTE -->
+                    <div class="game-card glass-panel floating" onclick="playGame('roulette')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">🎡</div>
+                            <h2 class="game-title">ROULETTE</h2>
+                            <p class="game-desc">銀色の球が描く放物線。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- RIGHT SIDEBAR -->
+            <aside id="right-sidebar" class="glass-panel">
+                <div class="info-section scrollable">
+                    <h3 class="section-title">INFORMATION</h3>
+                    <div class="info-block">
+                        <h4 class="info-subtitle">STORY</h4>
+                        <p>ここは「小さな家」。終わらない夜、覚めない夢。あなたは借金を返しながら、この部屋で生き延びなければなりません。</p>
+                    </div>
+                    <div class="info-block">
+                        <h4 class="info-subtitle">ANNOUNCEMENT</h4>
+                        <ul class="announcement-list">
+                            <li>・[UPDATE] 新しい娯楽が追加されました。</li>
+                            <li>・[NOTICE] 借金の利息にご注意ください。</li>
+                            <li>・[EVENT] 月夜のギャンブル祭 開催中。</li>
+                        </ul>
+                    </div>
+                    <div class="info-block">
+                        <h4 class="info-subtitle">HOW TO PLAY</h4>
+                        <p>ゲームでチップを稼ぎ、生活必需品を購入して生存日数を伸ばしましょう。ストレス管理が鍵となります。</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- BOTTOM NAVIGATION BAR -->
+        <footer id="bottom-nav">
+            <nav class="nav-container glass-panel">
+                <div class="nav-item active">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Status</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span class="nav-label">Shop</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">📜</span>
+                    <span class="nav-label">Records</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">Settings</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">❓</span>
+                    <span class="nav-label">Help</span>
+                </div>
+            </nav>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
