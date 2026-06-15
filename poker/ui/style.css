@@ -280,11 +280,11 @@ body {
     color: #ffffff;
 }
 
-/* 常設Renga表示（さらに右上へ18px移動） */
+/* 常設Renga表示 */
 #permanent-renga-display {
     position: absolute;
-    bottom: 119px; /* 126px - 7px = 119px */
-    right: -16px;   /* -26px + 10px = -16px */
+    bottom: 119px;
+    right: -16px;
     width: 210px;
     height: 55px;
     display: flex;
@@ -296,6 +296,57 @@ body {
     text-shadow: 2px 2px 4px #000;
     pointer-events: none;
     z-index: 100;
+}
+
+/* ストレスゲージ */
+#stress-gauge-container {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    width: 150px;
+    height: 12px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--lavender);
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 100;
+}
+
+#stress-gauge-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #4b0082, #ff00ff);
+    transition: width 0.5s ease-in-out;
+}
+
+#stress-label {
+    position: absolute;
+    top: 32px;
+    left: 25px;
+    color: var(--lavender);
+    font-size: 0.8rem;
+    text-shadow: 1px 1px 2px #000;
+    z-index: 100;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* ベット入力 */
+.bet-input {
+    background: rgba(0,0,0,0.6);
+    border: 2px solid var(--primary-purple);
+    color: var(--star-gold);
+    font-size: 2rem;
+    width: 200px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+.bet-input:focus {
+    outline: none;
+    border-color: var(--star-gold);
+    box-shadow: 0 0 10px var(--star-gold);
 }
 
 .overlay-content {

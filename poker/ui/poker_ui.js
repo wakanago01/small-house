@@ -89,13 +89,21 @@ class PokerUI {
         this.startBgm();
     }
 
-    updateRenga(val) {
+    updateRenga(val, stress = 0) {
         const formatted = val.toLocaleString();
         const targets = ['current-renga', 'permanent-renga'];
         targets.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.innerText = formatted;
         });
+        this.updateStress(stress);
+    }
+
+    updateStress(val) {
+        const fill = document.getElementById('stress-gauge-fill');
+        if (fill) {
+            fill.style.width = val + '%';
+        }
     }
 
     updateBet(val) {
