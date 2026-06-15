@@ -1,195 +1,325 @@
-const canvas = document.getElementById('wheel-canvas');
-const ctx = canvas.getContext('2d');
-const spinBtn = document.getElementById('spin-btn');
-const balanceEl = document.getElementById('balance');
-const betAmountEl = document.getElementById('bet-amount');
-const resultEl = document.getElementById('last-result');
-const resultValueEl = document.getElementById('result-value');
-const bettingTable = document.getElementById('betting-table');
-
-let balance = 1000;
-let currentBet = 10;
-let selectedBets = new Set();
-let isSpinning = false;
-
-// Roulette numbers and colors (European Roulette)
-const numbers = [
-    { num: 0, color: 'green' },
-    { num: 32, color: 'red' }, { num: 15, color: 'black' }, { num: 19, color: 'red' }, { num: 4, color: 'black' },
-    { num: 21, color: 'red' }, { num: 2, color: 'black' }, { num: 25, color: 'red' }, { num: 17, color: 'black' },
-    { num: 34, color: 'red' }, { num: 6, color: 'black' }, { num: 27, color: 'red' }, { num: 13, color: 'black' },
-    { num: 36, color: 'red' }, { num: 11, color: 'black' }, { num: 30, color: 'red' }, { num: 8, color: 'black' },
-    { num: 23, color: 'red' }, { num: 10, color: 'black' }, { num: 5, color: 'red' }, { num: 24, color: 'black' },
-    { num: 16, color: 'red' }, { num: 33, color: 'black' }, { num: 1, color: 'red' }, { num: 20, color: 'black' },
-    { num: 14, color: 'red' }, { num: 31, color: 'black' }, { num: 9, color: 'red' }, { num: 22, color: 'black' },
-    { num: 18, color: 'red' }, { num: 29, color: 'black' }, { num: 7, color: 'red' }, { num: 28, color: 'black' },
-    { num: 12, color: 'red' }, { num: 35, color: 'black' }, { num: 3, color: 'red' }, { num: 26, color: 'black' }
+// --- Constants & Data ---
+const WHEEL_NUMBERS = [
+    0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
 ];
 
-// Initialize Betting Table
-function initTable() {
-    // Zero cell
-    const zeroCell = document.createElement('div');
-    zeroCell.className = 'number-cell zero';
-    zeroCell.textContent = '0';
-    zeroCell.dataset.num = '0';
-    zeroCell.onclick = () => toggleBet(zeroCell);
-    bettingTable.appendChild(zeroCell);
+const RED_NUMBERS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 
-    // Numbers 1-36
-    for (let i = 1; i <= 36; i++) {
-        const cell = document.createElement('div');
-        const numData = numbers.find(n => n.num === i);
-        cell.className = `number-cell ${numData.color}`;
-        cell.textContent = i;
-        cell.dataset.num = i;
-        cell.onclick = () => toggleBet(cell);
-        bettingTable.appendChild(cell);
+// --- State ---
+let balance = 50000;
+let debt = 100000000;
+let currentChipValue = 100;
+let bets = []; // Array of { type: string, value: number, amount: number, chipPositions: [] }
+let isSpinning = false;
+let history = [];
+let stats = {
+    red: 0, black: 0, zero: 0,
+    counts: Array(37).fill(0),
+    totalSpins: 0
+};
+
+// --- DOM Elements ---
+const balanceEl = document.getElementById('balance');
+const debtEl = document.getElementById('debt');
+const numbersGrid = document.getElementById('numbers-grid');
+const historyList = document.getElementById('history-list');
+const statsContainer = document.getElementById('stats-container');
+const wheelCanvas = document.getElementById('wheel-canvas');
+const ctx = wheelCanvas.getContext('2d');
+const spinBtn = document.getElementById('spin-btn');
+const winMessage = document.getElementById('win-message');
+const chipBtns = document.querySelectorAll('.chip');
+const customBetInput = document.getElementById('custom-bet-input');
+
+// --- Initialization ---
+function init() {
+    createBettingBoard();
+    drawWheel();
+    updateUI();
+    setupEventListeners();
+}
+
+function createBettingBoard() {
+    // Standard European Roulette Grid (3 rows, 12 columns)
+    // Row 1: 3, 6, 9... 36
+    // Row 2: 2, 5, 8... 35
+    // Row 3: 1, 4, 7... 34
+    
+    for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 12; c++) {
+            const num = (11 - c) * 3 + (3 - r); // Reversed for layout
+            const displayNum = (c * 3) + (3 - r);
+            
+            const cell = document.createElement('div');
+            const colorClass = RED_NUMBERS.includes(displayNum) ? 'red' : 'black';
+            cell.className = `cell num-cell ${colorClass}`;
+            cell.textContent = displayNum;
+            cell.dataset.bet = displayNum;
+            
+            // Positioning for grid layout
+            cell.style.gridColumn = c + 1;
+            cell.style.gridRow = r + 1;
+            
+            cell.onclick = (e) => handleBetClick(e, displayNum.toString());
+            numbersGrid.appendChild(cell);
+        }
     }
 }
 
-function toggleBet(element) {
-    const bet = element.dataset.num || element.dataset.type;
-    if (selectedBets.has(bet)) {
-        selectedBets.delete(bet);
-        element.classList.remove('selected');
+function setupEventListeners() {
+    spinBtn.onclick = spin;
+    
+    document.getElementById('clear-btn').onclick = () => {
+        if (isSpinning) return;
+        bets = [];
+        clearChipsFromBoard();
+    };
+
+    document.getElementById('undo-btn').onclick = () => {
+        if (isSpinning) return;
+        const lastBet = bets.pop();
+        if (lastBet) {
+            removeLastChipFromBoard();
+        }
+    };
+
+    chipBtns.forEach(btn => {
+        btn.onclick = () => {
+            chipBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentChipValue = parseInt(btn.dataset.value);
+            customBetInput.value = '';
+        };
+    });
+
+    customBetInput.oninput = () => {
+        chipBtns.forEach(b => b.classList.remove('active'));
+        currentChipValue = parseInt(customBetInput.value) || 0;
+    };
+
+    // Outside bets
+    document.querySelectorAll('.cell[data-bet]').forEach(cell => {
+        if (!cell.classList.contains('num-cell')) {
+            cell.onclick = (e) => handleBetClick(e, cell.dataset.bet);
+        }
+    });
+}
+
+function handleBetClick(e, betType) {
+    if (isSpinning) return;
+    if (currentChipValue <= 0) return;
+
+    // Add bet to state
+    const existingBet = bets.find(b => b.type === betType);
+    if (existingBet) {
+        existingBet.amount += currentChipValue;
     } else {
-        selectedBets.add(bet);
-        element.classList.add('selected');
+        bets.push({ type: betType, amount: currentChipValue });
+    }
+
+    // Visual feedback: Place a chip
+    const rect = e.target.getBoundingClientRect();
+    const boardRect = document.getElementById('betting-board').getBoundingClientRect();
+    
+    const chip = document.createElement('div');
+    chip.className = 'chip-marker';
+    chip.textContent = currentChipValue >= 1000 ? (currentChipValue / 1000) + 'k' : currentChipValue;
+    
+    // Random offset within the cell
+    const offsetX = (Math.random() - 0.5) * 10;
+    const offsetY = (Math.random() - 0.5) * 10;
+    
+    chip.style.left = (e.clientX - boardRect.left - 12 + offsetX) + 'px';
+    chip.style.top = (e.clientY - boardRect.top - 12 + offsetY) + 'px';
+    
+    document.getElementById('betting-board').appendChild(chip);
+    playSound('se-click');
+}
+
+function clearChipsFromBoard() {
+    document.querySelectorAll('.chip-marker').forEach(c => c.remove());
+}
+
+function removeLastChipFromBoard() {
+    const chips = document.querySelectorAll('.chip-marker');
+    if (chips.length > 0) {
+        chips[chips.length - 1].remove();
     }
 }
 
-// Draw Wheel
-let startAngle = 0;
-const arc = Math.PI / (numbers.length / 2);
-
+// --- Wheel Graphics ---
 function drawWheel() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const radius = 180;
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-
-    for (let i = 0; i < numbers.length; i++) {
-        const angle = startAngle + i * arc;
-        ctx.fillStyle = numbers[i].color === 'red' ? '#ff4d4d' : (numbers[i].color === 'black' ? '#222' : '#4dff4d');
-        
+    const radius = wheelCanvas.width / 2;
+    ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+    
+    const arc = (Math.PI * 2) / 37;
+    
+    WHEEL_NUMBERS.forEach((num, i) => {
+        const angle = i * arc;
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, angle, angle + arc, false);
-        ctx.lineTo(centerX, centerY);
+        ctx.fillStyle = num === 0 ? '#1a4d2e' : (RED_NUMBERS.includes(num) ? '#c41e3a' : '#1a1a1a');
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius - 10, angle, angle + arc);
+        ctx.lineTo(radius, radius);
         ctx.fill();
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 1;
         ctx.stroke();
 
         ctx.save();
-        ctx.fillStyle = "white";
-        ctx.translate(centerX + Math.cos(angle + arc / 2) * (radius - 30), centerY + Math.sin(angle + arc / 2) * (radius - 30));
-        ctx.rotate(angle + arc / 2 + Math.PI / 2);
-        ctx.font = 'bold 12px Cinzel';
-        ctx.fillText(numbers[i].num, -ctx.measureText(numbers[i].num).width / 2, 0);
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + arc / 2);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 14px Cinzel";
+        ctx.fillText(num, radius - 40, 5);
         ctx.restore();
-    }
+    });
 }
 
+// --- Game Flow ---
 function spin() {
-    if (isSpinning || selectedBets.size === 0) return;
-    
-    const totalBet = currentBet * selectedBets.size;
-    if (totalBet > balance) {
-        alert("Not enough coins!");
-        return;
-    }
+    if (isSpinning || (bets.length === 0 && balance >= 0)) return;
 
+    const totalBet = bets.reduce((sum, b) => sum + b.amount, 0);
     balance -= totalBet;
     updateUI();
-    
     isSpinning = true;
-    resultEl.classList.add('hidden');
-    
-    const spinAngleStart = Math.random() * 10 + 10;
-    let spinTime = 0;
-    const spinTimeTotal = Math.random() * 3000 + 4000;
+    spinBtn.disabled = true;
+    playSound('se-spin');
 
-    function rotateWheel() {
-        spinTime += 30;
-        if (spinTime >= spinTimeTotal) {
-            stopRotateWheel();
-            return;
-        }
-        const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
-        startAngle += (spinAngle * Math.PI / 180);
-        drawWheel();
-        requestAnimationFrame(rotateWheel);
-    }
-    rotateWheel();
+    const resultIndex = Math.floor(Math.random() * 37);
+    const resultNum = WHEEL_NUMBERS[resultIndex];
+    
+    // Wheel Animation
+    const wheelInner = document.getElementById('wheel-inner');
+    const fullSpins = 5 + Math.floor(Math.random() * 5);
+    const wheelAngle = (fullSpins * 360) + (resultIndex * (360 / 37));
+    
+    wheelInner.style.transition = 'transform 4s cubic-bezier(0.1, 0, 0.1, 1)';
+    wheelInner.style.transform = `rotate(${wheelAngle}deg)`;
+
+    // Ball Animation
+    const ballTrack = document.getElementById('ball-track');
+    ballTrack.classList.remove('ball-spinning');
+    void ballTrack.offsetWidth; // Trigger reflow
+    ballTrack.classList.add('ball-spinning');
+
+    setTimeout(() => {
+        resolveSpin(resultNum);
+    }, 4500);
 }
 
-function stopRotateWheel() {
+function resolveSpin(num) {
     isSpinning = false;
-    const degrees = startAngle * 180 / Math.PI + 90;
-    const arcd = arc * 180 / Math.PI;
-    const index = Math.floor((360 - degrees % 360) / arcd);
-    const result = numbers[index < 0 ? index + numbers.length : index];
+    spinBtn.disabled = false;
     
-    showResult(result);
-}
-
-function showResult(result) {
-    resultEl.classList.remove('hidden');
-    resultValueEl.textContent = result.num;
-    resultValueEl.style.color = result.color === 'red' ? '#ff4d4d' : (result.color === 'black' ? '#fff' : '#4dff4d');
+    // Update stats & history
+    history.unshift(num);
+    if (history.length > 10) history.pop();
     
-    calculatePayout(result);
-}
+    stats.totalSpins++;
+    stats.counts[num]++;
+    if (num === 0) stats.zero++;
+    else if (RED_NUMBERS.includes(num)) stats.red++;
+    else stats.black++;
 
-function calculatePayout(result) {
-    let winnings = 0;
-    const num = result.num;
-    const color = result.color;
-
-    selectedBets.forEach(bet => {
-        if (!isNaN(bet) && parseInt(bet) === num) {
-            winnings += currentBet * 36;
-        } else if (bet === 'red' && color === 'red') {
-            winnings += currentBet * 2;
-        } else if (bet === 'black' && color === 'black') {
-            winnings += currentBet * 2;
-        } else if (bet === 'even' && num !== 0 && num % 2 === 0) {
-            winnings += currentBet * 2;
-        } else if (bet === 'odd' && num % 2 !== 0) {
-            winnings += currentBet * 2;
-        }
+    // Calculate winnings
+    let totalWin = 0;
+    bets.forEach(bet => {
+        totalWin += calculateBetWin(bet, num);
     });
 
-    balance += winnings;
+    if (totalWin > 0) {
+        balance += totalWin;
+        showWinMessage(totalWin);
+        playSound('se-win');
+    }
+
     updateUI();
+    updateHistoryUI();
+    updateStatsUI();
 }
 
+function calculateBetWin(bet, landedNum) {
+    const type = bet.type;
+    const amount = bet.amount;
+
+    // Inside Bets
+    if (!isNaN(type)) {
+        if (parseInt(type) === landedNum) return amount * 36;
+    }
+    
+    // Outside Bets
+    if (landedNum === 0) return 0; // Most outside bets lose on 0
+
+    switch (type) {
+        case 'red': return RED_NUMBERS.includes(landedNum) ? amount * 2 : 0;
+        case 'black': return !RED_NUMBERS.includes(landedNum) ? amount * 2 : 0;
+        case 'even': return landedNum % 2 === 0 ? amount * 2 : 0;
+        case 'odd': return landedNum % 2 !== 0 ? amount * 2 : 0;
+        case 'low': return (landedNum >= 1 && landedNum <= 18) ? amount * 2 : 0;
+        case 'high': return (landedNum >= 19 && landedNum <= 36) ? amount * 2 : 0;
+        case '1st12': return (landedNum >= 1 && landedNum <= 12) ? amount * 3 : 0;
+        case '2nd12': return (landedNum >= 13 && landedNum <= 24) ? amount * 3 : 0;
+        case '3rd12': return (landedNum >= 25 && landedNum <= 36) ? amount * 3 : 0;
+        case 'col1': return (landedNum % 3 === 1) ? amount * 3 : 0;
+        case 'col2': return (landedNum % 3 === 2) ? amount * 3 : 0;
+        case 'col3': return (landedNum % 3 === 0) ? amount * 3 : 0;
+    }
+    return 0;
+}
+
+// --- UI Updates ---
 function updateUI() {
-    balanceEl.textContent = balance;
-    betAmountEl.textContent = currentBet;
+    balanceEl.textContent = balance.toLocaleString();
+    debtEl.textContent = debt.toLocaleString();
+    
+    // Balance color
+    if (balance < 0) balanceEl.style.color = '#ff4d4d';
+    else balanceEl.style.color = '#fff';
 }
 
-function easeOut(t, b, c, d) {
-    const ts = (t /= d) * t;
-    const tc = ts * t;
-    return b + c * (tc + -3 * ts + 3 * t);
+function updateHistoryUI() {
+    historyList.innerHTML = '';
+    history.forEach(num => {
+        const item = document.createElement('div');
+        const color = num === 0 ? 'green' : (RED_NUMBERS.includes(num) ? 'red' : 'black');
+        item.className = 'hist-item';
+        item.style.backgroundColor = color === 'green' ? '#1a4d2e' : (color === 'red' ? '#c41e3a' : '#1a1a1a');
+        item.textContent = num;
+        historyList.appendChild(item);
+    });
 }
 
-// Event Listeners
-document.getElementById('bet-plus').onclick = () => {
-    currentBet += 10;
-    updateUI();
-};
-document.getElementById('bet-minus').onclick = () => {
-    if (currentBet > 10) currentBet -= 10;
-    updateUI();
-};
-spinBtn.onclick = spin;
+function updateStatsUI() {
+    const redPct = stats.totalSpins ? Math.round((stats.red / stats.totalSpins) * 100) : 0;
+    const blackPct = stats.totalSpins ? Math.round((stats.black / stats.totalSpins) * 100) : 0;
+    
+    statsContainer.innerHTML = `
+        <div style="display:flex; gap:10px; margin-bottom:10px">
+            <div style="color:#c41e3a">RED: ${redPct}%</div>
+            <div style="color:#1a1a1a; text-shadow:0 0 2px #fff">BLACK: ${blackPct}%</div>
+        </div>
+        <div style="font-size:12px">Total Spins: ${stats.totalSpins}</div>
+    `;
+}
 
-document.querySelectorAll('.bet-btn').forEach(btn => {
-    btn.onclick = () => toggleBet(btn);
-});
+function showWinMessage(amount) {
+    winMessage.textContent = `WIN: ${amount.toLocaleString()} renga!`;
+    winMessage.classList.add('show');
+    setTimeout(() => {
+        winMessage.classList.remove('show');
+    }, 3000);
+}
 
-initTable();
-drawWheel();
-updateUI();
+function playSound(id) {
+    const sound = document.getElementById(id);
+    if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(() => {}); // Handle browser block
+    }
+}
+
+// Start
+init();
+document.querySelector('.chip.c100').classList.add('active');
