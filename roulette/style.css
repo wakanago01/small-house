@@ -1,10 +1,6 @@
 :root {
-    --accent-lavender: #d4b5e8;
-    --accent-pink: #f7d8ef;
-    --accent-dark: #3a2b5e;
-    --red-cell: #8b1e32;
-    --black-cell: #1a1a1a;
-    --text-main: #ffffff;
+    --accent-lavender: rgba(212, 181, 232, 0.4);
+    --accent-glow: rgba(212, 181, 232, 0.8);
     --transition: all 0.2s ease;
 }
 
@@ -16,188 +12,162 @@
 
 body {
     font-family: 'Noto Sans JP', sans-serif;
-    background: #0a0614 url('gazo/rureto.png') center/cover no-repeat;
-    color: var(--text-main);
+    background: #0a0614;
     overflow: hidden;
     height: 100vh;
 }
 
-#app {
+#game-stage {
     width: 100vw;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 10px 40px;
+    background: url('gazo/rureto.png') center/cover no-repeat;
     position: relative;
 }
 
-/* LACE TITLE - MAINTAINED */
-#lace-title-wrapper {
-    text-align: center;
-    margin-top: 10px;
+#app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 10;
 }
 
-#main-title {
-    font-family: 'Cinzel', serif;
-    font-size: 42px;
-    color: var(--accent-lavender);
-    text-shadow: 0 0 15px rgba(212, 181, 232, 0.6);
-    letter-spacing: 0.15em;
-}
-
-.lace-decoration {
-    height: 15px;
-    background-image: radial-gradient(circle, var(--accent-lavender) 20%, transparent 20%);
-    background-size: 20px 20px;
-    background-position: center;
-    opacity: 0.5;
-    width: 300px;
-    margin: 0 auto;
-}
-
-/* TOP STATUS - MINIMAL */
+/* HEADER - Minimal Overlay for balance/debt */
 #top-status {
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    padding: 0 50px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 10px 0;
+    pointer-events: none;
 }
 
-.status-panel { display: flex; gap: 40px; }
-.status-item .label { font-size: 10px; color: var(--accent-lavender); }
-.status-item .value { font-family: 'Cinzel', serif; font-size: 24px; font-weight: bold; }
-.status-item.debt .value { color: #ff7676; }
+.status-panel { display: flex; gap: 60px; pointer-events: auto; }
+.value { font-family: 'Cinzel', serif; font-size: 28px; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+.debt .value { color: #ff7676; }
 
-/* MAIN GAME AREA */
+/* INTERACTION LAYOUT */
 #game-main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding: 80px 40px 40px;
+}
+
+#wheel-interaction-area {
     flex: 1;
     display: flex;
-    gap: 40px;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
 }
 
 #wheel-container {
     width: 380px; height: 380px;
-    border-radius: 50%;
-    border: 8px solid #2b2144;
-    overflow: hidden;
+    position: relative;
+    /* Canvas will draw the interactive wheel elements if needed, 
+       but we keep it mostly transparent to see the image below */
 }
 
-/* BETTING BOARD - SURGICAL IMPROVEMENTS */
-#betting-board {
+#wheel-canvas {
+    opacity: 0.8; /* Subtle overlay to match image wheel positions */
+}
+
+/* BETTING HITBOX LAYER - COMPLETELY TRANSPARENT */
+#bet-interaction-area {
+    flex: 2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#betting-board-hitbox {
+    flex: 1;
     display: grid;
-    grid-template-columns: 60px 1fr 60px;
-    grid-template-rows: 1fr 60px;
-    gap: 4px;
-    background: rgba(0, 0, 0, 0.4); /* Subtle shadow for board depth */
-    padding: 10px;
-    border-radius: 8px;
+    grid-template-columns: 80px 1fr 80px;
+    grid-template-rows: 1fr 80px;
+    gap: 5px;
+    padding: 20px;
+    /* This grid must align with the rureto.png betting board */
 }
 
-#numbers-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 4px;
-}
-
-.cell {
-    display: flex; justify-content: center; align-items: center;
-    min-height: 55px; cursor: pointer; border-radius: 4px;
-    font-weight: bold; font-family: 'Cinzel', serif;
+.hitbox {
+    background: transparent;
+    cursor: pointer;
     transition: var(--transition);
-    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    position: relative;
 }
 
-/* NUMBERS - LARGER AND CLEARER */
-.num-cell {
-    font-size: 26px; /* Larger numbers */
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-    background: rgba(255,255,255,0.02); /* Subtle cloth texture feel */
+/* HOVER EFFECT - Subtle Lavender Glow only */
+.hitbox:hover {
+    background: var(--accent-lavender);
+    box-shadow: 0 0 15px var(--accent-glow);
+    transform: scale(1.03);
 }
 
-.num-cell.red { background-color: var(--red-cell); }
-.num-cell.black { background-color: var(--black-cell); }
-
-.cell:hover {
-    filter: brightness(1.3);
-    border-color: var(--accent-lavender);
+/* CHIPS ON IMAGE - Visual feedback */
+.chip-marker {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #d4af37;
+    border: 2px dashed #fff;
+    pointer-events: none;
+    z-index: 100;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-.zero-cell { grid-column: 1; grid-row: 1; background: #2d5a3f; font-size: 30px; }
-
-#outside-bets-area {
-    grid-column: 2; grid-row: 2;
-    display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(2, 1fr);
-    gap: 4px;
-}
-
-.cell.dozen-bet, .cell.binary-bet, .cell.color-bet, .cell.col-bet {
-    background: rgba(255,255,255,0.05);
-    font-size: 11px; color: var(--accent-lavender);
-}
-
-/* CONTROLS - REFINED */
-#controls-panel {
+/* CONTROLS HITBOXES - Over rureto.png buttons */
+#controls-hitbox {
+    height: 150px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding: 0 10px;
+    align-items: flex-end;
+    padding-bottom: 20px;
 }
 
-#chip-selection { display: flex; gap: 10px; align-items: center; }
-.chip {
-    width: 55px; height: 55px; border-radius: 50%; border: 3px dashed rgba(255,255,255,0.3);
-    cursor: pointer; font-weight: 900; background: #222; font-family: 'Cinzel', serif;
-}
-.chip.active { transform: scale(1.1); border-style: solid; border-color: var(--accent-lavender); }
-
-#custom-bet-input {
-    width: 80px; padding: 6px; background: rgba(0,0,0,0.5);
-    border: 1px solid var(--accent-dark); color: #fff; border-radius: 4px; text-align: center;
-}
-
-#action-buttons { display: flex; gap: 15px; align-items: center; }
-
-/* UTIL BUTTONS - BRUSH UP */
-.util-btn {
-    padding: 8px 16px; border-radius: 6px; border: 1px solid var(--accent-dark);
-    background: rgba(255,255,255,0.03); color: var(--accent-lavender);
-    font-family: 'Cinzel', serif; cursor: pointer; font-size: 18px; /* Larger text */
+#chip-selection-hitbox { display: flex; gap: 15px; }
+.chip-hitbox {
+    width: 60px; height: 60px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
     transition: var(--transition);
 }
-.util-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.chip-hitbox:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
+.chip-hitbox.active { box-shadow: 0 0 20px #fff; border: 2px solid #fff; }
 
-/* HEART SPIN BUTTON - MAINTAINED */
+#action-hitbox { display: flex; gap: 20px; align-items: center; }
+.hitbox-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 80px;
+    min-height: 40px;
+}
+.hitbox-btn:hover { background: rgba(212, 181, 232, 0.2); border-radius: 10px; }
+
+/* SPIN BUTTON HITBOX - Over the heart image */
 #spin-btn {
-    width: 85px; height: 85px;
-    background: var(--accent-lavender);
-    color: var(--accent-dark);
-    font-weight: 900; font-family: 'Cinzel', serif; font-size: 20px;
-    border: none; cursor: pointer;
+    width: 100px; height: 100px;
     clip-path: polygon(50% 15%, 80% 0%, 100% 20%, 100% 50%, 50% 100%, 0% 50%, 0% 20%, 20% 0%);
-    transition: var(--transition);
 }
+#spin-btn:hover { transform: scale(1.05); background: rgba(247, 216, 239, 0.3); }
 
-#spin-btn:hover { transform: scale(1.05); background: var(--accent-pink); }
-
-/* DECORATIONS */
-#black-cat-container { position: absolute; bottom: 0; right: 20px; width: 160px; pointer-events: none; }
-#black-cat-container img { width: 100%; }
-
-#back-button { position: absolute; top: 20px; left: 40px; color: var(--accent-lavender); cursor: pointer; font-size: 18px; }
-
-/* WINNING EFFECTS - SOFT GLOW */
+/* WINNING GLOW - Over original image cell */
 .winning-glow {
-    animation: softPulse 0.8s infinite alternate;
+    animation: winningPulse 0.8s infinite alternate;
 }
-@keyframes softPulse {
-    from { box-shadow: 0 0 5px #fff, 0 0 10px var(--accent-lavender); filter: brightness(1.2); }
-    to { box-shadow: 0 0 10px #fff, 0 0 20px var(--accent-pink); filter: brightness(1.4); }
+@keyframes winningPulse {
+    from { background: rgba(255, 255, 255, 0.2); box-shadow: 0 0 10px #fff; }
+    to { background: rgba(212, 181, 232, 0.4); box-shadow: 0 0 30px var(--accent-glow); }
 }
 
-#win-message { position: fixed; top: 40%; left: 50%; transform: translateX(-50%); font-family: 'Cinzel', serif; font-size: 48px; color: var(--accent-pink); opacity: 0; transition: opacity 0.5s; pointer-events: none;}
-#win-message.show { opacity: 1; }
+#back-button {
+    position: absolute; top: 20px; left: 20px;
+    font-size: 30px; color: #fff; cursor: pointer;
+    text-shadow: 0 0 10px #000;
+}
