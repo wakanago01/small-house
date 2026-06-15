@@ -180,6 +180,9 @@ function drawWheel() {
 function spin() {
     if (isSpinning || (bets.length === 0 && balance >= 0)) return;
 
+    // Clear previous winning effects
+    document.querySelectorAll('.winning-glow').forEach(el => el.classList.remove('winning-glow'));
+
     const totalBet = bets.reduce((sum, b) => sum + b.amount, 0);
     balance -= totalBet;
     updateUI();
@@ -213,6 +216,12 @@ function resolveSpin(num) {
     isSpinning = false;
     spinBtn.disabled = false;
     
+    // Highlight winning number on table
+    const winningCell = document.querySelector(`.cell[data-bet="${num}"]`);
+    if (winningCell) {
+        winningCell.classList.add('winning-glow');
+    }
+
     // Update stats & history
     history.unshift(num);
     if (history.length > 10) history.pop();
