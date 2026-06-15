@@ -14,6 +14,9 @@ const rouletteNumbers = [
 let rotation = 0;
 let spinning = false;
 
+let ballAngle = -Math.PI / 2;
+let winningNumber = null;
+
 const redNumbers = [
     1,3,5,7,9,
     12,14,16,18,
@@ -30,6 +33,8 @@ function resizeCanvas() {
 
     drawRoulette();
 }
+
+setMessage("幸運を祈るよ。");
 
 function drawRoulette() {
 
@@ -157,11 +162,62 @@ function drawRoulette() {
 
     ctx.fillStyle = "#d4af37";
     ctx.fill();
+
+    if (winningNumber !== null) {
+
+        const ballRadius =
+            (outerRadius + innerRadius) / 2;
+
+        const ballX =
+            centerX +
+            Math.cos(ballAngle) * ballRadius;
+
+        const ballY =
+            centerY +
+            Math.sin(ballAngle) * ballRadius;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            ballX,
+            ballY,
+            canvas.width * 0.015,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = "white";
+        ctx.fill();
+
+        ctx.strokeStyle = "#cccccc";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
 }
 
 window.addEventListener("resize", resizeCanvas);
 
 resizeCanvas();
+
+function getWinningNumber() {
+
+    const angleSize = (Math.PI * 2) / 37;
+
+    let normalizedRotation =
+        rotation % (Math.PI * 2);
+
+    if(normalizedRotation < 0){
+        normalizedRotation += Math.PI * 2;
+    }
+
+    const pointerAngle =
+        (Math.PI * 2 - normalizedRotation);
+
+    const index =
+        Math.floor(pointerAngle / angleSize) % 37;
+
+    return rouletteNumbers[index];
+}
 
 const spinButton =
     document.getElementById("spinButton");
@@ -189,7 +245,35 @@ const spinButton =
             requestAnimationFrame(animate);
         }
         else{
+
             spinning = false;
+
+            const result =
+                getWinningNumber();
+            
+            winningNumber = result;
+
+            const index =
+                rouletteNumbers.indexOf(result);
+
+            const angleSize =
+                (Math.PI * 2) / 37;
+
+            ballAngle =
+                index * angleSize
+                - Math.PI / 2
+                + angleSize / 2;
+
+            drawRoulette();
+
+            setMessage(
+                `結果は ${result} だよ。`
+            );
+
+            console.log(
+                "winning number:",
+                result
+            );
         }
     }
 
@@ -200,3 +284,11 @@ spinButton.addEventListener(
     "click",
     spinRoulette
 );
+
+function setMessage(text){
+
+    document.getElementById(
+        "messageBox"
+    ).textContent =
+        "Rabbit : " + text;
+}
