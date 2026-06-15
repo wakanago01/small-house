@@ -155,7 +155,13 @@
             syncBetInput() {
                 const input = document.getElementById('bet-input-field');
                 let val = parseInt(input.value) || 10;
+
+                const maxBet = Math.min(this.player.renga, 100000000)
+
+
                 if (val < 10) val = 10;
+                if (val > maxBet) val = maxBet;
+
                 this.bet = val;
                 input.value = this.bet;
             }
