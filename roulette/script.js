@@ -1,167 +1,294 @@
-// --- Constants & Data ---
-const WHEEL_NUMBERS = [
-    0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
+console.log("script loaded");
+
+const canvas = document.getElementById("rouletteCanvas");
+const ctx = canvas.getContext("2d");
+
+const rouletteNumbers = [
+    0,
+    32,15,19,4,21,2,25,17,34,6,
+    27,13,36,11,30,8,23,10,5,
+    24,16,33,1,20,14,31,9,22,
+    18,29,7,28,12,35,3,26
 ];
-const RED_NUMBERS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 
-// --- State ---
-let balance = 50000;
-let debt = 100000000;
-let currentChipValue = 100;
-let bets = [];
-let isSpinning = false;
-let history = [];
+let rotation = 0;
+let spinning = false;
 
-// --- DOM Elements ---
-const balanceEl = document.getElementById('balance');
-const debtEl = document.getElementById('debt');
-const boardHitbox = document.getElementById('betting-board-hitbox');
-const wheelCanvas = document.getElementById('wheel-canvas');
-const ctx = wheelCanvas.getContext('2d');
-const spinBtn = document.getElementById('spin-btn');
-const winMessage = document.getElementById('win-message');
+let ballAngle = -Math.PI / 2;
+let winningNumber = null;
 
-// --- Initialization ---
-function init() {
-    createHitboxes();
-    drawWheel();
-    updateUI();
-    setupEventListeners();
+const redNumbers = [
+    1,3,5,7,9,
+    12,14,16,18,
+    19,21,23,25,27,
+    30,32,34,36
+];
+
+function resizeCanvas() {
+
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    drawRoulette();
 }
 
-function createHitboxes() {
-    // 0 hitbox
-    const zero = document.createElement('div');
-    zero.className = 'hitbox zero';
-    zero.dataset.bet = '0';
-    zero.onclick = (e) => handleBetClick(e, '0');
-    boardHitbox.appendChild(zero);
+setMessage("幸運を祈るよ。");
 
-    // 1-36 hitboxes
-    const grid = document.createElement('div');
-    grid.id = 'numbers-grid';
-    boardHitbox.appendChild(grid);
+function drawRoulette() {
 
-    for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 12; c++) {
-            const num = (c * 3) + (3 - r);
-            const cell = document.createElement('div');
-            cell.className = 'hitbox num-hitbox';
-            cell.dataset.bet = num.toString();
-            cell.onclick = (e) => handleBetClick(e, num.toString());
-            grid.appendChild(cell);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    const outerRadius = canvas.width * 0.45;
+    const innerRadius = canvas.width * 0.28;
+
+    const angleSize = (Math.PI * 2) / 37;
+
+    ctx.save();
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.translate(-centerX, -centerY);
+
+    rouletteNumbers.forEach((number, index) => {
+
+        const startAngle =
+            index * angleSize - Math.PI / 2;
+
+        const endAngle =
+            startAngle + angleSize;
+
+        let color;
+
+        if(number === 0){
+            color = "#1fa84a";
+        }
+        else if(redNumbers.includes(number)){
+            color = "#c62828";
+        }
+        else{
+            color = "#111111";
+        }
+
+        ctx.beginPath();
+
+        ctx.arc(
+            centerX,
+            centerY,
+            outerRadius,
+            startAngle,
+            endAngle
+        );
+
+        ctx.arc(
+            centerX,
+            centerY,
+            innerRadius,
+            endAngle,
+            startAngle,
+            true
+        );
+
+        ctx.closePath();
+
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        ctx.strokeStyle = "#d4af37";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        const textAngle =
+            startAngle + angleSize / 2;
+
+        const textRadius =
+            (outerRadius + innerRadius) / 2;
+
+        const textX =
+            centerX +
+            Math.cos(textAngle) * textRadius;
+
+        const textY =
+            centerY +
+            Math.sin(textAngle) * textRadius;
+
+        ctx.save();
+
+        ctx.translate(textX, textY);
+        ctx.rotate(textAngle + Math.PI / 2);
+
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${canvas.width * 0.03}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(number, 0, 0);
+
+        ctx.restore();
+    });
+
+    ctx.restore();
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        innerRadius - 10,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = "#7c5ac2";
+    ctx.fill();
+
+    ctx.strokeStyle = "#d4af37";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.beginPath();
+
+    ctx.arc(
+        centerX,
+        centerY,
+        canvas.width * 0.03,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = "#d4af37";
+    ctx.fill();
+
+    if (winningNumber !== null) {
+
+        const ballRadius =
+            (outerRadius + innerRadius) / 2;
+
+        const ballX =
+            centerX +
+            Math.cos(ballAngle) * ballRadius;
+
+        const ballY =
+            centerY +
+            Math.sin(ballAngle) * ballRadius;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            ballX,
+            ballY,
+            canvas.width * 0.015,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = "white";
+        ctx.fill();
+
+        ctx.strokeStyle = "#cccccc";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+}
+
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
+
+function getWinningNumber() {
+
+    const angleSize = (Math.PI * 2) / 37;
+
+    let normalizedRotation =
+        rotation % (Math.PI * 2);
+
+    if(normalizedRotation < 0){
+        normalizedRotation += Math.PI * 2;
+    }
+
+    const pointerAngle =
+        (Math.PI * 2 - normalizedRotation);
+
+    const index =
+        Math.floor(pointerAngle / angleSize) % 37;
+
+    return rouletteNumbers[index];
+}
+
+const spinButton =
+    document.getElementById("spinButton");
+
+    function spinRoulette() {
+
+    if(spinning){
+        return;
+    }
+
+    spinning = true;
+
+    let speed =
+        Math.random() * 0.3 + 0.4;
+
+    function animate() {
+
+        rotation += speed;
+
+        speed *= 0.985;
+
+        drawRoulette();
+
+        if(speed > 0.002){
+            requestAnimationFrame(animate);
+        }
+        else{
+
+            spinning = false;
+
+            const result =
+                getWinningNumber();
+            
+            winningNumber = result;
+
+            const index =
+                rouletteNumbers.indexOf(result);
+
+            const angleSize =
+                (Math.PI * 2) / 37;
+
+            ballAngle =
+                index * angleSize
+                - Math.PI / 2
+                + angleSize / 2;
+
+            drawRoulette();
+
+            setMessage(
+                `結果は ${result} だよ。`
+            );
+
+            console.log(
+                "winning number:",
+                result
+            );
         }
     }
 
-    // Outside/Column hitboxes added as needed to match rureto.png locations
+    animate();
 }
 
-function setupEventListeners() {
-    spinBtn.onclick = spin;
-    
-    document.getElementById('clear-btn').onclick = () => {
-        if (isSpinning) return;
-        bets = [];
-        document.querySelectorAll('.chip-marker').forEach(c => c.remove());
-    };
+spinButton.addEventListener(
+    "click",
+    spinRoulette
+);
 
-    document.querySelectorAll('.chip-hitbox').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('.chip-hitbox').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentChipValue = parseInt(btn.dataset.value);
-        };
-    });
+function setMessage(text){
+
+    document.getElementById(
+        "messageBox"
+    ).textContent =
+        "Rabbit : " + text;
 }
-
-function handleBetClick(e, betType) {
-    if (isSpinning) return;
-    
-    bets.push({ type: betType, amount: currentChipValue });
-
-    // Visual feedback: Place a chip directly on the background illustration
-    const rect = e.target.getBoundingClientRect();
-    const chip = document.createElement('div');
-    chip.className = 'chip-marker';
-    chip.style.left = (e.clientX - 15) + 'px';
-    chip.style.top = (e.clientY - 15) + 'px';
-    document.body.appendChild(chip);
-}
-
-// --- Wheel Graphics (Transparent Overlay) ---
-function drawWheel() {
-    const radius = wheelCanvas.width / 2;
-    ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
-    const arc = (Math.PI * 2) / 37;
-    
-    WHEEL_NUMBERS.forEach((num, i) => {
-        const angle = i * arc;
-        ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(angle + arc / 2);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-        ctx.font = "bold 12px Cinzel";
-        // Numbers only drawn if needed for alignment check
-        // ctx.fillText(num, radius - 30, 5); 
-        ctx.restore();
-    });
-}
-
-function spin() {
-    if (isSpinning || bets.length === 0) return;
-
-    document.querySelectorAll('.winning-glow').forEach(el => el.classList.remove('winning-glow'));
-
-    const totalBet = bets.reduce((sum, b) => sum + b.amount, 0);
-    balance -= totalBet;
-    updateUI();
-    isSpinning = true;
-    
-    const resultIndex = Math.floor(Math.random() * 37);
-    const resultNum = WHEEL_NUMBERS[resultIndex];
-    
-    const wheelInner = document.getElementById('wheel-inner');
-    const wheelAngle = (360 * 5) + (resultIndex * (360 / 37));
-    wheelInner.style.transition = 'transform 4s cubic-bezier(0.1, 0, 0.1, 1)';
-    wheelInner.style.transform = `rotate(${wheelAngle}deg)`;
-
-    const ballTrack = document.getElementById('ball-track');
-    ballTrack.style.display = 'block';
-    ballTrack.style.animation = 'spinBall 4s cubic-bezier(0.1, 0, 0.2, 1) forwards';
-
-    setTimeout(() => {
-        resolveSpin(resultNum);
-    }, 4500);
-}
-
-function resolveSpin(num) {
-    isSpinning = false;
-    
-    // Highlight the original image cell with a transparent glow hitbox
-    const winningHitbox = document.querySelector(`.hitbox[data-bet="${num}"]`);
-    if (winningHitbox) {
-        winningHitbox.classList.add('winning-glow');
-    }
-
-    let totalWin = 0;
-    bets.forEach(bet => {
-        if (bet.type === num.toString()) totalWin += bet.amount * 36;
-        // Payout logic for red/black etc. omitted for brevity, but functional
-    });
-
-    if (totalWin > 0) {
-        balance += totalWin;
-        winMessage.textContent = `WIN: ${totalWin.toLocaleString()}`;
-        winMessage.classList.add('show');
-        setTimeout(() => winMessage.classList.remove('show'), 3000);
-    }
-    updateUI();
-}
-
-function updateUI() {
-    balanceEl.textContent = balance.toLocaleString();
-    debtEl.textContent = debt.toLocaleString();
-}
-
-init();
-document.querySelector('.chip-hitbox[data-value="100"]').classList.add('active');

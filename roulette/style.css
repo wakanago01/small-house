@@ -1,173 +1,137 @@
-:root {
-    --accent-lavender: rgba(212, 181, 232, 0.4);
-    --accent-glow: rgba(212, 181, 232, 0.8);
-    --transition: all 0.2s ease;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+body{
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+
+    font-family:sans-serif;
+
+    background-image:url("img/background.png");
+    background-size:cover;
+    background-position:center;
 }
 
-body {
-    font-family: 'Noto Sans JP', sans-serif;
-    background: #0a0614;
-    overflow: hidden;
-    height: 100vh;
+#game{
+    width:100%;
+    height:100%;
+
+    display:flex;
+    flex-direction:column;
 }
 
-#game-stage {
-    width: 100vw;
-    height: 100vh;
-    background: url('gazo/rureto.png') center/cover no-repeat;
-    position: relative;
+#topBar{
+    height:80px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 40px;
+
+    color:white;
+    font-size:28px;
+    font-weight:bold;
 }
 
-#app {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    z-index: 10;
+#gameArea{
+    flex:1;
+    display:flex;
 }
 
-/* HEADER - Minimal Overlay for balance/debt */
-#top-status {
-    position: absolute;
-    top: 20px;
-    width: 100%;
-    padding: 0 50px;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
+#rouletteArea{
+    width:55%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-.status-panel { display: flex; gap: 60px; pointer-events: auto; }
-.value { font-family: 'Cinzel', serif; font-size: 28px; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
-.debt .value { color: #ff7676; }
+#rouletteCanvas{
+    width:90%;
+    aspect-ratio:1 / 1;
 
-/* INTERACTION LAYOUT */
-#game-main {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    padding: 80px 40px 40px;
+    max-width:500px;
+    max-height:500px;
+
+    border-radius:50%;
+
+    background:rgba(0,0,0,0.15);
+
+    backdrop-filter:blur(4px);
+
+    box-shadow:
+        inset 0 0 30px rgba(255,255,255,0.05),
+        0 0 20px rgba(0,0,0,0.3);
 }
 
-#wheel-interaction-area {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+#betArea{
+    width:45%;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
-#wheel-container {
-    width: 380px; height: 380px;
-    position: relative;
-    /* Canvas will draw the interactive wheel elements if needed, 
-       but we keep it mostly transparent to see the image below */
+.betTitle{
+    margin-top:90px;
+
+    color:white;
+    font-size:32px;
+    font-weight:bold;
 }
 
-#wheel-canvas {
-    opacity: 0.8; /* Subtle overlay to match image wheel positions */
+#betTable{
+    width:75%;
+    height:60%;
+
+    min-width:30px;
+
+    border:none;
+
+    border-radius:20px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    color:white;
+    font-size:24px;
+
+    background:rgba(0,0,0,0.15);
+
+    backdrop-filter:blur(4px);
+
+    box-shadow:
+        inset 0 0 30px rgba(255,255,255,0.05),
+        0 0 20px rgba(0,0,0,0.3);
 }
 
-/* BETTING HITBOX LAYER - COMPLETELY TRANSPARENT */
-#bet-interaction-area {
-    flex: 2;
-    position: relative;
-    display: flex;
-    flex-direction: column;
+#messageBox{
+    height:90px;
+
+    display:flex;
+    align-items:center;
+
+    padding-left:30px;
+
+    color:white;
+
+    font-size:24px;
+
+    text-shadow:
+        0 0 10px rgba(255,255,255,0.5);
 }
 
-#betting-board-hitbox {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 80px 1fr 80px;
-    grid-template-rows: 1fr 80px;
-    gap: 5px;
-    padding: 20px;
-    /* This grid must align with the rureto.png betting board */
-}
+#controls{
+    width:100%;
 
-.hitbox {
-    background: transparent;
-    cursor: pointer;
-    transition: var(--transition);
-    border-radius: 4px;
-    position: relative;
-}
+    display:flex;
+    justify-content:center;
 
-/* HOVER EFFECT - Subtle Lavender Glow only */
-.hitbox:hover {
-    background: var(--accent-lavender);
-    box-shadow: 0 0 15px var(--accent-glow);
-    transform: scale(1.03);
-}
-
-/* CHIPS ON IMAGE - Visual feedback */
-.chip-marker {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #d4af37;
-    border: 2px dashed #fff;
-    pointer-events: none;
-    z-index: 100;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-/* CONTROLS HITBOXES - Over rureto.png buttons */
-#controls-hitbox {
-    height: 150px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding-bottom: 20px;
-}
-
-#chip-selection-hitbox { display: flex; gap: 15px; }
-.chip-hitbox {
-    width: 60px; height: 60px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    transition: var(--transition);
-}
-.chip-hitbox:hover { background: rgba(255,255,255,0.1); transform: scale(1.1); }
-.chip-hitbox.active { box-shadow: 0 0 20px #fff; border: 2px solid #fff; }
-
-#action-hitbox { display: flex; gap: 20px; align-items: center; }
-.hitbox-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: var(--transition);
-    min-width: 80px;
-    min-height: 40px;
-}
-.hitbox-btn:hover { background: rgba(212, 181, 232, 0.2); border-radius: 10px; }
-
-/* SPIN BUTTON HITBOX - Over the heart image */
-#spin-btn {
-    width: 100px; height: 100px;
-    clip-path: polygon(50% 15%, 80% 0%, 100% 20%, 100% 50%, 50% 100%, 0% 50%, 0% 20%, 20% 0%);
-}
-#spin-btn:hover { transform: scale(1.05); background: rgba(247, 216, 239, 0.3); }
-
-/* WINNING GLOW - Over original image cell */
-.winning-glow {
-    animation: winningPulse 0.8s infinite alternate;
-}
-@keyframes winningPulse {
-    from { background: rgba(255, 255, 255, 0.2); box-shadow: 0 0 10px #fff; }
-    to { background: rgba(212, 181, 232, 0.4); box-shadow: 0 0 30px var(--accent-glow); }
-}
-
-#back-button {
-    position: absolute; top: 20px; left: 20px;
-    font-size: 30px; color: #fff; cursor: pointer;
-    text-shadow: 0 0 10px #000;
+    margin-top:20px;
 }
