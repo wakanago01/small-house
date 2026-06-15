@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>small-house Roulette</title>
+    <title>small-house Roulette - Gothic Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="fade-in">
-    <!-- Background elements matching Home -->
+    <!-- Base Background Layers -->
     <div id="bg-stars"></div>
     <div id="bg-overlay"></div>
     
     <div id="app">
-        <div id="back-button" onclick="location.href='../home/index.html'">←</div>
+        <!-- TOP TITLE WITH LACE DECORATION -->
+        <div id="lace-title-wrapper">
+            <div class="lace-decoration top"></div>
+            <h1 id="main-title">Roulette</h1>
+            <div class="lace-decoration bottom"></div>
+        </div>
 
-        <!-- Header Info -->
-        <header>
+        <div id="back-button" onclick="location.href='../home/index.html'">← 戻る</div>
+
+        <!-- Header Status Bar -->
+        <header class="glass-header">
             <div class="status-panel">
                 <div class="status-item">
                     <span class="label">COINS</span>
@@ -28,18 +35,18 @@
                 </div>
             </div>
             <div class="history-panel">
-                <span class="label">HISTORY:</span>
+                <span class="label">HISTORY</span>
                 <div id="history-list"></div>
             </div>
         </header>
 
-        <main>
-            <!-- Left Side: Wheel & Stats -->
-            <section id="left-column">
+        <main id="game-main">
+            <!-- Left: Wheel & Stats -->
+            <section id="wheel-column">
                 <div id="wheel-container">
                     <div id="wheel-outer">
                         <div id="wheel-inner">
-                            <canvas id="wheel-canvas" width="420" height="420"></canvas>
+                            <canvas id="wheel-canvas" width="400" height="400"></canvas>
                         </div>
                         <div id="ball-track">
                             <div id="ball"></div>
@@ -47,26 +54,25 @@
                         <div id="wheel-center"></div>
                     </div>
                 </div>
-                <div id="stats-panel">
-                    <h3>出現統計 / STATISTICS</h3>
-                    <div id="stats-container">
-                        <!-- Stats like Red%, Black%, Hot numbers etc. -->
-                    </div>
+                
+                <div id="stats-panel" class="glass-panel">
+                    <h3 class="panel-subtitle">STATISTICS</h3>
+                    <div id="stats-container"></div>
                 </div>
             </section>
 
-            <!-- Right Side: Betting Table -->
-            <section id="right-column">
+            <!-- Right: Betting Table -->
+            <section id="bet-column">
                 <div id="betting-board-container">
                     <div id="betting-board">
-                        <div id="table-0" class="cell zero" data-bet="0">0</div>
+                        <div id="table-0" class="cell zero-cell" data-bet="0">0</div>
                         <div id="numbers-grid">
-                            <!-- 1-36 Numbers -->
+                            <!-- JS Generated -->
                         </div>
                         <div id="columns-area">
-                            <div class="cell col-bet" data-bet="col1">2to1</div>
-                            <div class="cell col-bet" data-bet="col2">2to1</div>
-                            <div class="cell col-bet" data-bet="col3">2to1</div>
+                            <div class="cell col-bet" data-bet="col1">2:1</div>
+                            <div class="cell col-bet" data-bet="col2">2:1</div>
+                            <div class="cell col-bet" data-bet="col3">2:1</div>
                         </div>
                         <div id="outside-bets-area">
                             <div class="cell dozen-bet" data-bet="1st12">1st 12</div>
@@ -82,36 +88,40 @@
                     </div>
                 </div>
 
-                <div id="controls-panel">
+                <!-- Controls -->
+                <div id="controls-panel" class="glass-panel">
                     <div id="chip-selection">
                         <button class="chip c100" data-value="100">100</button>
                         <button class="chip c500" data-value="500">500</button>
                         <button class="chip c1000" data-value="1000">1k</button>
                         <button class="chip c5000" data-value="5000">5k</button>
                         <button class="chip c10000" data-value="10000">10k</button>
-                        <div id="manual-bet">
-                            <input type="number" id="custom-bet-input" placeholder="任意入力">
-                        </div>
+                        <input type="number" id="custom-bet-input" placeholder="任意入力">
                     </div>
+                    
                     <div id="action-buttons">
-                        <button id="clear-btn">クリア</button>
-                        <button id="undo-btn">戻す</button>
-                        <button id="spin-btn">スピン</button>
+                        <button id="undo-btn" class="util-btn">戻す</button>
+                        <button id="clear-btn" class="util-btn">クリア</button>
+                        
+                        <!-- HEART SPIN BUTTON -->
+                        <div id="heart-spin-container">
+                            <button id="spin-btn">SPIN</button>
+                        </div>
                     </div>
                 </div>
             </section>
         </main>
 
+        <!-- BLACK CAT DECORATION (Bottom Right) -->
+        <div id="black-cat-container">
+            <!-- Use gazo/cat.png or similar if available, otherwise CSS placeholder -->
+            <img src="gazo/cat.png" alt="" onerror="this.style.display='none'">
+        </div>
+
         <div id="message-display">
             <h2 id="win-message"></h2>
         </div>
     </div>
-
-    <!-- Audio placeholders -->
-    <audio id="bgm" loop src="assets/bgm.mp3" style="display:none"></audio>
-    <audio id="se-click" src="assets/click.mp3" style="display:none"></audio>
-    <audio id="se-spin" src="assets/spin.mp3" style="display:none"></audio>
-    <audio id="se-win" src="assets/win.mp3" style="display:none"></audio>
 
     <script src="script.js"></script>
 </body>
