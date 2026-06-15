@@ -7,26 +7,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div id="game-overlay"></div>
+<body class="fade-in">
+    <!-- Background elements matching Home -->
+    <div id="bg-stars"></div>
+    <div id="bg-overlay"></div>
     
     <div id="app">
+        <div id="back-button" onclick="location.href='../home/index.html'">←</div>
+
         <!-- Header Info -->
         <header>
             <div class="status-panel">
                 <div class="status-item">
-                    <span class="label">所持金</span>
+                    <span class="label">COINS</span>
                     <span id="balance" class="value">50,000</span>
-                    <span class="unit">renga</span>
                 </div>
                 <div class="status-item debt">
-                    <span class="label">借金</span>
+                    <span class="label">DEBT</span>
                     <span id="debt" class="value">100,000,000</span>
-                    <span class="unit">renga</span>
                 </div>
             </div>
             <div class="history-panel">
-                <span class="label">履歴:</span>
+                <span class="label">HISTORY:</span>
                 <div id="history-list"></div>
             </div>
         </header>
@@ -37,7 +39,7 @@
                 <div id="wheel-container">
                     <div id="wheel-outer">
                         <div id="wheel-inner">
-                            <canvas id="wheel-canvas" width="400" height="400"></canvas>
+                            <canvas id="wheel-canvas" width="420" height="420"></canvas>
                         </div>
                         <div id="ball-track">
                             <div id="ball"></div>
@@ -45,8 +47,8 @@
                         <div id="wheel-center"></div>
                     </div>
                 </div>
-                <div id="stats-panel" class="glass">
-                    <h3>出現統計</h3>
+                <div id="stats-panel">
+                    <h3>出現統計 / STATISTICS</h3>
                     <div id="stats-container">
                         <!-- Stats like Red%, Black%, Hot numbers etc. -->
                     </div>
@@ -57,7 +59,6 @@
             <section id="right-column">
                 <div id="betting-board-container">
                     <div id="betting-board">
-                        <!-- Grid will be generated or hardcoded for precision -->
                         <div id="table-0" class="cell zero" data-bet="0">0</div>
                         <div id="numbers-grid">
                             <!-- 1-36 Numbers -->
