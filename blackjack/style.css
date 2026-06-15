@@ -535,12 +535,8 @@ body {
     color: #800080;
     text-shadow: 0 0 20px #4b0082, 0 0 40px #fff;
     position: relative;
-    padding: 20px 40px;
     animation: pulseLose 2s infinite;
     z-index: 2;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 20px;
-    backdrop-filter: blur(5px);
 }
 
 @keyframes pulseLose {
