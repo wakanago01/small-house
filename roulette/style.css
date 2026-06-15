@@ -20,179 +20,152 @@ body {
 #game-stage {
     width: 100vw;
     height: 100vh;
-    background: url('gazo/rureto.png') center/cover no-repeat;
-    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
 }
 
 #app {
     width: 100%;
     height: 100%;
+    max-width: 1920px; /* Reference size */
+    max-height: 1080px;
+    aspect-ratio: 16 / 9;
+    background: url('gazo/rureto.png') center/contain no-repeat;
     position: relative;
-    z-index: 10;
+    overflow: hidden;
 }
 
-/* HEADER - Minimal Overlay for balance/debt */
+/* HEADER - Minimal Overlay */
 #top-status {
     position: absolute;
-    top: 20px;
+    top: 3%;
     width: 100%;
-    padding: 0 50px;
+    padding: 0 5%;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
+    z-index: 20;
 }
 
-.status-panel { display: flex; gap: 60px; pointer-events: auto; }
-.value { font-family: 'Cinzel', serif; font-size: 28px; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
-.debt .value { color: #ff7676; }
-
-/* INTERACTION LAYOUT */
-#game-main {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    padding: 80px 40px 40px;
-}
-
+/* INTERACTION AREAS - All Absolute */
 #wheel-interaction-area {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: absolute;
+    left: 5%;
+    top: 15%;
+    width: 35%;
+    height: 70%;
+    pointer-events: none;
 }
 
-#wheel-container {
-    width: 380px; height: 380px;
-    position: relative;
-    /* Canvas will draw the interactive wheel elements if needed, 
-       but we keep it mostly transparent to see the image below */
-}
-
-#wheel-canvas {
-    opacity: 0.8; /* Subtle overlay to match image wheel positions */
-}
-
-/* BETTING HITBOX LAYER - COMPLETELY TRANSPARENT */
 #bet-interaction-area {
-    flex: 2;
-    position: relative;
-    display: flex;
-    flex-direction: column;
+    position: absolute;
+    right: 3%;
+    top: 10%;
+    width: 58%;
+    height: 85%;
 }
 
 #betting-board-hitbox {
-    flex: 1;
+    position: absolute;
+    top: 5%;
+    left: 0;
+    width: 100%;
+    height: 60%;
     display: grid;
-    grid-template-columns: 80px 1fr 80px;
-    grid-template-rows: 1fr 80px;
-    gap: 2px;
-    padding: 20px;
+    grid-template-columns: 12% 1fr 12%;
+    padding: 0;
 }
 
-/* Base Hitbox - No border, no background, pure transparency */
+/* Base Hitbox */
 .hitbox {
     background: transparent;
     cursor: pointer;
     transition: var(--transition);
-    border-radius: 2px;
     position: relative;
     border: none;
 }
 
-/* Number Hitboxes - Minimal reaction */
+/* Number Hitboxes - Centered and smaller than the cell for precise feel */
+.num-hitbox {
+    width: 90%;
+    height: 90%;
+    margin: 5%;
+}
 .num-hitbox:hover {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 0 15px rgba(212, 181, 232, 0.15);
-    transform: scale(1.01) translateY(-1px);
+    background: rgba(212, 181, 232, 0.1);
+    box-shadow: inset 0 0 10px rgba(212, 181, 232, 0.2);
 }
 
-/* RED/BLACK and other outside bets - Light button feel */
-.outside-hitbox {
-    background: rgba(255, 255, 255, 0.03);
-}
-.outside-hitbox:hover {
-    background: rgba(212, 181, 232, 0.12);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}
-
-#numbers-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 2px;
-}
-
-.hitbox.zero {
-    grid-row: 1 / 4; /* Zero usually spans all 3 rows on a standard board */
-}
-
-/* CHIPS ON IMAGE - Visual feedback (Subtle Glowing Light) */
-.chip-marker {
+/* CHIP SELECTION - Positioned over the chips in the image */
+#chip-selection-hitbox { 
     position: absolute;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(212, 181, 232, 0.6) 60%, transparent 100%);
-    box-shadow: 0 0 10px rgba(212, 181, 232, 0.5);
-    pointer-events: none;
-    z-index: 100;
-}
-
-/* CONTROLS HITBOXES - Aligned with rureto.png buttons */
-#controls-hitbox {
-    height: 120px;
-    display: flex;
-    justify-content: space-between;
+    left: 2%;
+    bottom: 8%;
+    width: 40%;
+    height: 50%;
+    display: flex; 
+    justify-content: space-around;
     align-items: center;
-    padding: 0 40px 20px;
 }
-
-#chip-selection-hitbox { display: flex; gap: 20px; }
 .chip-hitbox {
-    width: 55px; height: 55px;
+    width: 15%;
+    aspect-ratio: 1 / 1;
     background: transparent;
     border: none;
     cursor: pointer;
     border-radius: 50%;
-    transition: var(--transition);
 }
-.chip-hitbox:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+.chip-hitbox:hover { background: rgba(255, 255, 255, 0.1); }
 .chip-hitbox.active { 
-    background: rgba(212, 181, 232, 0.1);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.4);
 }
 
-#action-hitbox { display: flex; gap: 25px; align-items: center; }
+/* ACTION BUTTONS - Positioned over image buttons */
+#action-hitbox { 
+    position: absolute;
+    right: 2%;
+    bottom: 5%;
+    width: 50%;
+    height: 80%;
+    display: flex; 
+    justify-content: flex-end;
+    align-items: center;
+    gap: 3%;
+}
+
 .hitbox-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    cursor: pointer;
-    transition: var(--transition);
-    min-width: 90px;
-    min-height: 45px;
-    border-radius: 8px;
-    color: #fff;
-    font-family: 'Cinzel', serif;
-    letter-spacing: 1px;
-}
-.hitbox-btn:hover { 
-    background: rgba(212, 181, 232, 0.2); 
-    box-shadow: 0 0 20px rgba(212, 181, 232, 0.3);
-    transform: translateY(-2px);
-}
-
-/* SPIN BUTTON - High Priority Action */
-#spin-btn {
-    width: 110px; height: 110px;
-    background: rgba(255, 100, 150, 0.05);
+    background: transparent;
     border: none;
-    clip-path: polygon(50% 15%, 80% 0%, 100% 20%, 100% 50%, 50% 100%, 0% 50%, 0% 20%, 20% 0%);
+    cursor: pointer;
+    width: 18%;
+    height: 40%;
+    color: transparent;
+    font-size: 0;
 }
-#spin-btn:hover { 
-    transform: scale(1.08); 
-    background: rgba(255, 180, 210, 0.2);
-    box-shadow: 0 0 30px rgba(255, 180, 210, 0.4);
+.hitbox-btn:hover { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+
+#spin-btn {
+    width: 25%;
+    height: 90%;
+    aspect-ratio: 1 / 1;
+    /* Shape is roughly a heart/circle in the image */
+    clip-path: circle(50% at 50% 50%); 
+}
+#spin-btn:hover { background: rgba(255, 180, 210, 0.1); transform: scale(1.05); }
+
+/* CHIPS - Subtle point */
+.chip-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, #fff 0%, rgba(212, 181, 232, 0.8) 100%);
+    box-shadow: 0 0 8px rgba(212, 181, 232, 0.8);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
 }
 
 /* WINNING GLOW - Over original image cell */
@@ -204,8 +177,61 @@ body {
     to { background: rgba(212, 181, 232, 0.4); box-shadow: 0 0 30px var(--accent-glow); }
 }
 
+.status-panel { display: flex; gap: 40px; pointer-events: auto; }
+.value { font-family: 'Cinzel', serif; font-size: 24px; font-weight: bold; color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+.debt .value { color: #ff7676; }
+
+#message-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 100;
+}
+#win-message {
+    font-family: 'Cinzel', serif;
+    font-size: 48px;
+    color: #fff;
+    text-shadow: 0 0 20px var(--accent-glow);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+#win-message.show { opacity: 1; }
+
+#wheel-canvas {
+    width: 100%;
+    height: 100%;
+}
+#wheel-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+#ball-track {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    display: none;
+}
+#ball {
+    width: 12px; height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 10%; left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px #fff;
+}
+
+@keyframes spinBall {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-1440deg); }
+}
+
 #back-button {
-    position: absolute; top: 20px; left: 20px;
-    font-size: 30px; color: #fff; cursor: pointer;
+    position: absolute; top: 2%; left: 2%;
+    font-size: 24px; color: #fff; cursor: pointer;
     text-shadow: 0 0 10px #000;
+    z-index: 30;
+    padding: 10px;
 }
