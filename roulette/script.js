@@ -1,3 +1,4 @@
+console.log("script loaded");
 const canvas = document.getElementById("rouletteCanvas");
 
 const rect = canvas.getBoundingClientRect();
