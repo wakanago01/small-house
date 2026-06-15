@@ -78,7 +78,7 @@ body{
 }
 
 .betTitle{
-    margin-top:50px;
+    margin-top:90px;
 
     color:white;
     font-size:32px;
@@ -86,10 +86,10 @@ body{
 }
 
 #betTable{
-    width:90%;
-    height:75%;
+    width:85%;
+    height:65%;
 
-    min-width:300px;
+    min-width:30px;
 
     border:none;
 
