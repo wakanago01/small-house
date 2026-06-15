@@ -122,8 +122,7 @@ function playGame(gameId) {
     // Smooth transition effect
     document.body.style.opacity = '0';
     setTimeout(() => {
-        alert(`${gameId.toUpperCase()}を開始します（将来的に各ゲーム画面へ遷移します）。`);
-        document.body.style.opacity = '1';
+        window.location.href = `../${gameId}/index.html`;
     }, 500);
 }
 

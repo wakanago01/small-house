@@ -1,0 +1,224 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Cormorant Garamond', serif;
+    background-color: #1a0a24; /* Dark purple base */
+    background-image: linear-gradient(135deg, #1a0a24 0%, #2d133a 100%);
+    color: #ffb3e6;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+}
+
+/* Glass effect */
+.glass-panel {
+    background: rgba(40, 20, 50, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 153, 204, 0.3);
+    box-shadow: 0 0 20px rgba(255, 102, 204, 0.2);
+    border-radius: 20px;
+}
+
+#main-layout {
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    position: relative;
+}
+
+#back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    color: #ff99cc;
+    cursor: pointer;
+    text-shadow: 0 0 10px #ff00ff;
+    z-index: 100;
+}
+
+#balance-capsule {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(30, 10, 40, 0.6);
+    border: 1px solid rgba(255, 153, 204, 0.4);
+    border-radius: 30px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    box-shadow: 0 0 15px rgba(255, 102, 204, 0.3);
+}
+
+#game-container {
+    flex: 1;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 60px;
+}
+
+#wheel-section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#wheel-pointer {
+    position: absolute;
+    top: -10px;
+    font-size: 30px;
+    color: #ff99cc;
+    text-shadow: 0 0 10px #ff00ff;
+    z-index: 10;
+}
+
+#last-result {
+    margin-top: 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 0 15px #ff99cc;
+}
+
+#betting-section {
+    width: 500px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#betting-table {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+
+.number-cell {
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255, 153, 204, 0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.number-cell:hover {
+    background: rgba(255, 153, 204, 0.2);
+    transform: scale(1.05);
+}
+
+.number-cell.selected {
+    background: rgba(255, 153, 204, 0.6);
+    box-shadow: 0 0 15px #ff99cc;
+}
+
+.red { color: #ff4d4d; }
+.black { color: #555; }
+.zero { color: #4dff4d; grid-column: span 3; aspect-ratio: auto; padding: 10px; }
+
+#special-bets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.bet-btn {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 153, 204, 0.3);
+    color: #ffb3e6;
+    cursor: pointer;
+    border-radius: 10px;
+    font-family: 'Cinzel', serif;
+    transition: all 0.2s;
+}
+
+.bet-btn:hover {
+    background: rgba(255, 153, 204, 0.2);
+}
+
+.bet-btn.selected {
+    background: rgba(255, 153, 204, 0.4);
+    box-shadow: 0 0 10px #ff99cc;
+}
+
+#controls-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+#bet-setup {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 24px;
+    font-family: 'Cinzel', serif;
+}
+
+.circle-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ff99cc;
+    background: transparent;
+    color: #ff99cc;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s;
+}
+
+.circle-btn:hover {
+    background: rgba(255, 153, 204, 0.2);
+    box-shadow: 0 0 10px #ff99cc;
+}
+
+.glow-btn {
+    padding: 15px 50px;
+    font-size: 24px;
+    font-family: 'Cinzel', serif;
+    background: rgba(255, 153, 204, 0.2);
+    border: 2px solid #ff99cc;
+    color: #fff;
+    border-radius: 40px;
+    cursor: pointer;
+    text-shadow: 0 0 10px #ff00ff;
+    box-shadow: 0 0 20px rgba(255, 153, 204, 0.4);
+    transition: all 0.3s;
+}
+
+.glow-btn:hover {
+    background: rgba(255, 153, 204, 0.4);
+    box-shadow: 0 0 30px rgba(255, 153, 204, 0.6);
+    transform: translateY(-3px);
+}
+
+.glow-btn:active {
+    transform: translateY(1px);
+}
+
+.hidden { display: none; }
