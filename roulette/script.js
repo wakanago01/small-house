@@ -11,6 +11,9 @@ const rouletteNumbers = [
     18,29,7,28,12,35,3,26
 ];
 
+let rotation = 0;
+let spinning = false;
+
 const redNumbers = [
     1,3,5,7,9,
     12,14,16,18,
@@ -39,6 +42,12 @@ function drawRoulette() {
     const innerRadius = canvas.width * 0.28;
 
     const angleSize = (Math.PI * 2) / 37;
+
+    ctx.save();
+
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.translate(-centerX, -centerY);
 
     rouletteNumbers.forEach((number, index) => {
 
@@ -117,6 +126,8 @@ function drawRoulette() {
         ctx.restore();
     });
 
+    ctx.restore();
+
     ctx.beginPath();
 
     ctx.arc(
@@ -151,3 +162,41 @@ function drawRoulette() {
 window.addEventListener("resize", resizeCanvas);
 
 resizeCanvas();
+
+const spinButton =
+    document.getElementById("spinButton");
+
+    function spinRoulette() {
+
+    if(spinning){
+        return;
+    }
+
+    spinning = true;
+
+    let speed =
+        Math.random() * 0.3 + 0.4;
+
+    function animate() {
+
+        rotation += speed;
+
+        speed *= 0.985;
+
+        drawRoulette();
+
+        if(speed > 0.002){
+            requestAnimationFrame(animate);
+        }
+        else{
+            spinning = false;
+        }
+    }
+
+    animate();
+}
+
+spinButton.addEventListener(
+    "click",
+    spinRoulette
+);
