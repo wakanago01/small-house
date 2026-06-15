@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>small-house Roulette - Gothic Edition</title>
+    <title>small-house Roulette</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="fade-in">
-    <!-- Base Background Layers -->
-    <div id="bg-stars"></div>
+    <!-- Background elements -->
     <div id="bg-overlay"></div>
     
     <div id="app">
-        <!-- TOP TITLE WITH LACE DECORATION -->
+        <!-- TOP TITLE WITH LACE -->
         <div id="lace-title-wrapper">
             <div class="lace-decoration top"></div>
             <h1 id="main-title">Roulette</h1>
@@ -22,8 +21,8 @@
 
         <div id="back-button" onclick="location.href='../home/index.html'">← 戻る</div>
 
-        <!-- Header Status Bar -->
-        <header class="glass-header">
+        <!-- Header Status Bar - Simplified to match original feel -->
+        <header id="top-status">
             <div class="status-panel">
                 <div class="status-item">
                     <span class="label">COINS</span>
@@ -41,7 +40,7 @@
         </header>
 
         <main id="game-main">
-            <!-- Left: Wheel & Stats -->
+            <!-- Left: Wheel -->
             <section id="wheel-column">
                 <div id="wheel-container">
                     <div id="wheel-outer">
@@ -55,41 +54,39 @@
                     </div>
                 </div>
                 
-                <div id="stats-panel" class="glass-panel">
+                <div id="stats-panel">
                     <h3 class="panel-subtitle">STATISTICS</h3>
                     <div id="stats-container"></div>
                 </div>
             </section>
 
-            <!-- Right: Betting Table -->
+            <!-- Right: Betting Table - NO PANELS, JUST BOARD -->
             <section id="bet-column">
-                <div id="betting-board-container">
-                    <div id="betting-board">
-                        <div id="table-0" class="cell zero-cell" data-bet="0">0</div>
-                        <div id="numbers-grid">
-                            <!-- JS Generated -->
-                        </div>
-                        <div id="columns-area">
-                            <div class="cell col-bet" data-bet="col1">2:1</div>
-                            <div class="cell col-bet" data-bet="col2">2:1</div>
-                            <div class="cell col-bet" data-bet="col3">2:1</div>
-                        </div>
-                        <div id="outside-bets-area">
-                            <div class="cell dozen-bet" data-bet="1st12">1st 12</div>
-                            <div class="cell dozen-bet" data-bet="2nd12">2nd 12</div>
-                            <div class="cell dozen-bet" data-bet="3rd12">3rd 12</div>
-                            <div class="cell binary-bet" data-bet="low">1-18</div>
-                            <div class="cell binary-bet" data-bet="even">EVEN</div>
-                            <div class="cell color-bet red" data-bet="red">RED</div>
-                            <div class="cell color-bet black" data-bet="black">BLACK</div>
-                            <div class="cell binary-bet" data-bet="odd">ODD</div>
-                            <div class="cell binary-bet" data-bet="high">19-36</div>
-                        </div>
+                <div id="betting-board">
+                    <div id="table-0" class="cell zero-cell" data-bet="0">0</div>
+                    <div id="numbers-grid">
+                        <!-- JS Generated -->
+                    </div>
+                    <div id="columns-area">
+                        <div class="cell col-bet" data-bet="col1">2:1</div>
+                        <div class="cell col-bet" data-bet="col2">2:1</div>
+                        <div class="cell col-bet" data-bet="col3">2:1</div>
+                    </div>
+                    <div id="outside-bets-area">
+                        <div class="cell dozen-bet" data-bet="1st12">1st 12</div>
+                        <div class="cell dozen-bet" data-bet="2nd12">2nd 12</div>
+                        <div class="cell dozen-bet" data-bet="3rd12">3rd 12</div>
+                        <div class="cell binary-bet" data-bet="low">1-18</div>
+                        <div class="cell binary-bet" data-bet="even">EVEN</div>
+                        <div class="cell color-bet red" data-bet="red">RED</div>
+                        <div class="cell color-bet black" data-bet="black">BLACK</div>
+                        <div class="cell binary-bet" data-bet="odd">ODD</div>
+                        <div class="cell binary-bet" data-bet="high">19-36</div>
                     </div>
                 </div>
 
-                <!-- Controls -->
-                <div id="controls-panel" class="glass-panel">
+                <!-- Controls - Simplified -->
+                <div id="controls-panel">
                     <div id="chip-selection">
                         <button class="chip c100" data-value="100">100</button>
                         <button class="chip c500" data-value="500">500</button>
@@ -102,19 +99,14 @@
                     <div id="action-buttons">
                         <button id="undo-btn" class="util-btn">戻す</button>
                         <button id="clear-btn" class="util-btn">クリア</button>
-                        
-                        <!-- HEART SPIN BUTTON -->
-                        <div id="heart-spin-container">
-                            <button id="spin-btn">SPIN</button>
-                        </div>
+                        <button id="spin-btn">SPIN</button>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- BLACK CAT DECORATION (Bottom Right) -->
+        <!-- BLACK CAT DECORATION -->
         <div id="black-cat-container">
-            <!-- Use gazo/cat.png or similar if available, otherwise CSS placeholder -->
             <img src="gazo/cat.png" alt="" onerror="this.style.display='none'">
         </div>
 
