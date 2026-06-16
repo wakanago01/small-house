@@ -38,22 +38,23 @@ body {
     flex: 1;
     display: flex;
     overflow: hidden;
-    padding: 0 20px;
+    padding: 0 10px; /* 左右の余白を少し詰める */
 }
 
 #rouletteArea {
-    flex: 1.3; /* ルーレットにより多くのスペースを割り当て */
+    flex: 1; /* 均等に配置して中央を合わせる */
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-right: 10px; /* BETエリアとの間隔 */
 }
 
 #rouletteCanvas {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    max-width: 65vh; /* 画面の高さに合わせる */
-    max-height: 65vh;
+    max-width: 60vh; /* 65vhから少し縮小してバランス調整 */
+    max-height: 60vh;
     aspect-ratio: 1/1;
     border-radius: 50%;
     background: rgba(0,0,0,0.1);
@@ -61,13 +62,13 @@ body {
 }
 
 #betArea {
-    flex: 1;
+    flex: 1; /* 均等に配置 */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 10px;
-    min-width: 0; /* flexアイテムの縮小を許可 */
+    padding-left: 10px; /* ルーレットエリアとの間隔 */
+    min-width: 0;
 }
 
 .betTitle {
