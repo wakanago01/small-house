@@ -9,7 +9,6 @@ body {
     height: 100vh;
     overflow: hidden;
     font-family: sans-serif;
-
     background-image: url("img/background.png");
     background-size: cover;
     background-position: center;
@@ -23,20 +22,21 @@ body {
 }
 
 #topBar {
-    height: 80px;
+    height: 8vh;
+    min-height: 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-
     color: white;
-    font-size: 28px;
+    font-size: clamp(18px, 2.5vw, 28px);
     font-weight: bold;
 }
 
 #gameArea {
     flex: 1;
     display: flex;
+    overflow: hidden;
 }
 
 #rouletteArea {
@@ -44,17 +44,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 #rouletteCanvas {
     width: 90%;
+    height: auto;
     aspect-ratio: 1/1;
-    max-width: 500px;
-    max-height: 500px;
-
+    max-width: 550px;
+    max-height: 550px;
     border-radius: 50%;
     background: rgba(0,0,0,0.15);
-
     backdrop-filter: blur(4px);
 }
 
@@ -63,17 +63,19 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .betTitle {
-    margin-top: 60px;
+    margin-top: 2vh;
     color: white;
-    font-size: 32px;
+    font-size: clamp(24px, 3vw, 32px);
 }
 
 #betTable {
-    width: 90%;
-    margin-top: 20px;
+    width: 95%;
+    margin-top: 2vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,7 +90,8 @@ body {
 
 .zeroCell {
     width: 100%;
-    height: 50px;
+    height: 4vh;
+    min-height: 30px;
 }
 
 #numberGrid {
@@ -106,7 +109,8 @@ body {
 
 .betCell {
     width: 100%;
-    height: 60px;
+    height: 5vh;
+    min-height: 35px;
     border: none;
     border-radius: 4px;
     color: white;
@@ -127,7 +131,7 @@ body {
 }
 
 .numLabel {
-    font-size: 18px;
+    font-size: clamp(14px, 1.5vw, 18px);
     pointer-events: none;
     font-weight: bold;
     text-shadow: 0 0 4px rgba(255,255,255,0.4);
@@ -137,12 +141,12 @@ body {
     position: absolute;
     bottom: 5px;
     right: 5px;
-    width: 28px;
-    height: 28px;
+    width: clamp(20px, 2.5vw, 28px);
+    height: clamp(20px, 2.5vw, 28px);
     background: #ffd54f;
     color: #333;
     border-radius: 50%;
-    font-size: 10px;
+    font-size: clamp(8px, 1vw, 10px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -167,7 +171,8 @@ body {
 }
 
 .outsideBet {
-    height: 50px;
+    height: 5vh;
+    min-height: 35px;
     border: none;
     border-radius: 6px;
     background: rgba(255,255,255,0.12);
@@ -176,16 +181,18 @@ body {
     cursor: pointer;
     position: relative;
     transition: transform 0.1s;
+    font-size: clamp(10px, 1.2vw, 14px);
 }
+
 .outsideBet:hover {
     background: rgba(255,255,255,0.2);
     transform: translateY(-2px);
 }
 
 #chipSelector {
-    position: absolute;
-    bottom: 120px;
-    right: 40px;
+    position: fixed;
+    bottom: 20vh;
+    right: 2vw;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -195,8 +202,8 @@ body {
 チップ（元デザイン維持）
 ======================= */
 .chip {
-    width: 60px;
-    height: 60px;
+    width: clamp(50px, 6vw, 65px);
+    height: clamp(50px, 6vw, 65px);
     border-radius: 50%;
     background: #333;
     color: white;
@@ -205,6 +212,7 @@ body {
     border: 3px solid #f5d76e;
     box-shadow: 0 0 12px rgba(245,215,110,0.4);
     transition: 0.2s;
+    font-size: clamp(14px, 1.8vw, 18px);
 }
 
 .chip:hover {
@@ -221,7 +229,7 @@ body {
 }
 
 #controls {
-    margin-top: 20px;
+    margin-top: 3vh;
     display: flex;
     gap: 15px;
 }
@@ -234,10 +242,10 @@ SPINボタン強化
     border: 2px solid #f5d76e;
     border-radius: 18px;
     color: white;
-    font-size: 30px;
+    font-size: clamp(20px, 2.5vw, 30px);
     font-weight: bold;
     letter-spacing: 2px;
-    padding: 18px 50px;
+    padding: 1.5vh 4vw;
     cursor: pointer;
     box-shadow: 0 0 15px rgba(245, 215, 110, 0.6), 0 0 35px rgba(154, 120, 255, 0.4);
     transition: all 0.25s ease;
@@ -254,7 +262,7 @@ SPINボタン強化
 }
 
 #clearButton {
-    padding: 12px 30px;
+    padding: 1.2vh 2.5vw;
     border: none;
     border-radius: 8px;
     color: white;
@@ -266,6 +274,7 @@ SPINボタン強化
     box-shadow: 0 4px 0 rgba(0,0,0,0.3);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: clamp(14px, 1.5vw, 18px);
 }
 
 #clearButton:hover {
@@ -278,7 +287,8 @@ SPINボタン強化
 }
 
 #messageBox {
-    height: 140px;
+    height: 12vh;
+    min-height: 90px;
     display: flex;
     align-items: center;
     padding: 0 40px;
@@ -294,22 +304,25 @@ Rabbit吹き出し
     background: rgba(40, 18, 70, 0.92);
     border: 2px solid #f5d76e;
     border-radius: 18px;
-    padding: 18px;
+    padding: 1.2vh 2vw;
     color: white;
-    min-height: 90px;
+    min-height: 70px;
     box-shadow: 0 0 15px rgba(0,0,0,0.5);
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .rabbit-name {
     color: #f5d76e;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     text-transform: uppercase;
+    font-size: clamp(12px, 1.2vw, 14px);
 }
 
 .rabbit-message {
-    font-size: 22px;
+    font-size: clamp(16px, 1.8vw, 22px);
 }
 
 /* =======================
@@ -317,6 +330,11 @@ Rabbitアイコン
 ======================= */
 .rabbit-icon {
     transition: transform 0.3s ease;
+}
+
+.rabbit-icon svg {
+    width: clamp(60px, 8vw, 80px);
+    height: auto;
 }
 
 .rabbit-icon:hover {
