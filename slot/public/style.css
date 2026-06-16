@@ -76,32 +76,34 @@ body{
 
     top:0;
 
-    width:30%;
+    width:28%;
     height:100%;
 
     overflow:hidden;
 
-    display:flex;
-    flex-direction:column;
+    display:grid;
+    grid-template-rows:1fr 1fr 1fr;
+    justify-items:center;
     align-items:center;
-    justify-content:space-around;
 }
 
 #reel1{
-    left:2.1%;
+    left:10.5%;
 }
 
 #reel2{
-    left:35%;
+    left:37.5%;
 }
 
 #reel3{
-    left:67.9%;
+    left:64%;
 }
 
 .symbol{
     width:100%;
-    height:33.333%;
+    height:100%;
+
+    position:relative;
 
     display:flex;
     justify-content:center;
@@ -111,14 +113,19 @@ body{
 }
 
 .symbol img{
-    width:120%;
-    height:120%;
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:118%;
+    height:118%;
 
     object-fit:contain;
 
-    display:block;
-    margin:auto;
+    transform:translate(-50%, -37%);
 }
+
 #missionArea{
     position:absolute;
 
@@ -152,7 +159,99 @@ body{
     margin:0;
 }
 
-/* 透明ボタン */
+#resultText{
+    position:absolute;
+
+    top:63%;
+    left:37%;
+
+    width:20%;
+
+    text-align:center;
+
+    color:white;
+    font-size:2vw;
+    font-weight:bold;
+
+    text-shadow:
+        0 0 10px #ff80ff,
+        0 0 20px #ff80ff,
+        0 0 35px #ffffff;
+
+    z-index:10;
+
+    opacity:0;
+    transition:0.3s;
+}
+
+#resultText.show{
+    opacity:1;
+    transform:scale(1.08);
+}
+
+#pekariText{
+    position:absolute;
+
+    top:18%;
+    left:8%;
+
+    width:18%;
+
+    text-align:center;
+
+    color:#fff7ff;
+    font-size:2.2vw;
+    font-weight:bold;
+
+    text-shadow:
+        0 0 10px #ffffff,
+        0 0 25px #ff80ff,
+        0 0 45px #ff00ff;
+
+    opacity:0;
+    transform:scale(0.8);
+
+    z-index:15;
+
+    transition:0.25s;
+}
+
+#pekariText.on{
+    opacity:1;
+    transform:scale(1.15);
+    animation:pekariFlash 0.45s infinite alternate;
+}
+
+#game.pekariGlow::after{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:rgba(255,160,255,0.18);
+
+    pointer-events:none;
+    z-index:12;
+
+    animation:screenFlash 0.5s infinite alternate;
+}
+
+@keyframes pekariFlash{
+    from{
+        filter:brightness(1);
+    }
+    to{
+        filter:brightness(1.8);
+    }
+}
+
+@keyframes screenFlash{
+    from{
+        opacity:0.2;
+    }
+    to{
+        opacity:0.7;
+    }
+}
 
 .hotspot{
     position:absolute;
@@ -168,8 +267,6 @@ body{
     z-index:20;
 }
 
-/* 押された演出 */
-
 .hotspot.pressed{
     transform:
         scale(0.94)
@@ -183,8 +280,6 @@ body{
         0 0 40px #ff99ff,
         0 0 60px #ffffff;
 }
-
-/* 位置 */
 
 #bet1{
     left:20%;
