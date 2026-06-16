@@ -3,105 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>small-house slot</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <title>Small House Slot</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <header>
-        <h1>small-house slot</h1>
-        <div id="renga-display">所持renga: <span id="renga-value">1000</span></div>
-    </header>
 
-    <div class="container">
-        <main>
-            <!-- スロット台本体 -->
-            <section id="slot-machine">
-                <!-- レバー -->
-                <div id="slot-lever">
-                    <div class="lever-arm"></div>
-                    <div class="lever-knob"></div>
-                </div>
+    <div id="game">
 
-                <!-- うさぎランプ (台枠上部) -->
-                <div id="rabbit-lamp-area">
-                    <div class="lamp-stars">★ ★</div>
-                    <div id="rabbit-lamp">🐰</div>
-                    <div class="lamp-stars">★ ★</div>
-                </div>
+        <img src="../image/background.png" id="background">
 
-                <!-- リール窓 -->
-                <div id="reels-container">
-                    <div class="reel-window">リールを置く場所</div>
-                </div>
+        <!-- 所持レンガの数字 -->
+        <div id="rengaText">1000</div>
 
-                <!-- 数値表示パネル -->
-                <div id="display-panel">
-                    <div class="display-item">
-                        <label>CREDIT</label>
-                        <div class="digit-box" id="credit-value">12345</div>
-                    </div>
-                    <div class="display-item">
-                        <label>COUNT</label>
-                        <div class="digit-box" id="count-value">888</div>
-                    </div>
-                    <div class="display-item">
-                        <label>PAYOUT</label>
-                        <div class="digit-box" id="payout-value">0000</div>
-                    </div>
-                </div>
-            </section>
+        <!-- 後でリールを入れる場所 -->
+        <div id="reelArea"></div>
 
-            <!-- 操作パネル -->
-            <section id="controls">
-                <div class="control-row">
-                    <button id="max-bet-button" class="btn-round">MAX<br>BET</button>
-                    <button id="start-button" class="btn-main">START<br><span>押してスタート</span></button>
-                    <button id="auto-button" class="btn-rect">AUTO<br>OFF</button>
-                </div>
-                <div class="control-row secondary">
-                    <button class="btn-bet">1<br>BET</button>
-                    <button class="btn-bet">2<br>BET</button>
-                    <button class="btn-bet active">3<br>BET</button>
-                </div>
-            </section>
-        </main>
+        <!-- 後でミッションを入れる場所 -->
+        <div id="missionArea">
+            <p>今月のミッション</p>
+            <p>BIGを1回当てる　0/1</p>
+            <p>ぶどうを10回そろえる　0/10</p>
+        </div>
 
-        <aside id="sidebar">
-            <!-- 配当表 -->
-            <section id="pay-table">
-                <h3>PAYTABLE</h3>
-                <div class="payout-content">
-                    <ul class="payout-list">
-                        <li><span class="payout-sym">777</span> <span class="payout-label">BIG BONUS</span> <span class="payout-val">340枚</span></li>
-                        <li><span class="payout-sym">77BAR</span> <span class="payout-label">REG BONUS</span> <span class="payout-val">120枚</span></li>
-                        <li><span class="payout-sym">🔔🔔🔔</span> <span class="payout-label">BELL</span> <span class="payout-val">15枚</span></li>
-                        <li><span class="payout-sym">🍇🍇🍇</span> <span class="payout-label">GRAPE</span> <span class="payout-val">10枚</span></li>
-                        <li><span class="payout-sym">🍒</span> <span class="payout-label">CHERRY</span> <span class="payout-val">2枚</span></li>
-                        <li><span class="payout-sym">🐰🐰🐰</span> <span class="payout-label">RETRY</span> <span class="payout-val">再遊戯</span></li>
-                    </ul>
-                </div>
-            </section>
+        <!-- 透明ボタン -->
+        <button class="hotspot" id="bet1"></button>
+        <button class="hotspot" id="bet2"></button>
+        <button class="hotspot" id="bet3"></button>
+        <button class="hotspot" id="maxBet"></button>
+        <button class="hotspot" id="startBtn"></button>
+        <button class="hotspot" id="autoBtn"></button>
+        <button class="hotspot" id="missionBtn"></button>
+        <button class="hotspot" id="settingBtn"></button>
 
-            <!-- ミッション -->
-            <section id="mission-panel">
-                <h3>MISSION PANEL</h3>
-                <div class="mission-content">
-                    <div class="mission-item">
-                        <div class="mission-title">今月のミッション</div>
-                        <div class="mission-task">BIG BONUSを引こう <span class="mission-count">0/3</span></div>
-                        <div class="mission-progress"><div class="progress-bar" style="width: 0%"></div></div>
-                    </div>
-                    <div class="mission-item">
-                        <div class="mission-task">ぶどうを30回揃えよう <span class="mission-count">12/30</span></div>
-                        <div class="mission-progress"><div class="progress-bar" style="width: 40%"></div></div>
-                    </div>
-                </div>
-            </section>
-        </aside>
     </div>
+
     <script src="script.js"></script>
+
 </body>
 </html>
