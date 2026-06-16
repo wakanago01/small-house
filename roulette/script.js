@@ -35,41 +35,63 @@ let balance = 50000;
 
 let selectedChip = 100;
 
-// New States
-let rabbitMood = "Curious";
-let luckyStreak = 0;
+// =======================
+// Rabbitメッセージ管理
+// =======================
+const rabbitMessages = {
+    idle: [
+        "Rabbitは静かに見ている……",
+        "幸運を祈るよ。",
+        "今日はどんな結末になるかな？"
+    ],
+    win: [
+        "ふふ……今日はツイてるね。",
+        "すごいじゃないか。",
+        "Rabbitも嬉しいよ。"
+    ],
+    lose: [
+        "残念。また挑戦する？",
+        "まだ終わりじゃない。",
+        "次こそ当たるかもしれない。"
+    ],
+    bigBet: [
+        "大胆だね。",
+        "覚悟はできている？",
+        "Rabbitは見届けるよ。"
+    ],
+    lowBalance: [
+        "……大丈夫？",
+        "少し休憩する？",
+        "無理はしないでね。"
+    ]
+};
 
-const moods = ["Curious", "Sleepy", "Excited", "Watching", "Mysterious"];
+function setRabbitMessage(type) {
+    const list = rabbitMessages[type];
+    const message = list[Math.floor(Math.random() * list.length)];
+    const msgElem = document.getElementById("rabbitMessage");
+    if (msgElem) {
+        msgElem.textContent = message;
+    }
+
+    // アイコンのアニメーション（跳ねる）
+    const icon = document.getElementById("rabbitChar");
+    if (icon) {
+        icon.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+            icon.style.transform = "translateY(0)";
+        }, 300);
+    }
+}
 
 // ----------------------
 // UI
 // ----------------------
 function updateBalance() {
-    document.getElementById("balance").textContent =
-        `Balance : ${balance.toLocaleString()} Renga`;
-}
-
-function updateRabbitStatus() {
-    document.getElementById("rabbitMood").textContent = rabbitMood;
-    document.getElementById("luckyStreak").textContent = luckyStreak;
-}
-
-function setMessage(text, type = "normal") {
-    const msg = document.getElementById("rabbitMessage");
-    const bubble = document.getElementById("speechBubble");
-
-    bubble.style.borderColor =
-        type === "win" ? "#ffd54f" :
-        type === "lose" ? "#ff6b6b" : "#d4af37";
-
-    msg.textContent = text;
-    
-    // Animate Rabbit
-    const rabbit = document.getElementById("rabbitChar");
-    rabbit.style.transform = "scale(1.1) translateY(-10px)";
-    setTimeout(() => {
-        rabbit.style.transform = "scale(1) translateY(0)";
-    }, 300);
+    const balanceElem = document.getElementById("balance");
+    if (balanceElem) {
+        balanceElem.textContent = `Balance : ${balance.toLocaleString()} Renga`;
+    }
 }
 
 // ----------------------
@@ -77,12 +99,8 @@ function setMessage(text, type = "normal") {
 // ----------------------
 document.addEventListener("click", (e) => {
     if (e.target.classList.contains("chip")) {
-
-        document.querySelectorAll(".chip")
-            .forEach(c => c.classList.remove("active"));
-
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
         e.target.classList.add("active");
-
         selectedChip = parseInt(e.target.dataset.chip);
     }
 });
@@ -115,7 +133,7 @@ function createBetTable() {
         for (let row = 0; row < 3; row++) {
             const number = col * 3 + (3 - row);
             const cell = document.createElement("button");
-            cell.className = "betCell priority-high"; // Numbers are high priority
+            cell.className = "betCell";
             cell.dataset.bet = number;
             
             const numLabel = document.createElement("span");
@@ -124,9 +142,9 @@ function createBetTable() {
             cell.appendChild(numLabel);
 
             if (redSet.has(number)) {
-                cell.style.background = "#880e4f"; // Darker gothic red
+                cell.style.background = "#c62828";
             } else {
-                cell.style.background = "#1a0530"; // Darker gothic black
+                cell.style.background = "#111111";
             }
 
             column.appendChild(cell);
@@ -140,20 +158,20 @@ function createBetTable() {
     outside.id = "outsideBets";
 
     const list = [
-        { id: "1st12", label: "1st 12", priority: "low" },
-        { id: "2nd12", label: "2nd 12", priority: "low" },
-        { id: "3rd12", label: "3rd 12", priority: "low" },
-        { id: "1-18", label: "1-18", priority: "medium" },
-        { id: "EVEN", label: "EVEN", priority: "medium" },
-        { id: "RED", label: "RED", color: "#880e4f", priority: "important" },
-        { id: "BLACK", label: "BLACK", color: "#1a0530", priority: "important" },
-        { id: "ODD", label: "ODD", priority: "medium" },
-        { id: "19-36", label: "19-36", priority: "medium" }
+        { id: "1st12", label: "1st 12" },
+        { id: "2nd12", label: "2nd 12" },
+        { id: "3rd12", label: "3rd 12" },
+        { id: "1-18", label: "1-18" },
+        { id: "EVEN", label: "EVEN" },
+        { id: "RED", label: "RED", color: "#c62828" },
+        { id: "BLACK", label: "BLACK", color: "#111" },
+        { id: "ODD", label: "ODD" },
+        { id: "19-36", label: "19-36" }
     ];
 
     list.forEach(item => {
         const btn = document.createElement("button");
-        btn.className = `outsideBet priority-${item.priority}`;
+        btn.className = "outsideBet";
         btn.textContent = item.label;
         btn.dataset.bet = item.id;
         if (item.color) btn.style.background = item.color;
@@ -174,7 +192,7 @@ document.addEventListener("click", (e) => {
     const amount = selectedChip;
 
     if (balance < amount) {
-        setMessage("Rengaが足りないよ。");
+        setRabbitMessage("lowBalance");
         return;
     }
 
@@ -183,7 +201,6 @@ document.addEventListener("click", (e) => {
 
     updateBalance();
     updateBetVisuals(btn, bets[bet]);
-    setMessage(`${bet} に ${amount} Renga ベットしたね。`);
 });
 
 function updateBetVisuals(btn, totalAmount) {
@@ -204,14 +221,13 @@ function clearBetsVisuals() {
 // ルーレット描画
 // ----------------------
 function drawRoulette() {
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
 
-    const outer = canvas.width * 0.46;
-    const inner = canvas.width * 0.35; // Shrink center (thicker ring)
+    const outer = canvas.width * 0.45;
+    const inner = canvas.width * 0.28;
 
     const angleSize = (Math.PI * 2) / rouletteNumbers.length;
 
@@ -221,13 +237,10 @@ function drawRoulette() {
     ctx.translate(-cx, -cy);
 
     rouletteNumbers.forEach((num, i) => {
-
         const start = i * angleSize - Math.PI / 2;
         const end = start + angleSize;
 
-        let color =
-            num === 0 ? "#1b5e20" : // Darker green
-            redSet.has(num) ? "#880e4f" : "#1a0530"; // Darker red/black
+        let color = num === 0 ? "#1fa84a" : redSet.has(num) ? "#c62828" : "#111";
 
         ctx.beginPath();
         ctx.arc(cx, cy, outer, start, end);
@@ -238,7 +251,7 @@ function drawRoulette() {
         ctx.fill();
 
         ctx.strokeStyle = "#d4af37";
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.stroke();
 
         const textAngle = start + angleSize / 2;
@@ -251,8 +264,8 @@ function drawRoulette() {
         ctx.translate(x, y);
         ctx.rotate(textAngle + Math.PI / 2);
 
-        ctx.fillStyle = "#ffd54f";
-        ctx.font = `bold ${canvas.width * 0.035}px 'Georgia', serif`;
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${canvas.width * 0.03}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
@@ -262,62 +275,31 @@ function drawRoulette() {
 
     ctx.restore();
 
-    // center area
-    const centerRadius = inner - 5;
+    // center
     ctx.beginPath();
-    ctx.arc(cx, cy, centerRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#2d1941"; // Dark purple center
+    ctx.arc(cx, cy, inner - 10, 0, Math.PI * 2);
+    ctx.fillStyle = "#7c5ac2";
     ctx.fill();
 
     ctx.strokeStyle = "#d4af37";
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.stroke();
 
-    // Gothic Decoration (Moon & Heart)
-    ctx.save();
-    ctx.translate(cx, cy);
-    
-    // Moon
     ctx.beginPath();
-    ctx.arc(-10, -10, centerRadius * 0.4, 0, Math.PI * 2);
-    ctx.fillStyle = "#ffd54f";
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(0, -15, centerRadius * 0.4, 0, Math.PI * 2);
-    ctx.fillStyle = "#2d1941";
-    ctx.fill();
-
-    // Heart (Simple silhouette)
-    ctx.fillStyle = "#ff6b6b";
-    ctx.font = `${centerRadius * 0.5}px serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("♥", 15, 15);
-    
-    ctx.restore();
-
-    // Small center pin
-    ctx.beginPath();
-    ctx.arc(cx, cy, canvas.width * 0.02, 0, Math.PI * 2);
+    ctx.arc(cx, cy, canvas.width * 0.03, 0, Math.PI * 2);
     ctx.fillStyle = "#d4af37";
     ctx.fill();
 
     // ball
     if (ballVisible) {
-
         const r = (outer + inner) / 2;
-
         const bx = cx + Math.cos(ballAngle) * r;
         const by = cy + Math.sin(ballAngle) * r;
 
         ctx.beginPath();
         ctx.arc(bx, by, canvas.width * 0.015, 0, Math.PI * 2);
-
         ctx.fillStyle = "white";
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "white";
         ctx.fill();
-        ctx.shadowBlur = 0;
     }
 }
 
@@ -325,16 +307,11 @@ function drawRoulette() {
 // 勝利判定
 // ----------------------
 function getWinningNumber() {
-
     const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-
     let r = rotation % (Math.PI * 2);
     if (r < 0) r += Math.PI * 2;
-
     const pointer = (Math.PI * 2 - r);
-
     const index = Math.floor(pointer / angleSize);
-
     return rouletteNumbers[index];
 }
 
@@ -344,11 +321,9 @@ function getWinningNumber() {
 function resolveBets(result) {
     let win = 0;
     let hitBets = [];
-    let totalBet = 0;
 
     for (const key in bets) {
         const amount = bets[key];
-        totalBet += amount;
         let payout = 0;
 
         if (!isNaN(key)) {
@@ -373,21 +348,15 @@ function resolveBets(result) {
     balance += win;
 
     if (win > 0) {
-        luckyStreak++;
-        rabbitMood = "Excited";
-        setMessage(`ふふ……当たりだよ！ [${hitBets.join(", ")}] +${win.toLocaleString()} Renga`, "win");
+        setRabbitMessage("win");
     } else {
-        luckyStreak = 0;
-        rabbitMood = balance < 1000 ? "Mysterious" : "Watching";
-        setMessage("残念。また挑戦する……？", "lose");
+        if (balance <= 1000) {
+            setRabbitMessage("lowBalance");
+        } else {
+            setRabbitMessage("lose");
+        }
     }
 
-    if (totalBet > 5000) {
-        rabbitMood = "Excited";
-        setMessage("大胆だね……嫌いじゃないよ。");
-    }
-
-    updateRabbitStatus();
     bets = {};
     updateBalance();
     setTimeout(clearBetsVisuals, 2000);
@@ -398,14 +367,21 @@ function resolveBets(result) {
 // ----------------------
 function spinRoulette() {
     if (spinning) return;
-    if (Object.keys(bets).length === 0) {
-        setMessage("どこかにベットして。");
+    
+    let totalBet = 0;
+    for (const key in bets) totalBet += bets[key];
+
+    if (totalBet === 0) {
         return;
+    }
+
+    if (totalBet >= 1000) {
+        setRabbitMessage("bigBet");
     }
 
     spinning = true;
     ballVisible = false;
-    clearBetsVisuals(); // Optional: clear before spin or keep until end
+    clearBetsVisuals();
 
     let speed = Math.random() * 0.15 + 0.35;
     let friction = 0.988;
@@ -413,7 +389,6 @@ function spinRoulette() {
     function animate() {
         rotation += speed;
         speed *= friction;
-
         drawRoulette();
 
         if (speed > 0.001) {
@@ -421,50 +396,36 @@ function spinRoulette() {
         } else {
             spinning = false;
             const result = getWinningNumber();
-            
-            // Winning angle calculation refinement
-            const index = rouletteNumbers.indexOf(result);
-            const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-            
-            // The result is what's at the TOP (fixed pointer).
-            // Rotation rotates the board. Pointer is -PI/2.
             ballAngle = -Math.PI / 2; 
             ballVisible = true;
-
             drawRoulette();
-            setMessage(`結果は... ${result}！`);
             resolveBets(result);
         }
     }
-
     animate();
 }
 
 // ----------------------
 // 初期化
 // ----------------------
-document.getElementById("spinButton")
-    .addEventListener("click", spinRoulette);
+document.getElementById("spinButton").addEventListener("click", spinRoulette);
 
-// Add a clear button if you have one, or just handle it here
 const clearBtn = document.createElement("button");
 clearBtn.id = "clearButton";
 clearBtn.textContent = "CLEAR";
 clearBtn.onclick = () => {
     if (spinning) return;
-    for (const key in bets) {
-        balance += bets[key];
-    }
+    for (const key in bets) balance += bets[key];
     bets = {};
     updateBalance();
     clearBetsVisuals();
-    setMessage("ベットをリセットしたよ。");
+    setRabbitMessage("idle");
 };
 document.getElementById("controls").appendChild(clearBtn);
 
 createBetTable();
 updateBalance();
-updateRabbitStatus();
+setRabbitMessage("idle");
 
 window.addEventListener("resize", () => {
     const rect = canvas.getBoundingClientRect();
@@ -476,5 +437,4 @@ window.addEventListener("resize", () => {
 const rect = canvas.getBoundingClientRect();
 canvas.width = rect.width;
 canvas.height = rect.height;
-
 drawRoulette();
