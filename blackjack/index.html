@@ -42,12 +42,29 @@
 
         <div id="bottom-left-controls">
             <div id="bet-setup-area">
-                <button id="bet-minus" class="circle-btn">-</button>
-                <div id="bet-input-wrapper">
-                    <span id="bet-amount-display">10</span>
+                <div class="bet-row">
+                    <button id="bet-m10" class="bet-btn">-10</button>
+                    <button id="bet-m50" class="bet-btn">-50</button>
+                    <button id="bet-m100" class="bet-btn">-100</button>
                 </div>
-                <button id="bet-plus" class="circle-btn">+</button>
-                <button id="deal-btn" class="glow-btn">DEAL</button>
+                
+                <div class="bet-row">
+                    <button id="bet-p10" class="bet-btn">+10</button>
+                    <button id="bet-p50" class="bet-btn">+50</button>
+                    <button id="bet-p100" class="bet-btn">+100</button>
+                </div>
+
+                <div class="bet-row">
+                    <button id="bet-allin" class="bet-btn allin-btn">ALLIN</button>
+                    <button id="bet-clear" class="bet-btn clear-btn">CLEAR</button>
+                </div>
+                
+                <div class="bet-row main-bet-row">
+                    <div id="bet-input-wrapper">
+                        <span id="bet-amount-display">10</span>
+                    </div>
+                    <button id="deal-btn" class="glow-btn">DEAL</button>
+                </div>
             </div>
             <div id="current-bet-area" class="hidden">
                 <span class="bet-label">BET</span>

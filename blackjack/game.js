@@ -20,8 +20,14 @@ const currentBetArea = document.getElementById('current-bet-area');
 const betAmountDisplay = document.getElementById('bet-amount-display');
 const currentBetDisplay = document.getElementById('current-bet-display');
 
-const betMinusBtn = document.getElementById('bet-minus');
-const betPlusBtn = document.getElementById('bet-plus');
+const betM100 = document.getElementById('bet-m100');
+const betM50 = document.getElementById('bet-m50');
+const betM10 = document.getElementById('bet-m10');
+const betP10 = document.getElementById('bet-p10');
+const betP50 = document.getElementById('bet-p50');
+const betP100 = document.getElementById('bet-p100');
+const betAllIn = document.getElementById('bet-allin');
+const betClear = document.getElementById('bet-clear');
 const dealBtn = document.getElementById('deal-btn');
 
 const bottomRightControls = document.getElementById('bottom-right-controls');
@@ -639,15 +645,51 @@ resetBtn.addEventListener('click', () => {
     fullReset();
 });
 
-betMinusBtn.addEventListener('click', () => { 
+betM100.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = Math.max(10, currentBet - 100);
+    updateUI();
+});
+
+betM50.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = Math.max(10, currentBet - 50);
+    updateUI();
+});
+
+betM10.addEventListener('click', () => { 
     playSound('click');
     currentBet = Math.max(10, currentBet - 10);
     updateUI();
 });
 
-betPlusBtn.addEventListener('click', () => { 
+betP10.addEventListener('click', () => { 
     playSound('click');
     currentBet = Math.min(balance, currentBet + 10);
+    updateUI();
+});
+
+betP50.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = Math.min(balance, currentBet + 50);
+    updateUI();
+});
+
+betP100.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = Math.min(balance, currentBet + 100);
+    updateUI();
+});
+
+betAllIn.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = balance;
+    updateUI();
+});
+
+betClear.addEventListener('click', () => { 
+    playSound('click');
+    currentBet = 10;
     updateUI();
 });
 
