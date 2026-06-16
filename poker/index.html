@@ -36,7 +36,7 @@
                     <button onclick="pokerApp.ui.showScreen('difficulty-select')">ゲーム開始</button>
                     <button onclick="pokerApp.showHowTo()">遊び方</button>
                     <button onclick="pokerApp.showRanks()">役一覧</button>
-                    <button onclick="alert('カジノへ戻ります')">戻る</button>
+                    <button onclick="location.href='../home/index.html'">カジノに戻る</button>
                 </div>
             </div>
         </div>
@@ -69,7 +69,10 @@
                         <button onclick="pokerApp.adjustBet(10)" style="padding:10px 20px;">+10</button>
                         <button onclick="pokerApp.adjustBet(100)" style="padding:10px 20px;">+100</button>
                     </div>
-                    <button onclick="pokerApp.confirmBet()" style="padding:15px 60px; font-size:1.5rem; background:#4b0082; color:white; border:1px solid white; cursor:pointer; border-radius:10px; width:100%;">決定</button>
+                    <div style="display:flex; flex-direction:column; gap:15px; width:100%;">
+                        <button onclick="pokerApp.confirmBet()" style="padding:15px; font-size:1.5rem; background:#4b0082; color:white; border:1px solid white; cursor:pointer; border-radius:10px;">決定</button>
+                        <button onclick="pokerApp.ui.showScreen('main-menu')" style="padding:10px; font-size:1.1rem; background:#333; color:white; border:1px solid #666; cursor:pointer; border-radius:10px;">戻る</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -132,6 +135,9 @@
         class PokerApp {
             constructor() {
                 this.player = new PlayerManager({ renga: 50000, hunger: 100, stress: 0, items: [] });
+                // 強制的に50000にリセット（一度だけ実行したい場合や、デバッグ用）
+                this.player.renga = 50000;
+                
                 this.ui = new PokerUI(this);
                 this.difficulty = 'Easy';
                 this.bet = 10;
@@ -350,7 +356,12 @@
                     if (multiplier > 1) {
                         winnerMsg += ` (役ボーナス x${multiplier}!)`;
                     }
-                    this.player.stress -= 10;
+                    
+                    // ストレス減少：基本 -10 ＋ 獲得額に応じたボーナス
+                    // 例：1000 Renga ごとにさらに -1
+                    const awardBonus = Math.floor(finalAward / 1000);
+                    const totalReduction = 10 + awardBonus;
+                    this.player.stress -= totalReduction;
                 } else if (loseCount > 0) {
                     result = "LOSE";
                     winnerMsg = `CPU ${topCpuIdx + 1} が最強の役（${PokerHand.RANK_NAMES[topCpuEval.rank]}）を揃えました。`;

@@ -16,9 +16,10 @@ body {
 }
 
 #game-container {
-    width: 1280px; height: 720px;
+    width: 100%; height: 100vh;
     background-image: url('../assets/poker背景2.png');
-    background-size: 100% 100%;
+    background-size: cover;
+    background-position: center;
     position: relative;
     box-shadow: 0 0 50px rgba(0,0,0,1);
     overflow: hidden;
@@ -76,7 +77,7 @@ body {
 
 #player-hand {
     position: absolute;
-    bottom: 110px;
+    bottom: 120px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -96,10 +97,10 @@ body {
     align-items: center;
 }
 
-.cpu-player.pos-0 { top: 120px; left: 10%; transform: rotate(-12deg); }
-.cpu-player.pos-1 { top: 40px; left: 50%; transform: translateX(-50%); }
-.cpu-player.pos-2 { top: 120px; right: 10%; transform: rotate(12deg); }
-.cpu-player.pos-easy { top: 60px; left: 50%; transform: translateX(-50%); }
+.cpu-player.pos-0 { top: 15%; left: 15%; transform: rotate(-12deg); }
+.cpu-player.pos-1 { top: 10%; left: 50%; transform: translateX(-50%); }
+.cpu-player.pos-2 { top: 15%; right: 15%; transform: rotate(12deg); }
+.cpu-player.pos-easy { top: 12%; left: 50%; transform: translateX(-50%); }
 
 .cpu-rank-label {
     background: rgba(0,0,0,0.6);
@@ -112,7 +113,7 @@ body {
 
 .player-rank-label {
     position: absolute;
-    bottom: 260px;
+    bottom: 270px;
     left: 50%;
     transform: translateX(-50%);
     color: var(--star-gold);
@@ -126,14 +127,14 @@ body {
 
 .exchange-btn-container {
     position: absolute;
-    bottom: 45px;
+    bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .betting-actions {
     position: absolute;
-    bottom: 45px;
+    bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -283,8 +284,8 @@ body {
 /* 常設Renga表示 */
 #permanent-renga-display {
     position: absolute;
-    bottom: 119px;
-    right: -16px;
+    bottom: 100px;
+    right: 0px;
     width: 210px;
     height: 55px;
     display: flex;
@@ -296,6 +297,9 @@ body {
     text-shadow: 2px 2px 4px #000;
     pointer-events: none;
     z-index: 100;
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    transition: font-size 0.3s ease;
 }
 
 /* ストレスゲージ */

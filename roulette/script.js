@@ -35,22 +35,63 @@ let balance = 50000;
 
 let selectedChip = 100;
 
+// =======================
+// Rabbitメッセージ管理
+// =======================
+const rabbitMessages = {
+    idle: [
+        "Rabbitは静かに見ている……",
+        "幸運を祈るよ。",
+        "今日はどんな結末になるかな？"
+    ],
+    win: [
+        "ふふ……今日はツイてるね。",
+        "すごいじゃないか。",
+        "Rabbitも嬉しいよ。"
+    ],
+    lose: [
+        "残念。また挑戦する？",
+        "まだ終わりじゃない。",
+        "次こそ当たるかもしれない。"
+    ],
+    bigBet: [
+        "大胆だね。",
+        "覚悟はできている？",
+        "Rabbitは見届けるよ。"
+    ],
+    lowBalance: [
+        "……大丈夫？",
+        "少し休憩する？",
+        "無理はしないでね。"
+    ]
+};
+
+function setRabbitMessage(type) {
+    const list = rabbitMessages[type];
+    const message = list[Math.floor(Math.random() * list.length)];
+    const msgElem = document.getElementById("rabbitMessage");
+    if (msgElem) {
+        msgElem.textContent = message;
+    }
+
+    // アイコンのアニメーション（跳ねる）
+    const icon = document.getElementById("rabbitChar");
+    if (icon) {
+        icon.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+            icon.style.transform = "translateY(0)";
+        }, 300);
+    }
+}
+
 // ----------------------
 // UI
 // ----------------------
 function updateBalance() {
-    document.getElementById("balance").textContent =
-        `Balance : ${balance.toLocaleString()} Renga`;
-}
-
-function setMessage(text, type = "normal") {
-    const msg = document.getElementById("messageBox");
-
-    msg.style.color =
-        type === "win" ? "#ffd54f" :
-        type === "lose" ? "#ff6b6b" : "white";
-
-    msg.textContent = "Rabbit : " + text;
+    const balanceElem = document.getElementById("balance");
+    if (balanceElem) {
+        balanceElem.textContent = `Balance : ${balance.toLocaleString()} Renga`;
+    }
 }
 
 // ----------------------
@@ -58,12 +99,8 @@ function setMessage(text, type = "normal") {
 // ----------------------
 document.addEventListener("click", (e) => {
     if (e.target.classList.contains("chip")) {
-
-        document.querySelectorAll(".chip")
-            .forEach(c => c.classList.remove("active"));
-
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
         e.target.classList.add("active");
-
         selectedChip = parseInt(e.target.dataset.chip);
     }
 });
@@ -155,7 +192,7 @@ document.addEventListener("click", (e) => {
     const amount = selectedChip;
 
     if (balance < amount) {
-        setMessage("Rengaが足りないよ。");
+        setRabbitMessage("lowBalance");
         return;
     }
 
@@ -164,7 +201,6 @@ document.addEventListener("click", (e) => {
 
     updateBalance();
     updateBetVisuals(btn, bets[bet]);
-    setMessage(`${bet} に ${amount} Renga ベットしたね。`);
 });
 
 function updateBetVisuals(btn, totalAmount) {
@@ -185,7 +221,6 @@ function clearBetsVisuals() {
 // ルーレット描画
 // ----------------------
 function drawRoulette() {
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const cx = canvas.width / 2;
@@ -202,13 +237,10 @@ function drawRoulette() {
     ctx.translate(-cx, -cy);
 
     rouletteNumbers.forEach((num, i) => {
-
         const start = i * angleSize - Math.PI / 2;
         const end = start + angleSize;
 
-        let color =
-            num === 0 ? "#1fa84a" :
-            redSet.has(num) ? "#c62828" : "#111";
+        let color = num === 0 ? "#1fa84a" : redSet.has(num) ? "#c62828" : "#111";
 
         ctx.beginPath();
         ctx.arc(cx, cy, outer, start, end);
@@ -260,15 +292,12 @@ function drawRoulette() {
 
     // ball
     if (ballVisible) {
-
         const r = (outer + inner) / 2;
-
         const bx = cx + Math.cos(ballAngle) * r;
         const by = cy + Math.sin(ballAngle) * r;
 
         ctx.beginPath();
         ctx.arc(bx, by, canvas.width * 0.015, 0, Math.PI * 2);
-
         ctx.fillStyle = "white";
         ctx.fill();
     }
@@ -278,16 +307,11 @@ function drawRoulette() {
 // 勝利判定
 // ----------------------
 function getWinningNumber() {
-
     const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-
     let r = rotation % (Math.PI * 2);
     if (r < 0) r += Math.PI * 2;
-
     const pointer = (Math.PI * 2 - r);
-
     const index = Math.floor(pointer / angleSize);
-
     return rouletteNumbers[index];
 }
 
@@ -303,7 +327,7 @@ function resolveBets(result) {
         let payout = 0;
 
         if (!isNaN(key)) {
-            if (parseInt(key) === result) payout = 36; // 35:1 + original bet
+            if (parseInt(key) === result) payout = 36;
         }
         else if (key === "RED" && redSet.has(result)) payout = 2;
         else if (key === "BLACK" && result !== 0 && !redSet.has(result)) payout = 2;
@@ -324,9 +348,13 @@ function resolveBets(result) {
     balance += win;
 
     if (win > 0) {
-        setMessage(`当たり！ [${hitBets.join(", ")}] +${win.toLocaleString()} Renga`, "win");
+        setRabbitMessage("win");
     } else {
-        setMessage("外れだよ。Rabbitは静かに見ている...", "lose");
+        if (balance <= 1000) {
+            setRabbitMessage("lowBalance");
+        } else {
+            setRabbitMessage("lose");
+        }
     }
 
     bets = {};
@@ -339,14 +367,21 @@ function resolveBets(result) {
 // ----------------------
 function spinRoulette() {
     if (spinning) return;
-    if (Object.keys(bets).length === 0) {
-        setMessage("どこかにベットして。");
+    
+    let totalBet = 0;
+    for (const key in bets) totalBet += bets[key];
+
+    if (totalBet === 0) {
         return;
+    }
+
+    if (totalBet >= 1000) {
+        setRabbitMessage("bigBet");
     }
 
     spinning = true;
     ballVisible = false;
-    clearBetsVisuals(); // Optional: clear before spin or keep until end
+    clearBetsVisuals();
 
     let speed = Math.random() * 0.15 + 0.35;
     let friction = 0.988;
@@ -354,7 +389,6 @@ function spinRoulette() {
     function animate() {
         rotation += speed;
         speed *= friction;
-
         drawRoulette();
 
         if (speed > 0.001) {
@@ -362,49 +396,36 @@ function spinRoulette() {
         } else {
             spinning = false;
             const result = getWinningNumber();
-            
-            // Winning angle calculation refinement
-            const index = rouletteNumbers.indexOf(result);
-            const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-            
-            // The result is what's at the TOP (fixed pointer).
-            // Rotation rotates the board. Pointer is -PI/2.
             ballAngle = -Math.PI / 2; 
             ballVisible = true;
-
             drawRoulette();
-            setMessage(`結果は... ${result}！`);
             resolveBets(result);
         }
     }
-
     animate();
 }
 
 // ----------------------
 // 初期化
 // ----------------------
-document.getElementById("spinButton")
-    .addEventListener("click", spinRoulette);
+document.getElementById("spinButton").addEventListener("click", spinRoulette);
 
-// Add a clear button if you have one, or just handle it here
 const clearBtn = document.createElement("button");
 clearBtn.id = "clearButton";
 clearBtn.textContent = "CLEAR";
 clearBtn.onclick = () => {
     if (spinning) return;
-    for (const key in bets) {
-        balance += bets[key];
-    }
+    for (const key in bets) balance += bets[key];
     bets = {};
     updateBalance();
     clearBetsVisuals();
-    setMessage("ベットをリセットしたよ。");
+    setRabbitMessage("idle");
 };
 document.getElementById("controls").appendChild(clearBtn);
 
 createBetTable();
 updateBalance();
+setRabbitMessage("idle");
 
 window.addEventListener("resize", () => {
     const rect = canvas.getBoundingClientRect();
@@ -416,5 +437,4 @@ window.addEventListener("resize", () => {
 const rect = canvas.getBoundingClientRect();
 canvas.width = rect.width;
 canvas.height = rect.height;
-
 drawRoulette();
