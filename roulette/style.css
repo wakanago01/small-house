@@ -8,11 +8,12 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    font-family: sans-serif;
+    font-family: 'Georgia', serif;
 
     background-image: url("img/background.png");
     background-size: cover;
     background-position: center;
+    color: #f3e5f5;
 }
 
 #game {
@@ -20,18 +21,44 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    background: radial-gradient(circle, rgba(40, 20, 60, 0.4) 0%, rgba(10, 5, 20, 0.8) 100%);
 }
 
 #topBar {
-    height: 80px;
+    height: 100px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
+    border-bottom: 2px solid #d4af37;
+    background: rgba(20, 10, 30, 0.6);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
 
-    color: white;
-    font-size: 28px;
+#statusContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#balance {
+    color: #ffd54f;
+    font-size: 32px;
     font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 213, 79, 0.5);
+}
+
+#rabbitStatus {
+    display: flex;
+    gap: 20px;
+    font-size: 16px;
+    color: #b39ddb;
+}
+
+#gameType {
+    font-size: 24px;
+    font-style: italic;
+    color: #d4af37;
 }
 
 #gameArea {
@@ -107,27 +134,48 @@ body {
 .betCell {
     width: 100%;
     height: 60px;
-    border: none;
+    border: 1px solid rgba(212, 175, 55, 0.3);
     border-radius: 4px;
-    color: white;
+    color: #ffd54f;
     font-weight: bold;
     cursor: pointer;
     position: relative;
-    transition: transform 0.1s, box-shadow 0.1s;
+    transition: all 0.2s;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
 }
 
-.betCell:hover {
+.priority-high {
+    border-width: 2px;
+    font-size: 20px;
+}
+
+.priority-important {
+    border: 2px solid #d4af37;
+    font-size: 18px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.priority-medium {
+    font-size: 14px;
+}
+
+.priority-low {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.betCell:hover, .outsideBet:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(255,255,255,0.3);
+    box-shadow: 0 0 15px #ffd54f;
     z-index: 10;
+    border-color: #fff;
+    opacity: 1;
 }
 
 .numLabel {
-    font-size: 18px;
     pointer-events: none;
 }
 
@@ -186,31 +234,62 @@ body {
     right: 40px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
 .chip {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    border: 4px solid rgba(255,255,255,0.3);
-    background: #333;
-    color: white;
+    border: 2px solid #d4af37;
+    background: radial-gradient(circle, #4a148c 0%, #1a0530 100%);
+    color: #ffd54f;
     font-weight: bold;
+    font-size: 18px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 10px rgba(212, 175, 55, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.chip::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 85%;
+    height: 85%;
+    border: 1px dashed rgba(212, 175, 55, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .chip:hover {
-    transform: scale(1.1);
+    transform: scale(1.1) rotate(5deg);
     border-color: #fff;
+    box-shadow: 0 0 15px #ffd54f;
 }
 
 .chip.active {
-    background: #7c5ac2;
+    background: radial-gradient(circle, #7b1fa2 0%, #311b92 100%);
     border-color: #ffd54f;
-    box-shadow: 0 0 20px #ffd54f;
+    box-shadow: 0 0 25px #ffd54f;
     transform: scale(1.2);
+    z-index: 5;
+}
+
+/* 500 & 1000 Chip specific */
+.chip[data-chip="500"] {
+    background: radial-gradient(circle, #b71c1c 0%, #4a0000 100%);
+}
+.chip[data-chip="1000"] {
+    background: radial-gradient(circle, #ffd600 0%, #827717 100%);
+    color: #1a0530;
+    border-color: #1a0530;
+}
+.chip[data-chip="1000"]::before {
+    border-color: rgba(26, 5, 48, 0.5);
 }
 
 #controls {
@@ -226,48 +305,93 @@ body {
     color: white;
     font-weight: bold;
     cursor: pointer;
-    font-family: 'Cinzel', serif;
+    font-family: 'Georgia', serif;
     letter-spacing: 1px;
     transition: all 0.2s;
     box-shadow: 0 4px 0 rgba(0,0,0,0.3);
 }
 
 #spinButton {
-    background: #7c5ac2;
-    min-width: 120px;
+    background: linear-gradient(135deg, #7c5ac2 0%, #4a148c 100%);
+    font-size: 24px;
+    padding: 15px 45px;
+    border: 2px solid #d4af37;
+    border-radius: 50px;
+    box-shadow: 0 0 20px rgba(124, 90, 194, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.2);
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(124, 90, 194, 0.4); }
+    50% { box-shadow: 0 0 30px rgba(124, 90, 194, 0.8), 0 0 10px #ffd54f; }
+    100% { box-shadow: 0 0 10px rgba(124, 90, 194, 0.4); }
 }
 
 #spinButton:hover {
-    background: #9575cd;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 20px rgba(124, 90, 194, 0.4);
-}
-
-#spinButton:active {
-    transform: translateY(2px);
-    box-shadow: 0 0 0 rgba(0,0,0,0.3);
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #9575cd 0%, #6a1b9a 100%);
 }
 
 #clearButton {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-#clearButton:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
-
-#clearButton:active {
-    transform: translateY(2px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #b39ddb;
 }
 
 #messageBox {
-    height: 90px;
+    height: 160px;
     display: flex;
-    align-items: center;
-    padding-left: 30px;
+    align-items: flex-end;
+    padding: 0 40px 20px 40px;
+    background: linear-gradient(to top, rgba(20, 10, 30, 0.8) 0%, transparent 100%);
+}
 
+#rabbitContainer {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+#rabbitChar {
+    filter: drop-shadow(0 0 10px rgba(124, 90, 194, 0.5));
+    transition: transform 0.3s ease;
+}
+
+#rabbitContainer:hover #rabbitChar {
+    transform: translateY(-5px) scale(1.05);
+}
+
+#speechBubble {
+    position: relative;
+    background: rgba(45, 25, 65, 0.9);
+    border: 2px solid #d4af37;
+    border-radius: 15px;
+    padding: 15px 25px;
+    min-width: 300px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+}
+
+#speechBubble::after {
+    content: '';
+    position: absolute;
+    left: -15px;
+    bottom: 10px;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 15px solid #d4af37;
+}
+
+#rabbitName {
+    font-size: 14px;
+    color: #ffd54f;
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#rabbitMessage {
+    font-size: 20px;
     color: white;
-    font-size: 24px;
 }
