@@ -135,6 +135,9 @@
         class PokerApp {
             constructor() {
                 this.player = new PlayerManager({ renga: 50000, hunger: 100, stress: 0, items: [] });
+                // 強制的に50000にリセット（一度だけ実行したい場合や、デバッグ用）
+                this.player.renga = 50000;
+                
                 this.ui = new PokerUI(this);
                 this.difficulty = 'Easy';
                 this.bet = 10;

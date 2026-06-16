@@ -96,6 +96,26 @@ class PokerUI {
             const el = document.getElementById(id);
             if (el) el.innerText = formatted;
         });
+
+        // 動的なフォントサイズ調整 (右下の常設表示のみ)
+        const permDisplay = document.getElementById('permanent-renga-display');
+        if (permDisplay) {
+            const digitCount = val.toString().length;
+            const commaCount = (formatted.match(/,/g) || []).length;
+            
+            // 基本サイズ 1.95rem (約31px)
+            // 1. 桁数が5桁を超えたら1桁につき 1pt (0.0625rem) 小さくする
+            // 2. カンマがある場合は1つにつき 2pt (0.125rem) さらに小さくする
+            const baseSize = 1.95;
+            const ptInRem = 0.0625;
+            
+            let reductionPt = Math.max(0, digitCount - 5);
+            reductionPt += (commaCount * 2);
+            
+            const newSize = Math.max(0.8, baseSize - (reductionPt * ptInRem));
+            permDisplay.style.fontSize = `${newSize}rem`;
+        }
+
         this.updateStress(stress);
     }
 
@@ -292,7 +312,7 @@ class PokerUI {
             titleEl.innerText = "勝利！";
             titleEl.style.color = "var(--star-gold)";
             this.playAudio('win');
-            this.createWinEffect(); // キラキラ演出
+            this.createWinEffect(bet); // 獲得額を渡す
         } else if (result === "LOSE") {
             titleEl.innerText = "敗北...";
             titleEl.style.color = "#ff4444";
@@ -312,33 +332,47 @@ class PokerUI {
         this.showScreen('result-screen');
     }
 
-    createWinEffect() {
+    createWinEffect(amount) {
         const container = document.getElementById('game-container');
-        const starCount = 60;
-        const starTypes = ['✦', '✧', '✨', '・'];
+        const isBigWin = amount >= 1000000;
+        const starCount = isBigWin ? 200 : 60; // 100万以上なら200個！
+        const starTypes = isBigWin 
+            ? ['✦', '✧', '✨', '⭐', '🌟', '💰', '💎', '・'] // 豪華なシンボル追加
+            : ['✦', '✧', '✨', '・'];
 
         for (let i = 0; i < starCount; i++) {
             setTimeout(() => {
                 const star = document.createElement('div');
                 star.className = 'win-particle';
+                if (isBigWin) star.classList.add('jackpot'); // 豪華用クラス
+                
                 star.innerText = starTypes[Math.floor(Math.random() * starTypes.length)];
                 
-                // 画面全体に広がるよう修正 (半角%を使用)
                 star.style.left = (Math.random() * 100) + '%';
-                // 主張しすぎない小さなサイズ
-                star.style.fontSize = (Math.random() * 0.8 + 0.5) + 'rem';
-                // 左右のゆらぎ幅をランダムに設定
-                const drift = (Math.random() - 0.5) * 200; // -100px 〜 100px
+                
+                // サイズのバリエーション
+                const sizeBase = isBigWin ? 1.2 : 0.5;
+                star.style.fontSize = (Math.random() * (isBigWin ? 1.5 : 0.8) + sizeBase) + 'rem';
+                
+                const drift = (Math.random() - 0.5) * (isBigWin ? 400 : 200);
                 star.style.setProperty('--drift', `${drift}px`);
-                // 落下速度にバリエーション
-                star.style.animationDuration = (Math.random() * 1.5 + 2.5) + 's';
+                
+                // 豪華な時は落下速度や滞留時間を変える
+                star.style.animationDuration = (Math.random() * (isBigWin ? 2.5 : 1.5) + (isBigWin ? 3.5 : 2.5)) + 's';
+                
+                if (isBigWin) {
+                    // 金色や虹色っぽい輝きをランダムに
+                    const colors = ['#ffd700', '#ffffff', '#ff69b4', '#00ffff', '#fffacd'];
+                    star.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    star.style.textShadow = `0 0 ${Math.random() * 15 + 5}px ${star.style.color}`;
+                }
                 
                 container.appendChild(star);
 
                 setTimeout(() => {
                     star.remove();
-                }, 4000);
-            }, i * 40);
+                }, isBigWin ? 6000 : 4000);
+            }, i * (isBigWin ? 15 : 40)); // 密度も高くする
         }
     }
 
