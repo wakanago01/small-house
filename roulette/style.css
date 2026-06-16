@@ -9,9 +9,8 @@ body {
     height: 100vh;
     overflow: hidden;
     font-family: sans-serif;
-    /* 背景を画面いっぱいに表示し、タイトルが見えるように調整 */
     background-image: url("img/background.png");
-    background-size: 100% 100%; /* ウィンドウサイズにぴったり合わせる */
+    background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -24,58 +23,62 @@ body {
 }
 
 #topBar {
-    height: 8vh;
+    height: 7vh;
+    min-height: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
     color: white;
-    font-size: clamp(18px, 2.5vw, 28px);
+    font-size: clamp(16px, 2vw, 24px);
     font-weight: bold;
 }
 
 #gameArea {
     flex: 1;
     display: flex;
-    overflow: hidden; /* 全体のはみ出しを防止 */
+    overflow: hidden;
+    padding: 0 20px;
 }
 
 #rouletteArea {
-    width: 50%;
+    flex: 1.3; /* ルーレットにより多くのスペースを割り当て */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
 }
 
 #rouletteCanvas {
-    width: auto;
-    height: auto;
-    max-width: 90%;
-    max-height: 90%;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-width: 65vh; /* 画面の高さに合わせる */
+    max-height: 65vh;
     aspect-ratio: 1/1;
     border-radius: 50%;
-    background: rgba(0,0,0,0.15);
-    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.1);
+    backdrop-filter: blur(2px);
 }
 
 #betArea {
-    width: 50%;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 10px;
+    min-width: 0; /* flexアイテムの縮小を許可 */
 }
 
 .betTitle {
     color: white;
-    font-size: clamp(20px, 2.5vw, 28px);
-    margin-bottom: 10px;
+    font-size: clamp(18px, 2vw, 26px);
+    margin-bottom: 1vh;
 }
 
 #betTable {
-    width: 95%;
+    width: 100%;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -89,7 +92,7 @@ body {
 
 .zeroCell {
     width: 100%;
-    height: 4vh;
+    height: 3.5vh;
     min-height: 25px;
 }
 
@@ -108,50 +111,48 @@ body {
 
 .betCell {
     width: 100%;
-    height: 5vh;
-    min-height: 35px;
+    height: 4.5vh;
+    min-height: 30px;
     border: none;
     border-radius: 4px;
     color: white;
     font-weight: bold;
     cursor: pointer;
     position: relative;
-    transition: transform 0.1s;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    transition: transform 0.1s;
 }
 
 .betCell:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    transform: scale(1.03);
     z-index: 10;
 }
 
 .numLabel {
-    font-size: clamp(12px, 1.4vw, 18px);
+    font-size: clamp(11px, 1.2vw, 16px);
     pointer-events: none;
     font-weight: bold;
-    text-shadow: 0 0 4px rgba(255,255,255,0.4);
+    text-shadow: 0 0 3px rgba(255,255,255,0.4);
 }
 
 .betChip {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: clamp(18px, 2.2vw, 26px);
-    height: clamp(18px, 2.2vw, 26px);
+    bottom: 1px;
+    right: 1px;
+    width: clamp(16px, 2vw, 24px);
+    height: clamp(16px, 2vw, 24px);
     background: #ffd54f;
     color: #333;
     border-radius: 50%;
-    font-size: clamp(8px, 0.9vw, 10px);
+    font-size: clamp(7px, 0.8vw, 10px);
     display: flex;
     justify-content: center;
     align-items: center;
     border: 1px dashed #333;
     font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     pointer-events: none;
 }
 
@@ -160,12 +161,12 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 4px;
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 .outsideBet {
-    height: 4.5vh;
-    min-height: 30px;
+    height: 4vh;
+    min-height: 28px;
     border: none;
     border-radius: 6px;
     background: rgba(255,255,255,0.12);
@@ -173,13 +174,12 @@ body {
     font-weight: bold;
     cursor: pointer;
     position: relative;
-    transition: transform 0.1s;
-    font-size: clamp(10px, 1.1vw, 14px);
+    font-size: clamp(9px, 1vw, 13px);
 }
 
 #chipSelector {
     position: fixed;
-    bottom: 18vh;
+    bottom: 16vh;
     right: 2vw;
     display: flex;
     flex-direction: column;
@@ -188,28 +188,28 @@ body {
 }
 
 .chip {
-    width: clamp(45px, 5.5vw, 60px);
-    height: clamp(45px, 5.5vw, 60px);
+    width: clamp(40px, 5vw, 60px);
+    height: clamp(40px, 5vw, 60px);
     border-radius: 50%;
     background: #333;
     color: white;
     font-weight: bold;
     cursor: pointer;
     border: 3px solid #f5d76e;
-    box-shadow: 0 0 10px rgba(245,215,110,0.4);
+    box-shadow: 0 0 8px rgba(245,215,110,0.3);
     transition: 0.2s;
-    font-size: clamp(12px, 1.6vw, 18px);
+    font-size: clamp(11px, 1.4vw, 16px);
 }
 
 .chip.active {
     background: #7c5ac2;
     border-color: #ffd54f;
-    box-shadow: 0 0 15px #ffd54f;
-    transform: scale(1.15);
+    box-shadow: 0 0 12px #ffd54f;
+    transform: scale(1.1);
 }
 
 #controls {
-    margin-top: 15px;
+    margin-top: 1.5vh;
     display: flex;
     gap: 10px;
 }
@@ -217,36 +217,29 @@ body {
 .spin-button {
     background: linear-gradient(180deg, #9a78ff 0%, #7650d8 100%);
     border: 2px solid #f5d76e;
-    border-radius: 14px;
+    border-radius: 12px;
     color: white;
-    font-size: clamp(18px, 2.2vw, 26px);
+    font-size: clamp(16px, 2vw, 24px);
     font-weight: bold;
     letter-spacing: 1px;
-    padding: 10px 35px;
+    padding: 8px 30px;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(245, 215, 110, 0.5), 0 0 25px rgba(154, 120, 255, 0.3);
-    transition: all 0.25s ease;
-}
-
-.spin-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(245, 215, 110, 0.7), 0 0 40px rgba(154, 120, 255, 0.5);
+    box-shadow: 0 0 8px rgba(245, 215, 110, 0.4), 0 0 20px rgba(154, 120, 255, 0.3);
 }
 
 #clearButton {
-    padding: 8px 20px;
-    border: none;
-    border-radius: 8px;
+    padding: 6px 15px;
+    border-radius: 6px;
     color: white;
     font-weight: bold;
     cursor: pointer;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: clamp(12px, 1.4vw, 16px);
+    font-size: clamp(11px, 1.2vw, 14px);
 }
 
 #messageBox {
-    height: 12vh;
+    height: 11vh;
     display: flex;
     align-items: center;
     padding: 0 40px;
@@ -259,25 +252,25 @@ body {
     background: rgba(40, 18, 70, 0.92);
     border: 2px solid #f5d76e;
     border-radius: 14px;
-    padding: 10px 20px;
+    padding: 8px 20px;
     color: white;
-    min-height: 65px;
+    min-height: 60px;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
 .rabbit-name {
     color: #f5d76e;
     font-weight: bold;
-    font-size: clamp(10px, 1.1vw, 13px);
+    font-size: clamp(10px, 1vw, 12px);
 }
 
 .rabbit-message {
-    font-size: clamp(14px, 1.7vw, 20px);
+    font-size: clamp(13px, 1.5vw, 18px);
 }
 
 .rabbit-icon svg {
-    width: clamp(50px, 7vw, 75px);
+    width: clamp(45px, 6vw, 70px);
     height: auto;
 }
