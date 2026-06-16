@@ -6,11 +6,9 @@ function pressButton(button){
 
         button.classList.remove("pressed");
 
-    },120);
+    },150);
 
 }
-
-/* ボタン取得 */
 
 const bet1 = document.getElementById("bet1");
 const bet2 = document.getElementById("bet2");
@@ -23,65 +21,76 @@ const autoBtn = document.getElementById("autoBtn");
 const missionBtn = document.getElementById("missionBtn");
 const settingBtn = document.getElementById("settingBtn");
 
-/* クリック操作 */
+const symbols = [
 
-bet1.onclick = () => {
+    "../image/seven.png",
+    "../image/bar.png",
+    "../image/bell.png",
+    "../image/grape.png",
+    "../image/cherry.png",
+    "../image/rabbit.png"
 
-    pressButton(bet1);
-    console.log("1BET");
+];
 
-};
+function createReel(reelId){
 
-bet2.onclick = () => {
+    const reel = document.getElementById(reelId);
 
-    pressButton(bet2);
-    console.log("2BET");
+    reel.innerHTML = "";
 
-};
+    for(let i=0;i<3;i++){
 
-bet3.onclick = () => {
+        const div = document.createElement("div");
 
-    pressButton(bet3);
-    console.log("3BET");
+        div.className = "symbol";
 
-};
+        const img = document.createElement("img");
 
-maxBet.onclick = () => {
+        img.src = symbols[Math.floor(Math.random()*symbols.length)];
 
-    pressButton(maxBet);
-    console.log("MAX BET");
+        div.appendChild(img);
 
-};
+        reel.appendChild(div);
 
-startBtn.onclick = () => {
+    }
 
-    pressButton(startBtn);
-    console.log("START");
+}
 
-};
+createReel("reel1");
+createReel("reel2");
+createReel("reel3");
 
-autoBtn.onclick = () => {
+function setButton(button,name,action){
 
-    pressButton(autoBtn);
-    console.log("AUTO");
+    button.addEventListener("click",() => {
 
-};
+        pressButton(button);
+        console.log(name);
 
-missionBtn.onclick = () => {
+        if(action){
+            action();
+        }
 
-    pressButton(missionBtn);
-    console.log("MISSION");
+    });
 
-};
+}
 
-settingBtn.onclick = () => {
+setButton(bet1,"1BET");
+setButton(bet2,"2BET");
+setButton(bet3,"3BET");
+setButton(maxBet,"MAX BET");
 
-    pressButton(settingBtn);
-    console.log("SETTING");
+setButton(startBtn,"START",() => {
 
-};
+    createReel("reel1");
+    createReel("reel2");
+    createReel("reel3");
 
-/* キーボード操作 */
+});
+
+setButton(autoBtn,"AUTO");
+setButton(missionBtn,"MISSION");
+setButton(settingBtn,"SETTING");
 
 document.addEventListener("keydown",(e)=>{
 
@@ -91,10 +100,13 @@ document.addEventListener("keydown",(e)=>{
 
     if(e.key==="3") bet3.click();
 
-    if(e.key==="m") maxBet.click();
+    if(e.key==="m" || e.key==="M") maxBet.click();
 
-    if(e.code==="Space") startBtn.click();
+    if(e.code==="Space"){
+        e.preventDefault();
+        startBtn.click();
+    }
 
-    if(e.key==="a") autoBtn.click();
+    if(e.key==="a" || e.key==="A") autoBtn.click();
 
 });

@@ -22,15 +22,19 @@ body{
 }
 
 #background{
+    position:absolute;
+    top:0;
+    left:0;
+
     width:100%;
     height:100%;
     object-fit:contain;
 
     user-select:none;
     pointer-events:none;
-}
 
-/* 所持レンガ */
+    z-index:1;
+}
 
 #rengaText{
     position:absolute;
@@ -49,24 +53,72 @@ body{
     text-shadow:
         0 0 8px #ff80ff,
         0 0 16px #ff80ff;
-}
 
-/* リール配置予定地 */
+    z-index:5;
+}
 
 #reelArea{
     position:absolute;
 
     top:33%;
-    left:26%;
+    left:25.8%;
 
-    width:42%;
+    width:42.5%;
     height:28%;
 
-    border:none;
+    overflow:hidden;
+
+    z-index:4;
 }
 
-/* ミッション表示 */
+.reel{
+    position:absolute;
 
+    top:0;
+
+    width:30%;
+    height:100%;
+
+    overflow:hidden;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-around;
+}
+
+#reel1{
+    left:2.1%;
+}
+
+#reel2{
+    left:35%;
+}
+
+#reel3{
+    left:67.9%;
+}
+
+.symbol{
+    width:100%;
+    height:33.333%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    overflow:hidden;
+}
+
+.symbol img{
+    width:120%;
+    height:120%;
+
+    object-fit:contain;
+
+    display:block;
+    margin:auto;
+}
 #missionArea{
     position:absolute;
 
@@ -92,6 +144,8 @@ body{
     text-shadow:
         0 0 8px #ff80ff,
         0 0 14px #ff80ff;
+
+    z-index:5;
 }
 
 #missionArea p{
@@ -104,12 +158,14 @@ body{
     position:absolute;
 
     border:none;
-    background:transparent;
+    background:rgba(255,255,255,0);
 
     cursor:pointer;
     border-radius:20px;
 
     transition:0.1s;
+
+    z-index:20;
 }
 
 /* 押された演出 */
@@ -120,14 +176,15 @@ body{
         translateY(4px);
 
     background:
-        rgba(255,255,255,0.15);
+        rgba(255,255,255,0.25);
 
     box-shadow:
         0 0 20px #ffccff,
-        0 0 40px #ff99ff;
+        0 0 40px #ff99ff,
+        0 0 60px #ffffff;
 }
 
-/* BET */
+/* 位置 */
 
 #bet1{
     left:20%;
@@ -150,16 +207,13 @@ body{
     height:8%;
 }
 
-/* MAX BET */
-
 #maxBet{
     left:43%;
     top:82%;
     width:8%;
     height:11%;
+    border-radius:50%;
 }
-
-/* START */
 
 #startBtn{
     left:54%;
@@ -168,8 +222,6 @@ body{
     height:9%;
 }
 
-/* AUTO */
-
 #autoBtn{
     left:68%;
     top:84%;
@@ -177,16 +229,12 @@ body{
     height:9%;
 }
 
-/* ミッションボタン */
-
 #missionBtn{
     left:86%;
     top:3%;
     width:5%;
     height:9%;
 }
-
-/* 設定ボタン */
 
 #settingBtn{
     left:93%;
