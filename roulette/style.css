@@ -4,342 +4,332 @@
     box-sizing: border-box;
 }
 
-body {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    font-family: "Yu Gothic UI", "Meiryo", sans-serif;
-    background-image: url("img/background.png");
-    background-size: 100% 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-    color: white;
+html, body {
+    width: 100%;
+    height: 100%;
 }
 
-button {
-    font-family: inherit;
+body {
+    overflow: hidden;
+    font-family: "Yu Gothic UI", "Hiragino Sans", sans-serif;
+    color: #fff;
+    background: #14051f url("img/background.png") center / cover no-repeat;
 }
 
 #game {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
 }
 
 #topBar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 7vh;
-    min-height: 44px;
+    min-height: 48px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 42px;
-    color: white;
+    padding: 0 3vw;
+    z-index: 5;
+    color: #fff7d7;
     font-size: clamp(18px, 2vw, 30px);
-    font-weight: 900;
-    text-shadow: 0 2px 4px #000, 0 0 8px #7c5ac2;
-    pointer-events: none;
+    font-weight: 800;
+    text-shadow: 0 0 5px #000, 0 0 10px #2a0b3f;
 }
 
 #gameArea {
-    flex: 1;
+    width: 100%;
+    height: 100%;
     display: flex;
-    overflow: hidden;
-    padding: 0 5vw 4.5vh 5vw;
+    padding: 14vh 5vw 15vh 5vw;
+    gap: 4vw;
 }
 
 #rouletteArea {
-    flex: 0 0 44%;
+    width: 45%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    transform: translateY(-22px);
+    justify-content: center;
+    transform: translateY(-1vh);
 }
 
 #rouletteFrame {
-    width: min(61vh, 39vw);
-    height: min(61vh, 39vw);
+    width: min(43vw, 66vh);
+    height: min(43vw, 66vh);
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    filter: drop-shadow(0 18px 25px rgba(0, 0, 0, 0.5));
+    background: radial-gradient(circle, rgba(70, 32, 105, 0.55), rgba(20, 5, 35, 0.75));
 }
 
 #rouletteCanvas {
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 1 / 1;
+    width: 84%;
+    height: 84%;
     border-radius: 50%;
-    background: rgba(6, 2, 18, 0.24);
 }
 
 #betArea {
-    flex: 1;
-    min-width: 0;
+    width: 55%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#betPanel {
+    width: min(48vw, 760px);
+    min-height: 62vh;
+    padding: clamp(18px, 2vw, 32px);
+    border: 3px solid rgba(226, 169, 70, 0.95);
+    border-radius: 18px;
+    background: rgba(42, 18, 63, 0.58);
+    box-shadow:
+        0 0 24px rgba(255, 206, 89, 0.2),
+        inset 0 0 35px rgba(12, 4, 25, 0.45);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding-top: min(13vh, 120px);
-    padding-left: 3vw;
-    padding-right: 1vw;
+}
+
+.betTitle {
+    color: #ffd980;
+    font-family: Georgia, serif;
+    font-size: clamp(32px, 4vw, 58px);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    font-weight: bold;
+    text-shadow: 0 0 6px #000, 0 0 14px rgba(255, 211, 90, 0.45);
+    margin-bottom: 1.8vh;
 }
 
 #betTable {
-    width: min(100%, 580px);
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 2px solid rgba(245, 215, 110, 0.85);
-    border-radius: 18px;
-    background: rgba(17, 8, 38, 0.72);
-    box-shadow: 0 0 16px rgba(245, 215, 110, 0.25), inset 0 0 22px rgba(124, 90, 194, 0.28);
-    backdrop-filter: blur(2px);
+    width: 100%;
+    max-width: 700px;
 }
 
-#zeroWrapper {
+#zeroAndRows {
+    display: grid;
+    grid-template-columns: 1.15fr 12fr;
     width: 100%;
-    display: flex;
-    margin-bottom: 3px;
 }
 
 .zeroCell {
-    width: 100%;
-    height: clamp(28px, 3.8vh, 38px);
+    height: 100%;
+    min-height: 148px;
+    border-radius: 8px 0 0 8px;
 }
 
 #numberGrid {
-    width: 100%;
-    display: flex;
-    gap: 3px;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
 }
 
 .betColumn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
 }
 
 .betCell,
 .outsideBet {
-    border: 1px solid rgba(245, 215, 110, 0.78);
-    color: white;
-    font-weight: 900;
-    cursor: pointer;
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    transition: transform 0.1s, filter 0.1s, box-shadow 0.1s;
-    text-shadow: 0 1px 3px #000;
-}
-
-.betCell {
-    width: 100%;
-    height: clamp(28px, 4.1vh, 42px);
-    border-radius: 5px;
+    border: 1.5px solid rgba(255, 204, 86, 0.95);
+    min-height: 46px;
+    color: white;
+    font-size: clamp(17px, 1.55vw, 25px);
+    font-weight: 800;
+    cursor: pointer;
+    text-shadow: 0 0 4px #000;
+    transition: transform 0.12s, filter 0.12s, box-shadow 0.12s;
 }
 
 .betCell:hover,
 .outsideBet:hover {
-    transform: scale(1.04);
-    z-index: 10;
+    transform: scale(1.035);
     filter: brightness(1.2);
-    box-shadow: 0 0 10px rgba(245, 215, 110, 0.55);
+    z-index: 10;
+    box-shadow: 0 0 10px rgba(255, 222, 110, 0.65);
 }
 
 .numLabel {
-    font-size: clamp(11px, 1.05vw, 16px);
     pointer-events: none;
-    font-weight: 900;
+}
+
+#dozens {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#outsideBets {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.outsideBet {
+    min-height: 48px;
+    background: rgba(69, 28, 91, 0.82);
+    color: #ffe6a3;
+    font-family: Georgia, serif;
+    font-size: clamp(14px, 1.4vw, 22px);
 }
 
 .betChip {
     position: absolute;
-    bottom: 2px;
     right: 2px;
-    width: clamp(18px, 1.9vw, 25px);
-    height: clamp(18px, 1.9vw, 25px);
-    background: radial-gradient(circle, #fff4a9 0%, #ffd54f 70%, #b88708 100%);
-    color: #24133f;
+    bottom: 2px;
+    width: clamp(20px, 2.1vw, 31px);
+    height: clamp(20px, 2.1vw, 31px);
     border-radius: 50%;
-    font-size: clamp(7px, 0.7vw, 10px);
+    background: radial-gradient(circle, #fff3a8, #d6902b);
+    color: #241007;
+    border: 2px solid #3b160a;
     display: flex;
-    justify-content: center;
     align-items: center;
-    border: 1px solid #5c3e00;
+    justify-content: center;
+    font-size: clamp(8px, 0.8vw, 12px);
     font-weight: 900;
+    text-shadow: none;
     pointer-events: none;
-    box-shadow: 0 0 7px rgba(255, 213, 79, 0.75);
-}
-
-#outsideBets {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    margin-top: 6px;
-}
-
-.outsideBet {
-    height: clamp(27px, 3.7vh, 38px);
-    border-radius: 7px;
-    background: rgba(255, 255, 255, 0.13);
-    font-size: clamp(9px, 0.9vw, 13px);
 }
 
 #chipSelector {
-    margin-top: 14px;
+    margin-top: 2vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 14px;
-    z-index: 100;
+    gap: clamp(16px, 4vw, 70px);
 }
 
 .chip {
-    width: clamp(48px, 5vw, 64px);
-    height: clamp(48px, 5vw, 64px);
+    width: clamp(60px, 5.2vw, 84px);
+    height: clamp(60px, 5.2vw, 84px);
     border-radius: 50%;
-    background: radial-gradient(circle, #2c2344 0%, #171326 76%);
+    border: 4px solid #f7d66d;
+    background: radial-gradient(circle, #6745d1 0%, #41215d 55%, #160d23 100%);
     color: white;
+    font-size: clamp(16px, 1.45vw, 24px);
     font-weight: 900;
     cursor: pointer;
-    border: 3px solid #f5d76e;
-    box-shadow: 0 0 10px rgba(245, 215, 110, 0.35);
-    transition: 0.2s;
-    font-size: clamp(12px, 1.1vw, 17px);
-}
-
-.chip:hover {
-    transform: scale(1.08);
+    box-shadow: 0 0 10px rgba(247, 214, 109, 0.25);
+    transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .chip.active {
-    background: radial-gradient(circle, #9a78ff 0%, #5c3baa 76%);
-    border-color: #fff4a9;
-    box-shadow: 0 0 16px #ffd54f, 0 0 26px rgba(154, 120, 255, 0.5);
     transform: scale(1.12);
+    box-shadow: 0 0 18px #ffd85e, 0 0 28px rgba(130, 78, 255, 0.5);
 }
 
 #resultDisplay {
-    margin-top: 12px;
-    min-height: 38px;
-    color: #f5d76e;
+    margin-top: 1.2vh;
+    color: #ffe9a8;
     font-size: clamp(20px, 2vw, 32px);
     font-weight: 900;
     text-align: center;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 4px #000, 0 0 12px rgba(245, 215, 110, 0.6);
-}
-
-#resultDisplay.winFlash {
-    animation: winFlash 0.75s ease-in-out 2;
-}
-
-@keyframes winFlash {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.12); filter: brightness(1.35); }
+    text-shadow: 0 0 6px #000, 0 0 10px rgba(255, 215, 94, 0.45);
 }
 
 #controls {
-    margin-top: 10px;
+    width: 100%;
+    margin-top: 1.5vh;
+    padding-top: 1.5vh;
+    border-top: 2px solid rgba(255, 210, 95, 0.55);
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 12px;
+    gap: clamp(12px, 2vw, 35px);
 }
 
-.spin-button,
-#clearButton,
-#backButton {
-    min-width: 110px;
-    height: 46px;
-    padding: 0 18px;
-    border-radius: 14px;
-    color: white;
+.gameButton {
+    min-width: clamp(110px, 11vw, 170px);
+    height: clamp(48px, 5vh, 68px);
+    border-radius: 10px;
+    border: 3px solid #d8a64c;
+    color: #fff7e1;
+    background: linear-gradient(180deg, #3b3b43, #0d0e13);
+    font-size: clamp(20px, 2vw, 34px);
     font-weight: 900;
+    font-family: Georgia, serif;
     cursor: pointer;
-    border: 2px solid #f5d76e;
-    background: linear-gradient(180deg, #9a78ff 0%, #7650d8 100%);
-    box-shadow: 0 0 10px rgba(245, 215, 110, 0.4), 0 0 18px rgba(154, 120, 255, 0.3);
-    text-shadow: 0 2px 4px #000;
+    text-shadow: 0 0 5px #000;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.4), 0 0 14px rgba(255, 213, 99, 0.18);
     transition: transform 0.12s, filter 0.12s;
 }
 
 .spin-button {
-    min-width: 150px;
-    height: 56px;
-    font-size: clamp(20px, 1.9vw, 28px);
-    letter-spacing: 2px;
+    background: linear-gradient(180deg, #b85aff, #66209f 55%, #31114b);
+    color: #ffe082;
 }
 
-#clearButton,
-#backButton {
-    background: linear-gradient(180deg, rgba(70, 45, 112, 0.96), rgba(26, 18, 48, 0.96));
-    font-size: clamp(13px, 1vw, 16px);
-}
-
-.spin-button:hover,
-#clearButton:hover,
-#backButton:hover {
+.gameButton:hover {
     transform: translateY(-2px);
     filter: brightness(1.15);
 }
 
+#messageBox {
+    position: absolute;
+    left: 17vw;
+    bottom: 3.5vh;
+    width: 52vw;
+    min-height: 9vh;
+    z-index: 5;
+}
+
 #catDialogue {
-    margin-top: 12px;
-    width: min(100%, 580px);
-    min-height: 52px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border: 2px solid rgba(245, 215, 110, 0.78);
+    width: 100%;
+    height: 100%;
+    padding: 1.2vh 2.2vw;
+    border: 2.5px solid rgba(231, 181, 83, 0.95);
     border-radius: 14px;
-    background: rgba(18, 7, 38, 0.78);
-    box-shadow: inset 0 0 16px rgba(124, 90, 194, 0.25);
-    color: white;
+    background: rgba(11, 5, 20, 0.75);
+    box-shadow: inset 0 0 22px rgba(70, 30, 110, 0.45), 0 0 16px rgba(0,0,0,0.55);
 }
 
 #catName {
-    color: #f5d76e;
+    color: #ffd783;
+    font-size: clamp(15px, 1.55vw, 24px);
     font-weight: 900;
-    white-space: nowrap;
+    margin-bottom: 0.4vh;
 }
 
 #catMessage {
-    font-size: clamp(13px, 1.1vw, 17px);
-    line-height: 1.4;
+    font-size: clamp(14px, 1.4vw, 23px);
+    line-height: 1.5;
+    text-shadow: 0 0 5px #000;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1000px) {
+    body {
+        overflow: auto;
+    }
+
+    #game {
+        min-height: 100vh;
+        height: auto;
+    }
+
     #gameArea {
-        padding-left: 2vw;
-        padding-right: 2vw;
+        height: auto;
+        flex-direction: column;
+        padding: 10vh 4vw 18vh 4vw;
     }
 
-    #rouletteArea {
-        flex-basis: 42%;
-    }
-
+    #rouletteArea,
     #betArea {
-        padding-left: 1vw;
-        padding-top: 10vh;
+        width: 100%;
     }
 
-    #betTable {
-        max-width: 500px;
-        padding: 10px;
+    #rouletteFrame {
+        width: min(82vw, 58vh);
+        height: min(82vw, 58vh);
     }
 
-    .spin-button,
-    #clearButton,
-    #backButton {
-        min-width: 90px;
+    #betPanel {
+        width: 94vw;
+    }
+
+    #messageBox {
+        position: static;
+        width: 92vw;
+        margin: 0 auto 3vh;
     }
 }
