@@ -5,8 +5,8 @@
 // Initial Game State Constants for Reset
 const INITIAL_STATE = {
     coins: 1000,
-    debt: 50000,
-    remainingDebt: 49000,
+    debt: 100000000, // 100 Million
+    remainingDebt: 100000000,
     hunger: 100,
     stress: 20,
     alcohol: 45,
@@ -48,7 +48,11 @@ const uiElements = {
     itemDetail: document.getElementById('item-detail-area'),
     detailName: document.getElementById('detail-name'),
     detailDesc: document.getElementById('detail-desc'),
-    useItemBtn: document.getElementById('use-item-btn')
+    useItemBtn: document.getElementById('use-item-btn'),
+    // Repayment
+    repayCurrentCoins: document.getElementById('repay-current-coins'),
+    repayRemainingDebt: document.getElementById('repay-remaining-debt'),
+    repayAmountInput: document.getElementById('repay-amount-input')
 };
 
 /**
@@ -119,6 +123,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
         } else if (label === 'Inventory') {
             updateInventoryUI();
             openModal('inventory-modal');
+        } else if (label === 'Repay') {
+            openRepayModal();
         } else if (label === 'Sleep') {
             handleAction('sleep');
         } else if (label === 'Status') {
@@ -126,13 +132,57 @@ document.querySelectorAll('.nav-item').forEach(item => {
             openModal('status-modal');
         }
         
-        if (!['Sleep'].includes(label)) {
+        if (!['Sleep', 'Repay'].includes(label)) {
             const active = document.querySelector('.nav-item.active');
             if(active) active.classList.remove('active');
             item.classList.add('active');
         }
     });
 });
+
+/**
+ * Debt Repayment
+ */
+function openRepayModal() {
+    uiElements.repayCurrentCoins.textContent = gameState.coins.toLocaleString();
+    uiElements.repayRemainingDebt.textContent = gameState.remainingDebt.toLocaleString();
+    uiElements.repayAmountInput.value = '';
+    openModal('repay-modal');
+}
+
+function setRepayAmount(amount) {
+    const current = parseInt(uiElements.repayAmountInput.value) || 0;
+    uiElements.repayAmountInput.value = current + amount;
+}
+
+function setRepayMax() {
+    uiElements.repayAmountInput.value = Math.min(gameState.coins, gameState.remainingDebt);
+}
+
+function confirmRepayment() {
+    const amount = parseInt(uiElements.repayAmountInput.value) || 0;
+    if (amount <= 0) return;
+
+    if (amount > gameState.coins) {
+        showToast("コインが足りません！");
+        return;
+    }
+
+    if (amount > gameState.remainingDebt) {
+        showToast("借金額を超えています！");
+        return;
+    }
+
+    gameState.coins -= amount;
+    gameState.remainingDebt -= amount;
+    showToast(`${amount.toLocaleString()} COINS を返済しました。`);
+    updateUI();
+    closeModal('repay-modal');
+}
+
+window.setRepayAmount = setRepayAmount;
+window.setRepayMax = setRepayMax;
+window.confirmRepayment = confirmRepayment;
 
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -243,7 +293,7 @@ function updateSurvivalClock() {
 
     secondsPassed++;
     const progress = secondsPassed / DAY_DURATION_SEC;
-    const offset = 283 - (283 * progress);
+    const offset = 283 * (1 - progress); // 283 to 0
     if (uiElements.clockProgress) uiElements.clockProgress.style.strokeDashoffset = offset;
 
     if (secondsPassed >= DAY_DURATION_SEC) {

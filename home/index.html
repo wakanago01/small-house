@@ -32,34 +32,37 @@
                 </div>
             </div>
 
-            <!-- Center: Financial Status -->
-            <div class="glass-panel status-center">
-                <div class="status-item">
-                    <span class="label">COINS</span>
-                    <span id="stat-coins" class="value">1,000</span>
+            <!-- Right Group: Financial + Clock -->
+            <div class="status-right-group">
+                <!-- Center: Financial Status -->
+                <div class="glass-panel status-center">
+                    <div class="status-item">
+                        <span class="label">COINS</span>
+                        <span id="stat-coins" class="value">1,000</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">DEBT</span>
+                        <span id="stat-debt" class="value">50,000</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">REMAINING</span>
+                        <span id="stat-debt-rem" class="value">49,000</span>
+                    </div>
                 </div>
-                <div class="status-item">
-                    <span class="label">DEBT</span>
-                    <span id="stat-debt" class="value">50,000</span>
-                </div>
-                <div class="status-item">
-                    <span class="label">REMAINING</span>
-                    <span id="stat-debt-rem" class="value">49,000</span>
-                </div>
-            </div>
 
-            <!-- Right: Survival Day & Clock -->
-            <div class="glass-panel status-right survival-clock-panel">
-                <div class="clock-container">
-                    <svg class="clock-svg" viewBox="0 0 100 100">
-                        <circle class="clock-bg" cx="50" cy="50" r="45"></circle>
-                        <circle id="clock-progress" cx="50" cy="50" r="45" style="stroke-dasharray: 283; stroke-dashoffset: 283;"></circle>
-                    </svg>
-                    <span class="clock-icon">🌙</span>
-                </div>
-                <div class="status-item survival">
-                    <span class="label">SURVIVAL</span>
-                    <span id="stat-days" class="value">DAY 1</span>
+                <!-- Right: Survival Day & Clock -->
+                <div class="glass-panel status-right survival-clock-panel">
+                    <div class="clock-container">
+                        <svg class="clock-svg" viewBox="0 0 100 100">
+                            <circle class="clock-bg" cx="50" cy="50" r="45"></circle>
+                            <circle id="clock-progress" cx="50" cy="50" r="45" style="stroke-dasharray: 283; stroke-dashoffset: 283;"></circle>
+                        </svg>
+                        <span class="clock-icon">🌙</span>
+                    </div>
+                    <div class="status-item survival">
+                        <span class="label">SURVIVAL</span>
+                        <span id="stat-days" class="value">DAY 1</span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -347,6 +350,10 @@
                     <span class="nav-label">Inventory</span>
                 </div>
                 <div class="nav-item">
+                    <span class="nav-icon">💸</span>
+                    <span class="nav-label">Repay</span>
+                </div>
+                <div class="nav-item">
                     <span class="nav-icon">ℹ️</span>
                     <span class="nav-label">Info</span>
                 </div>
@@ -357,6 +364,34 @@
             </nav>
         </footer>
     </div>
+
+        <div id="repay-modal" class="modal hidden">
+            <div class="modal-content glass-panel">
+                <h2 class="modal-title">DEBT REPAYMENT</h2>
+                <div class="repay-info-panel">
+                    <div class="repay-stat-item">
+                        <span class="repay-label">Current Coins</span>
+                        <span id="repay-current-coins" class="repay-value">0</span>
+                    </div>
+                    <div class="repay-stat-item">
+                        <span class="repay-label">Remaining Debt</span>
+                        <span id="repay-remaining-debt" class="repay-value">0</span>
+                    </div>
+                </div>
+                <div class="repay-input-section">
+                    <input type="number" id="repay-amount-input" class="glass-panel" placeholder="Enter amount..." min="1">
+                    <div class="repay-quick-actions">
+                        <button class="glow-btn small" onclick="setRepayAmount(10000)">+10k</button>
+                        <button class="glow-btn small" onclick="setRepayAmount(100000)">+100k</button>
+                        <button class="glow-btn small" onclick="setRepayMax()">MAX</button>
+                    </div>
+                </div>
+                <div class="repay-confirm-area">
+                    <button id="confirm-repay-btn" class="glow-btn large" onclick="confirmRepayment()">CONFIRM REPAYMENT</button>
+                </div>
+                <button class="close-btn glow-btn" onclick="closeModal('repay-modal')">CLOSE</button>
+            </div>
+        </div>
 
     <script src="script.js"></script>
 </body>

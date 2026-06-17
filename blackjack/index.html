@@ -29,34 +29,37 @@
                 </div>
             </div>
 
-            <!-- Center: Financial Status -->
-            <div class="glass-panel status-center">
-                <div class="status-item">
-                    <span class="label">COINS</span>
-                    <span id="stat-coins" class="value">1,000</span>
+            <!-- Right Group: Financial + Clock -->
+            <div class="status-right-group">
+                <!-- Center: Financial Status -->
+                <div class="glass-panel status-center">
+                    <div class="status-item">
+                        <span class="label">COINS</span>
+                        <span id="stat-coins" class="value">1,000</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">DEBT</span>
+                        <span id="stat-debt" class="value">100,000,000</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">REMAINING</span>
+                        <span id="stat-debt-rem" class="value">100,000,000</span>
+                    </div>
                 </div>
-                <div class="status-item">
-                    <span class="label">DEBT</span>
-                    <span id="stat-debt" class="value">50,000</span>
-                </div>
-                <div class="status-item">
-                    <span class="label">REMAINING</span>
-                    <span id="stat-debt-rem" class="value">49,000</span>
-                </div>
-            </div>
 
-            <!-- Right: Survival Day & Clock -->
-            <div class="glass-panel status-right survival-clock-panel">
-                <div class="clock-container">
-                    <svg class="clock-svg" viewBox="0 0 100 100">
-                        <circle class="clock-bg" cx="50" cy="50" r="45"></circle>
-                        <circle id="clock-progress" cx="50" cy="50" r="45" style="stroke-dasharray: 283; stroke-dashoffset: 283;"></circle>
-                    </svg>
-                    <span class="clock-icon">🌙</span>
-                </div>
-                <div class="status-item survival">
-                    <span class="label">SURVIVAL</span>
-                    <span id="stat-days" class="value">DAY 1</span>
+                <!-- Right: Survival Day & Clock -->
+                <div class="glass-panel status-right survival-clock-panel">
+                    <div class="clock-container">
+                        <svg class="clock-svg" viewBox="0 0 100 100">
+                            <circle class="clock-bg" cx="50" cy="50" r="45"></circle>
+                            <circle id="clock-progress" cx="50" cy="50" r="45" style="stroke-dasharray: 283; stroke-dashoffset: 283;"></circle>
+                        </svg>
+                        <span class="clock-icon">🌙</span>
+                    </div>
+                    <div class="status-item survival">
+                        <span class="label">SURVIVAL</span>
+                        <span id="stat-days" class="value">DAY 1</span>
+                    </div>
                 </div>
             </div>
         </header>
