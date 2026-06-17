@@ -1,333 +1,282 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%}
+body{overflow:hidden;background:#100316;font-family:"Yu Gothic UI","Hiragino Sans",sans-serif;color:#fff}
+
+#stage{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#100316;
 }
 
-html, body {
-    width: 100%;
-    height: 100%;
+#game{
+  position:relative;
+  width:min(100vw,150vh);
+  aspect-ratio:3/2;
+  max-height:100vh;
+  background:url("img/background.png") center/100% 100% no-repeat;
+  overflow:hidden;
 }
 
-body {
-    overflow: hidden;
-    font-family: "Yu Gothic UI", "Hiragino Sans", sans-serif;
-    background: #16051f url("img/background.png") center / cover no-repeat;
-    color: white;
+#topBar{
+  position:absolute;
+  top:1.05%;
+  left:1.15%;
+  right:1.2%;
+  height:5.4%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  pointer-events:none;
+  z-index:30;
 }
 
-/* 背景画像自体にUIが描かれているので、HTML側は必要なゲーム部品だけを正確に重ねる */
-#game {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
+#balance,#gameLabel{
+  color:#fff8df;
+  font-size:clamp(14px,1.75vw,30px);
+  font-weight:900;
+  text-shadow:0 0 4px #000,0 0 10px #000,2px 2px 0 rgba(45,10,60,.9);
 }
 
-/* 背景の文字と完全にかぶるので、上部は少し透明にして違和感を減らす */
-#topBar {
-    position: absolute;
-    top: 1.1vh;
-    left: 1.6vw;
-    right: 1.6vw;
-    height: 5vh;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 20;
-    pointer-events: none;
+/* ここを右へ調整しました */
+#rouletteArea{
+  position:absolute;
+  left:8.9%;
+  top:20.7%;
+  width:32.9%;
+  aspect-ratio:1/1;
+  z-index:10;
 }
 
-#balance,
-#gameTitle {
-    color: #fff7de;
-    font-size: clamp(18px, 1.9vw, 30px);
-    font-weight: 900;
-    text-shadow:
-        0 0 4px #000,
-        0 0 8px #000,
-        2px 2px 0 rgba(45, 12, 68, 0.8);
+#rouletteCanvas{
+  width:100%;
+  height:100%;
+  border-radius:50%;
 }
 
-/* ルーレットは背景の丸フレーム内に収める */
-#rouletteArea {
-    position: absolute;
-    left: 8.1vw;
-    top: 22.6vh;
-    width: 32.7vw;
-    aspect-ratio: 1 / 1;
-    z-index: 10;
+#betArea{
+  position:absolute;
+  left:49%;
+  top:21.3%;
+  width:44.5%;
+  height:58.8%;
+  z-index:20;
 }
 
-#rouletteCanvas {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
+#betTable{
+  position:absolute;
+  left:4.5%;
+  top:12%;
+  width:90%;
 }
 
-/* 背景にBETフレームがあるため、ここでは枠を作らない */
-#betArea {
-    position: absolute;
-    left: 49.9vw;
-    top: 25.1vh;
-    width: 43.7vw;
-    height: 58.8vh;
-    z-index: 15;
+#zeroAndRows{
+  display:grid;
+  grid-template-columns:1.1fr 12fr;
+  width:100%;
 }
 
-#betTable {
-    position: absolute;
-    left: 1.6vw;
-    top: 2.1vh;
-    width: 40.2vw;
+#numberGrid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
 }
 
-/* 0 + 数字表 */
-#zeroAndRows {
-    display: grid;
-    grid-template-columns: 1.1fr 12fr;
-    width: 100%;
+.betColumn{
+  display:grid;
+  grid-template-rows:repeat(3,1fr);
 }
 
-.zeroCell {
-    height: 100%;
-    min-height: clamp(90px, 15vh, 160px);
-    border-radius: 8px 0 0 8px;
+.betCell,.outsideBet{
+  position:relative;
+  min-height:clamp(24px,4.7vh,54px);
+  border:1.6px solid rgba(255,215,92,.96);
+  color:white;
+  font-weight:900;
+  font-size:clamp(12px,1.52vw,26px);
+  cursor:pointer;
+  text-shadow:0 0 3px #000,2px 2px 0 #000;
+  transition:transform .12s,filter .12s,box-shadow .12s;
 }
 
-#numberGrid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
+.betCell:hover,.outsideBet:hover{
+  transform:scale(1.035);
+  filter:brightness(1.25);
+  z-index:50;
+  box-shadow:0 0 12px rgba(255,225,110,.75);
 }
 
-.betColumn {
-    display: grid;
-    grid-template-rows: repeat(3, 1fr);
+.zeroCell{
+  height:100%;
+  border-radius:7px 0 0 7px;
 }
 
-.betCell,
-.outsideBet {
-    position: relative;
-    min-height: clamp(28px, 5vh, 54px);
-    border: 1.5px solid rgba(255, 210, 91, 0.95);
-    color: #fff;
-    font-weight: 900;
-    font-size: clamp(14px, 1.55vw, 26px);
-    cursor: pointer;
-    text-shadow:
-        0 0 3px #000,
-        2px 2px 0 #000;
-    transition: filter 0.12s, transform 0.12s, box-shadow 0.12s;
+#dozens{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
 }
 
-.betCell:hover,
-.outsideBet:hover {
-    filter: brightness(1.25);
-    transform: scale(1.035);
-    z-index: 30;
-    box-shadow: 0 0 12px rgba(255, 220, 110, 0.7);
+#outsideBets{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
 }
 
-#dozens {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+.outsideBet{
+  min-height:clamp(24px,4.5vh,52px);
+  background:rgba(58,23,79,.86);
+  color:#ffe6a0;
+  font-family:Georgia,serif;
+  font-size:clamp(11px,1.3vw,22px);
 }
 
-#outsideBets {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+.betChip{
+  position:absolute;
+  right:2px;
+  bottom:2px;
+  width:clamp(16px,1.9vw,29px);
+  height:clamp(16px,1.9vw,29px);
+  border-radius:50%;
+  background:radial-gradient(circle,#fff4aa,#d99928);
+  border:2px solid #391608;
+  color:#241007;
+  font-size:clamp(7px,.78vw,12px);
+  font-weight:900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-shadow:none;
+  pointer-events:none;
 }
 
-.outsideBet {
-    min-height: clamp(28px, 5.2vh, 56px);
-    background: rgba(70, 29, 93, 0.78);
-    color: #ffe19a;
-    font-family: Georgia, serif;
-    font-size: clamp(13px, 1.4vw, 22px);
+#chipSelector{
+  position:absolute;
+  left:22.2%;
+  top:62%;
+  width:55.2%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-/* チップは背景のチップ位置に合わせる */
-#chipSelector {
-    position: absolute;
-    left: 8.2vw;
-    top: 35.1vh;
-    width: 25vw;
-    display: flex;
-    justify-content: space-between;
-    z-index: 25;
+.chip{
+  width:clamp(46px,5vw,82px);
+  height:clamp(46px,5vw,82px);
+  border-radius:50%;
+  border:4px solid #ffe776;
+  color:white;
+  font-size:clamp(13px,1.38vw,24px);
+  font-weight:900;
+  cursor:pointer;
+  text-shadow:0 0 5px #000,2px 2px 0 #000;
+  box-shadow:0 0 9px rgba(255,232,118,.65),inset 0 0 13px rgba(255,255,255,.15);
+  transition:.15s;
 }
 
-.chip {
-    width: clamp(54px, 5.4vw, 86px);
-    height: clamp(54px, 5.4vw, 86px);
-    border-radius: 50%;
-    border: 4px solid #ffe878;
-    background:
-        radial-gradient(circle at 35% 25%, #ffffff55, transparent 25%),
-        radial-gradient(circle, #6f42d8 0%, #4a1f77 55%, #1a1026 100%);
-    color: white;
-    font-size: clamp(16px, 1.55vw, 25px);
-    font-weight: 900;
-    cursor: pointer;
-    text-shadow: 0 0 5px #000, 2px 2px 0 #000;
-    box-shadow:
-        0 0 9px rgba(255, 232, 120, 0.65),
-        inset 0 0 12px rgba(255, 255, 255, 0.12);
-    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+.chip[data-chip="100"]{
+  background:radial-gradient(circle at 35% 25%,#ffffff66,transparent 24%),radial-gradient(circle,#7547dd,#4c2079 58%,#1a1025);
 }
 
-.chip:hover,
-.chip.active {
-    transform: scale(1.12);
-    filter: brightness(1.15);
-    box-shadow:
-        0 0 16px #ffe878,
-        0 0 28px rgba(150, 84, 255, 0.75),
-        inset 0 0 12px rgba(255, 255, 255, 0.18);
+.chip[data-chip="500"]{
+  background:radial-gradient(circle at 35% 25%,#ffffff66,transparent 24%),radial-gradient(circle,#236dd8,#143b89 58%,#081827);
 }
 
-/* 背景のボタンの真上に、同じ大きさの押せるボタンを配置 */
-#controls {
-    position: absolute;
-    left: 2.6vw;
-    bottom: 3.6vh;
-    width: 39vw;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 25;
+.chip[data-chip="1000"]{
+  background:radial-gradient(circle at 35% 25%,#ffffff55,transparent 24%),radial-gradient(circle,#2d2b2b,#0e0e10 58%,#050505);
 }
 
-.gameButton {
-    width: clamp(105px, 10.6vw, 178px);
-    height: clamp(43px, 5.5vh, 66px);
-    border-radius: 10px;
-    border: 3px solid #e5b85f;
-    color: #fff8e7;
-    background:
-        linear-gradient(180deg, rgba(255,255,255,0.14), transparent 28%),
-        linear-gradient(180deg, #38383d 0%, #111217 58%, #050507 100%);
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(18px, 2vw, 34px);
-    font-weight: 900;
-    letter-spacing: 0.03em;
-    cursor: pointer;
-    text-shadow:
-        0 0 5px #000,
-        2px 2px 0 #000;
-    box-shadow:
-        0 4px 0 rgba(0, 0, 0, 0.55),
-        0 0 8px rgba(255, 216, 108, 0.42),
-        inset 0 0 12px rgba(255,255,255,0.09);
-    transition: transform 0.1s, filter 0.1s, box-shadow 0.1s;
+.chip:hover,.chip.active{
+  transform:scale(1.12);
+  filter:brightness(1.15);
+  box-shadow:0 0 18px #ffe776,0 0 30px rgba(140,70,255,.75),inset 0 0 14px rgba(255,255,255,.18);
 }
 
-.spin-button {
-    color: #ffe789;
-    background:
-        linear-gradient(180deg, rgba(255,255,255,0.18), transparent 30%),
-        linear-gradient(180deg, #cc4dff 0%, #7c20bd 58%, #3b0e59 100%);
+/* Resultをチップより下、ボタンより上へ移動 */
+#resultDisplay{
+  position:absolute;
+  left:0;
+  right:0;
+  top:76.5%;
+  text-align:center;
+  color:#ffe58f;
+  font-size:clamp(15px,1.65vw,28px);
+  font-weight:900;
+  text-shadow:0 0 5px #000,0 0 12px #000;
+  z-index:30;
 }
 
-.gameButton:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.18);
-    box-shadow:
-        0 6px 0 rgba(0, 0, 0, 0.55),
-        0 0 16px rgba(255, 225, 118, 0.75),
-        inset 0 0 14px rgba(255,255,255,0.13);
+/* ボタンとResultがかぶらないよう少し下げました */
+#controls{
+  position:absolute;
+  left:7.5%;
+  right:7.5%;
+  bottom:2.8%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.gameButton:active {
-    transform: translateY(2px);
-    box-shadow:
-        0 2px 0 rgba(0, 0, 0, 0.55),
-        0 0 10px rgba(255, 225, 118, 0.55);
+.gameButton{
+  width:27%;
+  height:clamp(36px,5.4vh,62px);
+  border-radius:10px;
+  border:3px solid #e4b65d;
+  color:#fff7e6;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),transparent 28%),linear-gradient(180deg,#3a3a40 0%,#101116 58%,#050507 100%);
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(15px,1.9vw,32px);
+  font-weight:900;
+  cursor:pointer;
+  text-shadow:0 0 5px #000,2px 2px 0 #000;
+  box-shadow:0 4px 0 rgba(0,0,0,.55),0 0 9px rgba(255,216,108,.42),inset 0 0 12px rgba(255,255,255,.08);
+  transition:.1s;
 }
 
-#resultDisplay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 13.8vh;
-    text-align: center;
-    color: #ffe58f;
-    font-size: clamp(18px, 2vw, 32px);
-    font-weight: 900;
-    text-shadow:
-        0 0 5px #000,
-        0 0 12px #000;
-    z-index: 25;
+.spinButton{
+  color:#ffe789;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 30%),linear-gradient(180deg,#cc4dff 0%,#7b20bc 58%,#3b0e59 100%);
 }
 
-/* 背景のメッセージ枠に合わせる。追加の箱は作らない */
-#messageBox {
-    position: absolute;
-    left: 21.2vw;
-    bottom: 3.8vh;
-    width: 47vw;
-    min-height: 8.8vh;
-    z-index: 25;
-    pointer-events: none;
-    padding: 0.8vh 1.5vw;
+.gameButton:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.18);
+  box-shadow:0 6px 0 rgba(0,0,0,.55),0 0 16px rgba(255,225,118,.75),inset 0 0 14px rgba(255,255,255,.13);
 }
 
-#catName {
-    color: #ffd986;
-    font-size: clamp(15px, 1.45vw, 24px);
-    font-weight: 900;
-    margin-bottom: 0.5vh;
-    text-shadow: 0 0 5px #000, 0 0 8px #000;
+.gameButton:active{
+  transform:translateY(2px);
 }
 
-#catMessage {
-    color: #fff;
-    font-size: clamp(13px, 1.35vw, 22px);
-    line-height: 1.4;
-    text-shadow: 0 0 5px #000, 0 0 8px #000;
+/* BlackCatの名前は背景にあるので、メッセージだけ表示 */
+#messageBox{
+  position:absolute;
+  left:25%;
+  bottom:5%;
+  width:45.8%;
+  height:7.3%;
+  z-index:25;
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  padding-left:2%;
+  padding-right:2%;
 }
 
-.betChip {
-    position: absolute;
-    right: 2px;
-    bottom: 2px;
-    width: clamp(18px, 2vw, 30px);
-    height: clamp(18px, 2vw, 30px);
-    border-radius: 50%;
-    background: radial-gradient(circle, #fff2a7, #d69325);
-    color: #241007;
-    border: 2px solid #3b160a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(8px, 0.8vw, 12px);
-    font-weight: 900;
-    text-shadow: none;
-    pointer-events: none;
+#catName{
+  display:none;
 }
 
-/* 小さい画面では破綻しにくいよう少しだけ縮小 */
-@media (max-width: 1000px) {
-    #rouletteArea {
-        left: 7vw;
-        top: 25vh;
-        width: 35vw;
-    }
+#catMessage{
+  color:#fff;
+  font-size:clamp(12px,1.28vw,22px);
+  line-height:1.45;
+  text-shadow:0 0 5px #000,0 0 8px #000;
+}
 
-    #betArea {
-        left: 47vw;
-        width: 50vw;
-    }
+@media (max-aspect-ratio:3/2){
+  #game{width:100vw}
+}
 
-    #betTable {
-        width: 45vw;
-    }
-
-    #controls {
-        width: 43vw;
-    }
-
-    #messageBox {
-        left: 18vw;
-        width: 54vw;
-    }
+@media (min-aspect-ratio:3/2){
+  #game{height:100vh;width:auto}
 }
