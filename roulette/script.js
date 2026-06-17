@@ -26,61 +26,61 @@ const redSet = new Set([
 // ----------------------
 let rotation = 0;
 let spinning = false;
-
 let ballAngle = -Math.PI / 2;
 let ballVisible = false;
-
 let bets = {};
+let betHistory = [];
 let balance = 50000;
-
 let selectedChip = 100;
 
 // =======================
-// Rabbitメッセージ管理
+// Black Cat メッセージ管理
 // =======================
-const rabbitMessages = {
+const catMessages = {
     idle: [
-        "Rabbitは静かに見ている……",
-        "幸運を祈るよ。",
-        "今日はどんな結末になるかな？"
+        "幸運を祈るにゃ。",
+        "黒猫は静かに見守っている……",
+        "どの数字に運命を預けるにゃ？"
     ],
     win: [
-        "ふふ……今日はツイてるね。",
-        "すごいじゃないか。",
-        "Rabbitも嬉しいよ。"
+        "やったにゃ！今日はツイてるにゃ。",
+        "すごいにゃ、運が味方しているにゃ。",
+        "黒猫も嬉しいにゃ。"
     ],
     lose: [
-        "残念。また挑戦する？",
-        "まだ終わりじゃない。",
-        "次こそ当たるかもしれない。"
+        "残念にゃ……でも次があるにゃ。",
+        "まだ終わりじゃないにゃ。",
+        "次こそ当たるかもしれないにゃ。"
     ],
     bigBet: [
-        "大胆だね。",
-        "覚悟はできている？",
-        "Rabbitは見届けるよ。"
+        "大胆だにゃ……見届けるにゃ。",
+        "覚悟はできているにゃ？",
+        "勝負師の目をしているにゃ。"
     ],
     lowBalance: [
-        "……大丈夫？",
-        "少し休憩する？",
-        "無理はしないでね。"
+        "……大丈夫かにゃ？",
+        "少し休憩するのも大事にゃ。",
+        "無理はしないでにゃ。"
+    ],
+    noBet: [
+        "先にBETしてから回すにゃ。",
+        "チップを置いてからSPINにゃ。"
     ]
 };
 
-function setRabbitMessage(type) {
-    const list = rabbitMessages[type];
-    const message = list[Math.floor(Math.random() * list.length)];
-    const msgElem = document.getElementById("rabbitMessage");
-    if (msgElem) {
-        msgElem.textContent = message;
-    }
+function setCatMessage(type) {
+    const list = catMessages[type] || catMessages.idle;
+    setCustomMessage(list[Math.floor(Math.random() * list.length)]);
+}
 
-    // アイコンのアニメーション（跳ねる）
-    const icon = document.getElementById("rabbitChar");
-    if (icon) {
-        icon.style.transform = "translateY(-10px)";
-        setTimeout(() => {
-            icon.style.transform = "translateY(0)";
-        }, 300);
+function setCustomMessage(text) {
+    const msgElem = document.getElementById("catMessage");
+    if (msgElem) msgElem.textContent = text;
+
+    const box = document.getElementById("catDialogue");
+    if (box) {
+        box.style.transform = "translateY(-4px)";
+        setTimeout(() => box.style.transform = "translateY(0)", 220);
     }
 }
 
@@ -94,6 +94,15 @@ function updateBalance() {
     }
 }
 
+function setResultDisplay(text, flash = false) {
+    const resultElem = document.getElementById("resultDisplay");
+    if (!resultElem) return;
+    resultElem.textContent = text;
+    resultElem.classList.remove("winFlash");
+    void resultElem.offsetWidth;
+    if (flash) resultElem.classList.add("winFlash");
+}
+
 // ----------------------
 // チップUI
 // ----------------------
@@ -101,7 +110,7 @@ document.addEventListener("click", (e) => {
     if (e.target.classList.contains("chip")) {
         document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
         e.target.classList.add("active");
-        selectedChip = parseInt(e.target.dataset.chip);
+        selectedChip = parseInt(e.target.dataset.chip, 10);
     }
 });
 
@@ -112,10 +121,9 @@ function createBetTable() {
     const betTable = document.getElementById("betTable");
     betTable.innerHTML = "";
 
-    // 0 cell container
     const zeroWrapper = document.createElement("div");
     zeroWrapper.id = "zeroWrapper";
-    
+
     const zeroCell = document.createElement("button");
     zeroCell.className = "betCell zeroCell";
     zeroCell.textContent = "0";
@@ -130,25 +138,22 @@ function createBetTable() {
     for (let col = 0; col < 12; col++) {
         const column = document.createElement("div");
         column.className = "betColumn";
+
         for (let row = 0; row < 3; row++) {
             const number = col * 3 + (3 - row);
             const cell = document.createElement("button");
             cell.className = "betCell";
-            cell.dataset.bet = number;
-            
+            cell.dataset.bet = String(number);
+
             const numLabel = document.createElement("span");
             numLabel.className = "numLabel";
             numLabel.textContent = number;
             cell.appendChild(numLabel);
 
-            if (redSet.has(number)) {
-                cell.style.background = "#c62828";
-            } else {
-                cell.style.background = "#111111";
-            }
-
+            cell.style.background = redSet.has(number) ? "#c62828" : "#111111";
             column.appendChild(cell);
         }
+
         grid.appendChild(column);
     }
 
@@ -192,12 +197,13 @@ document.addEventListener("click", (e) => {
     const amount = selectedChip;
 
     if (balance < amount) {
-        setRabbitMessage("lowBalance");
+        setCatMessage("lowBalance");
         return;
     }
 
     balance -= amount;
     bets[bet] = (bets[bet] || 0) + amount;
+    betHistory.push({ bet, amount });
 
     updateBalance();
     updateBetVisuals(btn, bets[bet]);
@@ -210,7 +216,15 @@ function updateBetVisuals(btn, totalAmount) {
         chip.className = "betChip";
         btn.appendChild(chip);
     }
-    chip.textContent = totalAmount >= 1000 ? (totalAmount / 1000) + "k" : totalAmount;
+    chip.textContent = totalAmount >= 1000 ? `${totalAmount / 1000}k` : totalAmount;
+}
+
+function repaintBetVisuals() {
+    clearBetsVisuals();
+    for (const key in bets) {
+        const btn = document.querySelector(`[data-bet="${key}"]`);
+        if (btn) updateBetVisuals(btn, bets[key]);
+    }
 }
 
 function clearBetsVisuals() {
@@ -227,9 +241,17 @@ function drawRoulette() {
     const cy = canvas.height / 2;
 
     const outer = canvas.width * 0.45;
-    const inner = canvas.width * 0.28;
-
+    const inner = canvas.width * 0.33;
     const angleSize = (Math.PI * 2) / rouletteNumbers.length;
+
+    // outer base
+    ctx.beginPath();
+    ctx.arc(cx, cy, canvas.width * 0.49, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(20, 11, 42, 0.96)";
+    ctx.fill();
+    ctx.strokeStyle = "#f5d76e";
+    ctx.lineWidth = canvas.width * 0.014;
+    ctx.stroke();
 
     ctx.save();
     ctx.translate(cx, cy);
@@ -239,36 +261,32 @@ function drawRoulette() {
     rouletteNumbers.forEach((num, i) => {
         const start = i * angleSize - Math.PI / 2;
         const end = start + angleSize;
-
-        let color = num === 0 ? "#1fa84a" : redSet.has(num) ? "#c62828" : "#111";
+        const color = num === 0 ? "#1fa84a" : redSet.has(num) ? "#c62828" : "#111";
 
         ctx.beginPath();
         ctx.arc(cx, cy, outer, start, end);
         ctx.arc(cx, cy, inner, end, start, true);
         ctx.closePath();
-
         ctx.fillStyle = color;
         ctx.fill();
-
         ctx.strokeStyle = "#d4af37";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = Math.max(1, canvas.width * 0.004);
         ctx.stroke();
 
         const textAngle = start + angleSize / 2;
         const r = (outer + inner) / 2;
-
         const x = cx + Math.cos(textAngle) * r;
         const y = cy + Math.sin(textAngle) * r;
 
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(textAngle + Math.PI / 2);
-
         ctx.fillStyle = "white";
-        ctx.font = `bold ${canvas.width * 0.03}px sans-serif`;
+        ctx.font = `900 ${canvas.width * 0.032}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-
+        ctx.shadowColor = "rgba(0,0,0,0.85)";
+        ctx.shadowBlur = 3;
         ctx.fillText(num, 0, 0);
         ctx.restore();
     });
@@ -277,12 +295,11 @@ function drawRoulette() {
 
     // center
     ctx.beginPath();
-    ctx.arc(cx, cy, inner - 10, 0, Math.PI * 2);
+    ctx.arc(cx, cy, inner - canvas.width * 0.02, 0, Math.PI * 2);
     ctx.fillStyle = "#7c5ac2";
     ctx.fill();
-
     ctx.strokeStyle = "#d4af37";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = canvas.width * 0.008;
     ctx.stroke();
 
     ctx.beginPath();
@@ -293,26 +310,41 @@ function drawRoulette() {
     // ball
     if (ballVisible) {
         const r = (outer + inner) / 2;
-        const bx = cx + Math.cos(ballAngle) * r;
-        const by = cy + Math.sin(ballAngle) * r;
+        const bx = cx + Math.cos(ballAngle + rotation) * r;
+        const by = cy + Math.sin(ballAngle + rotation) * r;
 
+        ctx.save();
+        ctx.shadowBlur = canvas.width * 0.035;
+        ctx.shadowColor = "white";
         ctx.beginPath();
-        ctx.arc(bx, by, canvas.width * 0.015, 0, Math.PI * 2);
+        ctx.arc(bx, by, canvas.width * 0.026, 0, Math.PI * 2);
         ctx.fillStyle = "white";
         ctx.fill();
+        ctx.strokeStyle = "#f5d76e";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
     }
 }
 
 // ----------------------
 // 勝利判定
 // ----------------------
-function getWinningNumber() {
+function getWinningIndex() {
     const angleSize = (Math.PI * 2) / rouletteNumbers.length;
     let r = rotation % (Math.PI * 2);
     if (r < 0) r += Math.PI * 2;
-    const pointer = (Math.PI * 2 - r);
-    const index = Math.floor(pointer / angleSize);
-    return rouletteNumbers[index];
+    const pointer = (Math.PI * 2 - r) % (Math.PI * 2);
+    return Math.floor(pointer / angleSize) % rouletteNumbers.length;
+}
+
+function getWinningNumber() {
+    return rouletteNumbers[getWinningIndex()];
+}
+
+function setBallToWinningIndex(index) {
+    const angleSize = (Math.PI * 2) / rouletteNumbers.length;
+    ballAngle = index * angleSize - Math.PI / 2 + angleSize / 2;
 }
 
 // ----------------------
@@ -326,12 +358,11 @@ function resolveBets(result) {
         const amount = bets[key];
         let payout = 0;
 
-        if (!isNaN(key)) {
-            if (parseInt(key) === result) payout = 36;
-        }
-        else if (key === "RED" && redSet.has(result)) payout = 2;
+        if (!Number.isNaN(Number(key))) {
+            if (parseInt(key, 10) === result) payout = 36;
+        } else if (key === "RED" && redSet.has(result)) payout = 2;
         else if (key === "BLACK" && result !== 0 && !redSet.has(result)) payout = 2;
-        else if (key === "ODD" && result % 2 === 1) payout = 2;
+        else if (key === "ODD" && result !== 0 && result % 2 === 1) payout = 2;
         else if (key === "EVEN" && result !== 0 && result % 2 === 0) payout = 2;
         else if (key === "1-18" && result >= 1 && result <= 18) payout = 2;
         else if (key === "19-36" && result >= 19 && result <= 36) payout = 2;
@@ -346,20 +377,19 @@ function resolveBets(result) {
     }
 
     balance += win;
+    setResultDisplay(`Result : ${result}`, true);
 
     if (win > 0) {
-        setRabbitMessage("win");
+        setCustomMessage(`当たりにゃ！ ${hitBets.join(", ")} で +${win.toLocaleString()} Renga にゃ！`);
     } else {
-        if (balance <= 1000) {
-            setRabbitMessage("lowBalance");
-        } else {
-            setRabbitMessage("lose");
-        }
+        if (balance <= 1000) setCatMessage("lowBalance");
+        else setCatMessage("lose");
     }
 
     bets = {};
+    betHistory = [];
     updateBalance();
-    setTimeout(clearBetsVisuals, 2000);
+    setTimeout(clearBetsVisuals, 1400);
 }
 
 // ----------------------
@@ -367,24 +397,23 @@ function resolveBets(result) {
 // ----------------------
 function spinRoulette() {
     if (spinning) return;
-    
+
     let totalBet = 0;
     for (const key in bets) totalBet += bets[key];
 
     if (totalBet === 0) {
+        setCatMessage("noBet");
         return;
     }
 
-    if (totalBet >= 1000) {
-        setRabbitMessage("bigBet");
-    }
+    if (totalBet >= 1000) setCatMessage("bigBet");
 
     spinning = true;
     ballVisible = false;
-    clearBetsVisuals();
+    setResultDisplay("Spinning...", false);
 
     let speed = Math.random() * 0.15 + 0.35;
-    let friction = 0.988;
+    const friction = 0.988;
 
     function animate() {
         rotation += speed;
@@ -395,53 +424,63 @@ function spinRoulette() {
             requestAnimationFrame(animate);
         } else {
             spinning = false;
-            const result = getWinningNumber();
-            const resultIndex = rouletteNumbers.indexOf(result);
-            ballAngle = resultIndex * angleSize - Math.PI / 2 + angleSize / 2;
+            const resultIndex = getWinningIndex();
+            const result = rouletteNumbers[resultIndex];
+            setBallToWinningIndex(resultIndex);
             ballVisible = true;
-            document.getElementById("resultDisplay").textContent=`Result : ${result}`;
             drawRoulette();
             resolveBets(result);
         }
     }
+
     animate();
 }
 
 // ----------------------
-// 初期化
+// ボタン処理
 // ----------------------
 document.getElementById("spinButton").addEventListener("click", spinRoulette);
 
-/* removed dynamic clear */
-function setCustomMessage(text){document.getElementById("rabbitMessage").textContent=text;}
-
-document.getElementById("clearButton").onclick=()=>{if(spinning)return; for(const key in bets) balance+=bets[key]; bets={}; updateBalance(); clearBetsVisuals(); setRabbitMessage("idle");};
-document.getElementById("backButton").onclick=()=>{if(spinning)return; const keys=Object.keys(bets); if(!keys.length)return; const k=keys[keys.length-1]; balance+=bets[k]; delete bets[k]; updateBalance(); clearBetsVisuals(); for(const kk in bets){const b=document.querySelector(`[data-bet="${kk}"]`); if(b) updateBetVisuals(b,bets[kk]);}};
-/*
-clearBtn.id = "clearButton";
-clearBtn.textContent = "CLEAR";
-clearBtn.onclick = () => {
+document.getElementById("clearButton").addEventListener("click", () => {
     if (spinning) return;
     for (const key in bets) balance += bets[key];
     bets = {};
+    betHistory = [];
     updateBalance();
     clearBetsVisuals();
-    setRabbitMessage("idle");
-};
-*/
+    setResultDisplay("Result : -", false);
+    setCatMessage("idle");
+});
+
+document.getElementById("backButton").addEventListener("click", () => {
+    if (spinning || betHistory.length === 0) return;
+
+    const last = betHistory.pop();
+    bets[last.bet] -= last.amount;
+    balance += last.amount;
+
+    if (bets[last.bet] <= 0) delete bets[last.bet];
+
+    updateBalance();
+    repaintBetVisuals();
+    setCustomMessage("直前のBETを戻したにゃ。");
+});
+
+// ----------------------
+// 初期化
+// ----------------------
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const size = Math.min(rect.width, rect.height);
+    canvas.width = Math.max(320, Math.floor(size));
+    canvas.height = Math.max(320, Math.floor(size));
+    drawRoulette();
+}
 
 createBetTable();
 updateBalance();
-setRabbitMessage("idle");
+setCatMessage("idle");
+setResultDisplay("Result : -", false);
 
-window.addEventListener("resize", () => {
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    drawRoulette();
-});
-
-const rect = canvas.getBoundingClientRect();
-canvas.width = rect.width;
-canvas.height = rect.height;
-drawRoulette();
+window.addEventListener("resize", resizeCanvas);
+requestAnimationFrame(resizeCanvas);
