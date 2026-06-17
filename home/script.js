@@ -26,34 +26,29 @@ const INITIAL_STATE = {
 let gameState = { ...INITIAL_STATE };
 let secondsPassed = 0;
 
-// Item database
-const ITEMS = {
-    food: { name: "高級弁当", icon: "🍱", price: 100, desc: "栄養満点のお弁当。満腹度が30回復し、ストレスが少し軽減されます。", effect: { hunger: 30, stress: -5, thirst: -10 } },
-    alcohol: { name: "ヴィンテージワイン", icon: "🍷", price: 200, desc: "芳醇な香りの赤ワイン。ストレスを大幅に（20）軽減しますが、酔いが回ります。", effect: { stress: -20, alcohol: 15 } },
-    smoke: { name: "高級タバコ", icon: "🚬", price: 150, desc: "最高級の葉を使用したタバコ。ストレスを15軽減します。", effect: { stress: -15, cigarette: 10 } }
-};
+/**
+ * State Persistence
+ */
+const STORAGE_KEY = 'small_house_game_state';
 
-// UI Elements mapping
-const uiElements = {
-    coins: document.getElementById('stat-coins'),
-    debt: document.getElementById('stat-debt'),
-    debtRem: document.getElementById('stat-debt-rem'),
-    days: document.getElementById('stat-days'),
-    clockProgress: document.getElementById('clock-progress'),
-    // HUD permanent gauges
-    sideBarHunger: document.getElementById('side-bar-hunger'),
-    sideBarStress: document.getElementById('side-bar-stress'),
-    // Modal elements
-    inventoryList: document.getElementById('inventory-list'),
-    itemDetail: document.getElementById('item-detail-area'),
-    detailName: document.getElementById('detail-name'),
-    detailDesc: document.getElementById('detail-desc'),
-    useItemBtn: document.getElementById('use-item-btn'),
-    // Repayment
-    repayCurrentCoins: document.getElementById('repay-current-coins'),
-    repayRemainingDebt: document.getElementById('repay-remaining-debt'),
-    repayAmountInput: document.getElementById('repay-amount-input')
-};
+function saveGameState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+}
+
+function loadGameState() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            gameState = { ...INITIAL_STATE, ...parsed };
+        } catch (e) {
+            console.error("Failed to parse saved state:", e);
+            gameState = { ...INITIAL_STATE };
+        }
+    } else {
+        gameState = { ...INITIAL_STATE };
+    }
+}
 
 /**
  * Update UI with current game state
@@ -73,6 +68,8 @@ function updateUI() {
     if (!document.getElementById('status-modal').classList.contains('hidden')) {
         updateAAAStatusBars();
     }
+    
+    saveGameState(); // Auto-save on UI update
 }
 
 function updateProgressBar(el, value, isInverse = false) {
