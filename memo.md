@@ -4,11 +4,11 @@
 ・スロット           mop
 ・ブラックジャック   wakanago
 ・ポーカー          mei39
-・ルーレット        teaflower
-・競馬              
+・ルーレット        teaflower             
 ・ハイアンドロー　   takusvg
 ・チンチロ          Rmuto610
 ・マインズ
+・競馬 
 
 
 

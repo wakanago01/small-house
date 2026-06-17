@@ -2,14 +2,20 @@
 let deck = [];
 let playerHand = [];
 let dealerHand = [];
-let balance = 100;
+let balance = 1000;
 let currentBet = 10;
 let gameOver = false;
 
 let initialBet = 10;
 
 // DOM要素
-const balanceEl = document.getElementById('balance');
+const statCoins = document.getElementById('stat-coins');
+const statDebt = document.getElementById('stat-debt');
+const statDebtRem = document.getElementById('stat-debt-rem');
+const statDays = document.getElementById('stat-days');
+const sideBarHunger = document.getElementById('side-bar-hunger');
+const sideBarStress = document.getElementById('side-bar-stress');
+
 const dealerCardsEl = document.getElementById('dealer-cards');
 const playerCardsEl = document.getElementById('player-cards');
 const dealerScoreBadge = document.getElementById('dealer-score-badge');
@@ -19,6 +25,44 @@ const betSetupArea = document.getElementById('bet-setup-area');
 const currentBetArea = document.getElementById('current-bet-area');
 const betAmountDisplay = document.getElementById('bet-amount-display');
 const currentBetDisplay = document.getElementById('current-bet-display');
+
+// Mock external status for synchronization
+let externalStatus = {
+    debt: 100000000, 
+    remainingDebt: 100000000,
+    hunger: 80,
+    stress: 20,
+    days: 1
+};
+
+function updateProgressBar(el, value, isInverse = false) {
+    if (!el) return;
+    el.style.width = `${Math.min(100, Math.max(0, value))}%`;
+    
+    if (isInverse) { // Higher is better (Hunger)
+        if (value < 20) el.style.background = 'linear-gradient(90deg, #ff7675, #d63031)';
+        else if (value < 50) el.style.background = 'linear-gradient(90deg, #ffeaa7, #fdcb6e)';
+        else el.style.background = 'linear-gradient(90deg, #b8e994, #78e08f)';
+    } else { // Lower is better (Stress)
+        if (value > 80) el.style.background = 'linear-gradient(90deg, #ff7675, #d63031)';
+        else if (value > 50) el.style.background = 'linear-gradient(90deg, #ffeaa7, #fdcb6e)';
+        else el.style.background = 'linear-gradient(90deg, #b8e994, #78e08f)';
+    }
+}
+
+function updateUI() {
+    if (statCoins) statCoins.textContent = balance.toLocaleString();
+    if (statDebt) statDebt.textContent = externalStatus.debt.toLocaleString();
+    if (statDebtRem) statDebtRem.textContent = externalStatus.remainingDebt.toLocaleString();
+    if (statDays) statDays.textContent = `DAY ${externalStatus.days}`;
+
+    updateProgressBar(sideBarHunger, externalStatus.hunger, true);
+    updateProgressBar(sideBarStress, externalStatus.stress, false);
+
+    if (betAmountDisplay) betAmountDisplay.textContent = currentBet.toLocaleString();
+    if (currentBetDisplay) currentBetDisplay.textContent = currentBet.toLocaleString();
+}
+
 
 const betM100 = document.getElementById('bet-m100');
 const betM50 = document.getElementById('bet-m50');
@@ -43,6 +87,12 @@ const gameOverOverlay = document.getElementById('game-over-overlay');
 const resetBtn = document.getElementById('reset-btn');
 
 const particlesContainer = document.getElementById('particles-container');
+
+// メニュー要素
+const hamburgerMenu = document.getElementById('hamburger-menu');
+const sideMenu = document.getElementById('side-menu');
+const homeBtn = document.getElementById('home-btn');
+const closeMenuBtn = document.getElementById('close-menu-btn');
 
 // 音源の定義
 const sounds = {
@@ -277,12 +327,6 @@ setInterval(() => {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function updateUI() {
-    balanceEl.textContent = balance;
-    betAmountDisplay.textContent = currentBet;
-    currentBetDisplay.textContent = currentBet;
 }
 
 function updateScoreDisplays(showFullDealerScore = false) {
@@ -626,7 +670,7 @@ function resetRound() {
 }
 
 function fullReset() {
-    balance = 100;
+    balance = 1000;
     currentBet = 10;
     initialBet = 10;
     updateUI();
@@ -691,6 +735,27 @@ betClear.addEventListener('click', () => {
     playSound('click');
     currentBet = 10;
     updateUI();
+});
+
+// メニュー操作のロジック
+hamburgerMenu.addEventListener('click', () => {
+    playSound('click');
+    sideMenu.classList.remove('hidden-menu');
+});
+
+closeMenuBtn.addEventListener('click', () => {
+    playSound('click');
+    sideMenu.classList.add('hidden-menu');
+});
+
+homeBtn.addEventListener('click', () => {
+    playSound('click');
+    // フェードアウト効果を加えてHomeに戻る
+    document.body.style.transition = 'opacity 0.8s ease';
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        window.location.href = '../home/index.html';
+    }, 800);
 });
 
 // Initialize

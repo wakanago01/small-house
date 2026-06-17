@@ -135,8 +135,8 @@
         class PokerApp {
             constructor() {
                 this.player = new PlayerManager({ renga: 50000, hunger: 100, stress: 0, items: [] });
-                // 強制的に50000にリセット（一度だけ実行したい場合や、デバッグ用）
-                this.player.renga = 50000;
+                // 強制的に50000にリセット（必要な時にコメントアウトを外してください）
+                // this.player.renga = 50000;
                 
                 this.ui = new PokerUI(this);
                 this.difficulty = 'Easy';
@@ -309,37 +309,48 @@
                 this.ui.togglePot(false);
                 const pEval = PokerHand.evaluate(this.playerHand);
                 const cpuEvals = this.cpuHands.map(h => PokerHand.evaluate(h));
-                let winCount = 0;
-                let loseCount = 0;
-                let topCpuIdx = -1;
-                let topCpuEval = null;
+                
+                // 全参加者の評価結果をリスト化（プレイヤーはID: -1）
+                const participants = [
+                    { id: -1, eval: pEval, isPlayer: true },
+                    ...cpuEvals.map((e, i) => ({ id: i + 1, eval: e, isPlayer: false }))
+                ];
 
-                cpuEvals.forEach((cEval, idx) => {
-                    let playerWinsAgainstThisCpu = false;
-                    if (pEval.rank > cEval.rank) playerWinsAgainstThisCpu = true;
-                    else if (pEval.rank < cEval.rank) playerWinsAgainstThisCpu = false;
-                    else {
-                        for (let i = 0; i < pEval.compareValues.length; i++) {
-                            if (pEval.compareValues[i] > cEval.compareValues[i]) { playerWinsAgainstThisCpu = true; break; }
-                            if (pEval.compareValues[i] < cEval.compareValues[i]) { playerWinsAgainstThisCpu = false; break; }
-                        }
+                // 比較関数：aがbより強いか
+                const isStronger = (a, b) => {
+                    if (a.rank > b.rank) return true;
+                    if (a.rank < b.rank) return false;
+                    for (let i = 0; i < a.compareValues.length; i++) {
+                        if (a.compareValues[i] > b.compareValues[i]) return true;
+                        if (a.compareValues[i] < b.compareValues[i]) return false;
                     }
-                    if (playerWinsAgainstThisCpu) winCount++;
-                    else loseCount++;
-                    if (!topCpuEval) { topCpuIdx = idx; topCpuEval = cEval; }
-                    else {
-                        let thisCpuStronger = false;
-                        if (cEval.rank > topCpuEval.rank) thisCpuStronger = true;
-                        else if (cEval.rank === topCpuEval.rank) {
-                            for (let i = 0; i < cEval.compareValues.length; i++) {
-                                if (cEval.compareValues[i] > topCpuEval.compareValues[i]) { thisCpuStronger = true; break; }
-                                if (cEval.compareValues[i] < topCpuEval.compareValues[i]) break;
-                            }
-                        }
-                        if (thisCpuStronger) { topCpuIdx = idx; topCpuEval = cEval; }
-                    }
-                });
+                    return false;
+                };
 
+                // 比較関数：aとbが同じ強さか
+                const isTie = (a, b) => {
+                    if (a.rank !== b.rank) return false;
+                    for (let i = 0; i < a.compareValues.length; i++) {
+                        if (a.compareValues[i] !== b.compareValues[i]) return false;
+                    }
+                    return true;
+                };
+
+                // 最強の参加者（複数人の可能性あり）を特定
+                let winners = [participants[0]];
+                for (let i = 1; i < participants.length; i++) {
+                    const current = participants[i];
+                    const top = winners[0];
+                    if (isStronger(current.eval, top.eval)) {
+                        winners = [current];
+                    } else if (isTie(current.eval, top.eval)) {
+                        winners.push(current);
+                    }
+                }
+
+                const playerInWinners = winners.some(w => w.isPlayer);
+                const isSplit = winners.length > 1;
+                
                 let result = "DRAW";
                 let winnerMsg = "";
                 let finalAward = 0;
@@ -348,23 +359,30 @@
                     result = "LOSE";
                     winnerMsg = "フォールドしたため、あなたの負けです。";
                     finalAward = 0;
-                } else if (winCount === this.cpuHands.length) {
-                    result = "WIN";
-                    winnerMsg = "あなたの完全勝利です！";
-                    const multiplier = PokerHand.PAYOUT_MULTIPLIERS[pEval.rank];
-                    finalAward = Math.floor(this.currentPot * multiplier);
-                    if (multiplier > 1) {
-                        winnerMsg += ` (役ボーナス x${multiplier}!)`;
+                } else if (playerInWinners) {
+                    if (isSplit) {
+                        result = "DRAW"; // 「引き分け（分配）」として扱う
+                        // 賞金を勝者数で等分
+                        finalAward = Math.floor(this.currentPot / winners.length);
+                        winnerMsg = `あなたを含む ${winners.length} 名が同着で勝利しました！ポット（${this.currentPot.toLocaleString()} Renga）を分配します。`;
+                    } else {
+                        result = "WIN";
+                        winnerMsg = "あなたの完全勝利です！";
+                        const multiplier = PokerHand.PAYOUT_MULTIPLIERS[pEval.rank];
+                        finalAward = Math.floor(this.currentPot * multiplier);
+                        if (multiplier > 1) {
+                            winnerMsg += ` (役ボーナス x${multiplier}!)`;
+                        }
                     }
                     
-                    // ストレス減少：基本 -10 ＋ 獲得額に応じたボーナス
-                    // 例：1000 Renga ごとにさらに -1
+                    // ストレス減少
                     const awardBonus = Math.floor(finalAward / 1000);
-                    const totalReduction = 10 + awardBonus;
+                    const totalReduction = (isSplit ? 5 : 10) + awardBonus;
                     this.player.stress -= totalReduction;
-                } else if (loseCount > 0) {
+                } else {
                     result = "LOSE";
-                    winnerMsg = `CPU ${topCpuIdx + 1} が最強の役（${PokerHand.RANK_NAMES[topCpuEval.rank]}）を揃えました。`;
+                    const topCpu = winners[0];
+                    winnerMsg = `CPU ${topCpu.id} が最強の役（${PokerHand.RANK_NAMES[topCpu.eval.rank]}）で勝利しました。`;
                     finalAward = 0;
                     this.player.stress += 15;
                 }
@@ -376,7 +394,7 @@
                 this.player.renga += finalAward;
                 this.ui.updateRenga(this.player.renga, this.player.stress);
                 
-                const displayAmount = (result === "WIN") ? finalAward : this.yourTotalBet;
+                const displayAmount = (result === "WIN" || result === "DRAW") ? finalAward : this.yourTotalBet;
                 setTimeout(() => this.ui.showResult(result, pEval.rank, displayAmount, winnerMsg), 1000);
             }
 

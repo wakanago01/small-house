@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Small House - High & Low</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="overlay">
+
+    <div class="panel">
+
+        <h1>🏠 Small House</h1>
+
+        <div class="rabbit">
+            🐰 <span id="rabbitText">
+                こんばんは♪ 今日も返済を頑張ろうね♪
+            </span>
+        </div>
+
+        <div class="status">
+
+            <div>💰 <span id="money">50000</span> renga</div>
+
+            <div>😣 Stress :
+                <span id="stress">0</span>/100
+            </div>
+
+            <div>🔥 Streak :
+                <span id="streak">0</span>
+            </div>
+
+        </div>
+
+        <div class="bet-area">
+
+            <button onclick="setBet(100)">100</button>
+            <button onclick="setBet(500)">500</button>
+            <button onclick="setBet(1000)">1000</button>
+            <button onclick="setBet(5000)">5000</button>
+
+        </div>
+
+        <p>現在の賭け金</p>
+        <h2 id="betDisplay">1000</h2>
+
+        <div class="cards">
+
+            <div class="card" id="currentCard"></div>
+
+            <div class="card back" id="nextCard">
+                🏠
+            </div>
+
+        </div>
+
+        <div class="buttons">
+
+            <button class="high"
+                    onclick="play('high')">
+                🌙 HIGH
+            </button>
+
+            <button class="low"
+                    onclick="play('low')">
+                ⭐ LOW
+            </button>
+
+        </div>
+
+        <h2 id="result"></h2>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

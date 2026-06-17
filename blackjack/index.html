@@ -11,10 +11,71 @@
     <div id="particles-container"></div>
     
     <div id="main-layout">
+        <!-- TOP STATUS BAR (Synchronized with Home) -->
+        <header id="top-status-bar">
+            <!-- Left: Survival Gauges (2 Rows) -->
+            <div class="glass-panel status-left gauges-stack-panel">
+                <div class="stat-row">
+                    <span class="icon">🍱</span>
+                    <span class="gauge-label-text">HUNGER</span>
+                    <div class="meter-bar small"><div id="side-bar-hunger" class="fill" style="width: 80%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <span class="icon">🧠</span>
+                    <span class="gauge-label-text">STRESS</span>
+                    <div class="meter-group">
+                        <div class="meter-bar small"><div id="side-bar-stress" class="fill" style="width: 20%;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Group: Financial + Clock -->
+            <div class="status-right-group">
+                <!-- Center: Financial Status -->
+                <div class="glass-panel status-center">
+                    <div class="status-item">
+                        <span class="label">COINS</span>
+                        <span id="stat-coins" class="value">1,000</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">DEBT</span>
+                        <span id="stat-debt" class="value">100,000,000</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">REMAINING</span>
+                        <span id="stat-debt-rem" class="value">100,000,000</span>
+                    </div>
+                </div>
+
+                <!-- Right: Survival Day & Clock -->
+                <div class="glass-panel status-right survival-clock-panel">
+                    <div class="clock-container">
+                        <svg class="clock-svg" viewBox="0 0 100 100">
+                            <circle class="clock-bg" cx="50" cy="50" r="45"></circle>
+                            <circle id="clock-progress" cx="50" cy="50" r="45" style="stroke-dasharray: 283; stroke-dashoffset: 283;"></circle>
+                        </svg>
+                        <span class="clock-icon">🌙</span>
+                    </div>
+                    <div class="status-item survival">
+                        <span class="label">SURVIVAL</span>
+                        <span id="stat-days" class="value">DAY 1</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
         <div id="hamburger-menu">☰</div>
         
-        <div id="balance-capsule">
-            <span class="icon">🌙</span> <span id="balance">100</span>
+        <div id="side-menu" class="hidden-menu">
+            <div id="menu-content">
+                <div class="menu-header">MENU</div>
+                <button id="home-btn" class="menu-item-btn">
+                    <span class="icon">🏠</span> HOME
+                </button>
+                <button id="close-menu-btn" class="menu-item-btn">
+                    <span class="icon">×</span> CLOSE
+                </button>
+            </div>
         </div>
 
         <div id="play-area">
