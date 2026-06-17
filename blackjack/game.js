@@ -2,7 +2,7 @@
 let deck = [];
 let playerHand = [];
 let dealerHand = [];
-let balance = 100;
+let balance = 1000;
 let currentBet = 10;
 let gameOver = false;
 
@@ -28,7 +28,8 @@ const currentBetDisplay = document.getElementById('current-bet-display');
 
 // Mock external status for synchronization
 let externalStatus = {
-    debt: 50000,
+    debt: 100000000, 
+    remainingDebt: 100000000,
     hunger: 80,
     stress: 20,
     days: 1
@@ -52,7 +53,7 @@ function updateProgressBar(el, value, isInverse = false) {
 function updateUI() {
     if (statCoins) statCoins.textContent = balance.toLocaleString();
     if (statDebt) statDebt.textContent = externalStatus.debt.toLocaleString();
-    if (statDebtRem) statDebtRem.textContent = (externalStatus.debt - balance).toLocaleString();
+    if (statDebtRem) statDebtRem.textContent = externalStatus.remainingDebt.toLocaleString();
     if (statDays) statDays.textContent = `DAY ${externalStatus.days}`;
 
     updateProgressBar(sideBarHunger, externalStatus.hunger, true);
@@ -61,6 +62,7 @@ function updateUI() {
     if (betAmountDisplay) betAmountDisplay.textContent = currentBet.toLocaleString();
     if (currentBetDisplay) currentBetDisplay.textContent = currentBet.toLocaleString();
 }
+
 
 const betM100 = document.getElementById('bet-m100');
 const betM50 = document.getElementById('bet-m50');
@@ -668,7 +670,7 @@ function resetRound() {
 }
 
 function fullReset() {
-    balance = 100;
+    balance = 1000;
     currentBet = 10;
     initialBet = 10;
     updateUI();
