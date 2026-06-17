@@ -396,8 +396,10 @@ function spinRoulette() {
         } else {
             spinning = false;
             const result = getWinningNumber();
-            ballAngle = -Math.PI / 2; 
+            const resultIndex = rouletteNumbers.indexOf(result);
+            ballAngle = resultIndex * angleSize - Math.PI / 2 + angleSize / 2;
             ballVisible = true;
+            document.getElementById("resultDisplay").textContent=`Result : ${result}`;
             drawRoulette();
             resolveBets(result);
         }
@@ -410,7 +412,12 @@ function spinRoulette() {
 // ----------------------
 document.getElementById("spinButton").addEventListener("click", spinRoulette);
 
-const clearBtn = document.createElement("button");
+/* removed dynamic clear */
+function setCustomMessage(text){document.getElementById("rabbitMessage").textContent=text;}
+
+document.getElementById("clearButton").onclick=()=>{if(spinning)return; for(const key in bets) balance+=bets[key]; bets={}; updateBalance(); clearBetsVisuals(); setRabbitMessage("idle");};
+document.getElementById("backButton").onclick=()=>{if(spinning)return; const keys=Object.keys(bets); if(!keys.length)return; const k=keys[keys.length-1]; balance+=bets[k]; delete bets[k]; updateBalance(); clearBetsVisuals(); for(const kk in bets){const b=document.querySelector(`[data-bet="${kk}"]`); if(b) updateBetVisuals(b,bets[kk]);}};
+/*
 clearBtn.id = "clearButton";
 clearBtn.textContent = "CLEAR";
 clearBtn.onclick = () => {
@@ -421,7 +428,7 @@ clearBtn.onclick = () => {
     clearBetsVisuals();
     setRabbitMessage("idle");
 };
-document.getElementById("controls").appendChild(clearBtn);
+*/
 
 createBetTable();
 updateBalance();

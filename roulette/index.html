@@ -24,18 +24,14 @@
         <main id="gameArea">
 
             <section id="rouletteArea">
-
-                <canvas id="rouletteCanvas"></canvas>
-
-            </section>
-            
-                <div id="chipSelector">
+<div id="rouletteFrame"><canvas id="rouletteCanvas"></canvas></div>
+</section>
+<section id="betArea">
                     <button class="chip active" data-chip="100">100</button>
                     <button class="chip" data-chip="500">500</button>
                     <button class="chip" data-chip="1000">1000</button>
                 </div>
-
-            <section id="betArea">
+<div id="resultDisplay">Result : -</div>
 
                 <div class="betTitle">
                     BET
@@ -44,11 +40,7 @@
                 <div id="betTable">
                 </div>
 
-                <div id="controls">
-                    <button id="spinButton" class="spin-button">
-                        SPIN
-                    </button>
-                </div>
+                <div id="controls"><button id="spinButton" class="spin-button">SPIN</button><button id="clearButton">CLEAR</button><button id="backButton">BACK</button></div>
 
             </section>
 
