@@ -1,0 +1,339 @@
+body{
+    margin:0;
+    background:#1b1028;
+    overflow:hidden;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    width:100vw;
+    height:100vh;
+}
+
+#game{
+    position:relative;
+
+    width:100vw;
+    height:100vh;
+
+    max-width:1920px;
+    max-height:1080px;
+}
+
+#background{
+    position:absolute;
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+    object-fit:contain;
+
+    user-select:none;
+    pointer-events:none;
+
+    z-index:1;
+}
+
+#rengaText{
+    position:absolute;
+
+    top:6.8%;
+    left:42.5%;
+
+    width:7%;
+
+    text-align:center;
+
+    color:white;
+    font-size:1.2vw;
+    font-weight:bold;
+
+    text-shadow:
+        0 0 8px #ff80ff,
+        0 0 16px #ff80ff;
+
+    z-index:5;
+}
+
+#reelArea{
+    position:absolute;
+
+    top:33%;
+    left:25.8%;
+
+    width:42.5%;
+    height:28%;
+
+    overflow:hidden;
+
+    z-index:4;
+}
+
+.reel{
+    position:absolute;
+
+    top:0;
+
+    width:28%;
+    height:100%;
+
+    overflow:hidden;
+
+    display:grid;
+    grid-template-rows:1fr 1fr 1fr;
+    justify-items:center;
+    align-items:center;
+}
+
+#reel1{
+    left:10.5%;
+}
+
+#reel2{
+    left:37.5%;
+}
+
+#reel3{
+    left:64%;
+}
+
+.symbol{
+    width:100%;
+    height:100%;
+
+    position:relative;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    overflow:hidden;
+}
+
+.symbol img{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:118%;
+    height:118%;
+
+    object-fit:contain;
+
+    transform:translate(-50%, -37%);
+}
+
+#missionArea{
+    position:absolute;
+
+    top:68.2%;
+    left:74.7%;
+
+    width:18%;
+    height:12.5%;
+
+    color:white;
+
+    font-size:0.82vw;
+    line-height:1.8;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:0.45vw;
+
+    text-align:center;
+
+    text-shadow:
+        0 0 8px #ff80ff,
+        0 0 14px #ff80ff;
+
+    z-index:5;
+}
+
+#missionArea p{
+    margin:0;
+}
+
+#resultText{
+    position:absolute;
+
+    top:63%;
+    left:37%;
+
+    width:20%;
+
+    text-align:center;
+
+    color:white;
+    font-size:2vw;
+    font-weight:bold;
+
+    text-shadow:
+        0 0 10px #ff80ff,
+        0 0 20px #ff80ff,
+        0 0 35px #ffffff;
+
+    z-index:10;
+
+    opacity:0;
+    transition:0.3s;
+}
+
+#resultText.show{
+    opacity:1;
+    transform:scale(1.08);
+}
+
+#pekariText{
+    position:absolute;
+
+    top:18%;
+    left:8%;
+
+    width:18%;
+
+    text-align:center;
+
+    color:#fff7ff;
+    font-size:2.2vw;
+    font-weight:bold;
+
+    text-shadow:
+        0 0 10px #ffffff,
+        0 0 25px #ff80ff,
+        0 0 45px #ff00ff;
+
+    opacity:0;
+    transform:scale(0.8);
+
+    z-index:15;
+
+    transition:0.25s;
+}
+
+#pekariText.on{
+    opacity:1;
+    transform:scale(1.15);
+    animation:pekariFlash 0.45s infinite alternate;
+}
+
+#game.pekariGlow::after{
+    content:"";
+    position:absolute;
+    inset:0;
+
+    background:rgba(255,160,255,0.18);
+
+    pointer-events:none;
+    z-index:12;
+
+    animation:screenFlash 0.5s infinite alternate;
+}
+
+@keyframes pekariFlash{
+    from{
+        filter:brightness(1);
+    }
+    to{
+        filter:brightness(1.8);
+    }
+}
+
+@keyframes screenFlash{
+    from{
+        opacity:0.2;
+    }
+    to{
+        opacity:0.7;
+    }
+}
+
+.hotspot{
+    position:absolute;
+
+    border:none;
+    background:rgba(255,255,255,0);
+
+    cursor:pointer;
+    border-radius:20px;
+
+    transition:0.1s;
+
+    z-index:20;
+}
+
+.hotspot.pressed{
+    transform:
+        scale(0.94)
+        translateY(4px);
+
+    background:
+        rgba(255,255,255,0.25);
+
+    box-shadow:
+        0 0 20px #ffccff,
+        0 0 40px #ff99ff,
+        0 0 60px #ffffff;
+}
+
+#bet1{
+    left:20%;
+    top:84%;
+    width:5%;
+    height:8%;
+}
+
+#bet2{
+    left:27%;
+    top:84%;
+    width:5%;
+    height:8%;
+}
+
+#bet3{
+    left:34%;
+    top:84%;
+    width:5%;
+    height:8%;
+}
+
+#maxBet{
+    left:43%;
+    top:82%;
+    width:8%;
+    height:11%;
+    border-radius:50%;
+}
+
+#startBtn{
+    left:54%;
+    top:84%;
+    width:13%;
+    height:9%;
+}
+
+#autoBtn{
+    left:68%;
+    top:84%;
+    width:6%;
+    height:9%;
+}
+
+#missionBtn{
+    left:86%;
+    top:3%;
+    width:5%;
+    height:9%;
+}
+
+#settingBtn{
+    left:93%;
+    top:3%;
+    width:5%;
+    height:9%;
+}

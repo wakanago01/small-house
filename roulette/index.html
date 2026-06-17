@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Roulette</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game">
+        <header id="topBar">
+            <div id="balance">Balance : 50,000 Renga</div>
+            <div id="day">European Roulette</div>
+        </header>
+
+        <main id="gameArea">
+            <section id="rouletteArea" aria-label="Roulette wheel">
+                <div id="rouletteFrame">
+                    <canvas id="rouletteCanvas"></canvas>
+                </div>
+            </section>
+
+            <section id="betArea" aria-label="Betting area">
+                <div id="betTable"></div>
+
+                <div id="chipSelector" aria-label="Chip selector">
+                    <button class="chip active" data-chip="100">100</button>
+                    <button class="chip" data-chip="500">500</button>
+                    <button class="chip" data-chip="1000">1000</button>
+                </div>
+
+                <div id="resultDisplay">Result : -</div>
+
+                <div id="controls">
+                    <button id="spinButton" class="spin-button">SPIN</button>
+                    <button id="clearButton">CLEAR</button>
+                    <button id="backButton">BACK</button>
+                </div>
+
+                <div id="catDialogue">
+                    <span id="catName">Black Cat</span>
+                    <span id="catMessage">幸運を祈るにゃ。</span>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

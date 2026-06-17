@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack - Yume Kawaii Dark Fantasy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="particles-container"></div>
+    
+    <div id="main-layout">
+        <!-- TOP STATUS BAR (Synchronized with Home) -->
+        <header id="top-status-bar">
+            <!-- Left: Survival Gauges (2 Rows) -->
+            <div class="glass-panel status-left gauges-stack-panel">
+                <div class="stat-row">
+                    <span class="icon">🍱</span>
+                    <span class="gauge-label-text">HUNGER</span>
+                    <div class="meter-bar small"><div id="side-bar-hunger" class="fill" style="width: 80%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <span class="icon">🧠</span>
+                    <span class="gauge-label-text">STRESS</span>
+                    <div class="meter-group">
+                        <div class="meter-bar small"><div id="side-bar-stress" class="fill" style="width: 20%;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: Financial Status -->
+            <div class="glass-panel status-center">
+                <div class="status-item">
+                    <span class="label">COINS</span>
+                    <span id="stat-coins" class="value">1,000</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">DEBT</span>
+                    <span id="stat-debt" class="value">50,000</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">REMAINING</span>
+                    <span id="stat-debt-rem" class="value">49,000</span>
+                </div>
+            </div>
+
+            <!-- Right: Survival Day & Clock -->
+            <div class="glass-panel status-right survival-clock-panel">
+                <div class="clock-container">
+                    <svg class="clock-svg" viewBox="0 0 100 100">
+                        <circle class="clock-bg" cx="50" cy="50" r="45"></circle>
+                        <circle id="clock-progress" cx="50" cy="50" r="45" style="stroke-dasharray: 283; stroke-dashoffset: 283;"></circle>
+                    </svg>
+                    <span class="clock-icon">🌙</span>
+                </div>
+                <div class="status-item survival">
+                    <span class="label">SURVIVAL</span>
+                    <span id="stat-days" class="value">DAY 1</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="hamburger-menu">☰</div>
+        
+        <div id="side-menu" class="hidden-menu">
+            <div id="menu-content">
+                <div class="menu-header">MENU</div>
+                <button id="home-btn" class="menu-item-btn">
+                    <span class="icon">🏠</span> HOME
+                </button>
+                <button id="close-menu-btn" class="menu-item-btn">
+                    <span class="icon">×</span> CLOSE
+                </button>
+            </div>
+        </div>
+
+        <div id="play-area">
+            <div id="dealer-section">
+                <div id="dealer-score-badge" class="score-badge dealer-score">?</div>
+                <div id="dealer-cards" class="card-area"></div>
+            </div>
+
+            <div id="deck-area">
+                <div id="deck-pile" class="card-back stacked-deck"></div>
+            </div>
+
+            <div id="rabbit-doll-area">
+                <!-- Glowing area and speech bubble for the rabbit -->
+                <div id="rabbit-speech" class="speech-bubble hidden"></div>
+            </div>
+
+            <div id="center-message" class="hidden"></div>
+
+            <div id="player-section">
+                <div id="player-cards" class="card-area"></div>
+                <div id="player-score-badge" class="score-badge">0</div>
+            </div>
+        </div>
+
+        <div id="bottom-left-controls">
+            <div id="bet-setup-area">
+                <div class="bet-row">
+                    <button id="bet-m10" class="bet-btn">-10</button>
+                    <button id="bet-m50" class="bet-btn">-50</button>
+                    <button id="bet-m100" class="bet-btn">-100</button>
+                </div>
+                
+                <div class="bet-row">
+                    <button id="bet-p10" class="bet-btn">+10</button>
+                    <button id="bet-p50" class="bet-btn">+50</button>
+                    <button id="bet-p100" class="bet-btn">+100</button>
+                </div>
+
+                <div class="bet-row">
+                    <button id="bet-allin" class="bet-btn allin-btn">ALLIN</button>
+                    <button id="bet-clear" class="bet-btn clear-btn">CLEAR</button>
+                </div>
+                
+                <div class="bet-row main-bet-row">
+                    <div id="bet-input-wrapper">
+                        <span id="bet-amount-display">10</span>
+                    </div>
+                    <button id="deal-btn" class="glow-btn">DEAL</button>
+                </div>
+            </div>
+            <div id="current-bet-area" class="hidden">
+                <span class="bet-label">BET</span>
+                <span id="current-bet-display">0</span>
+            </div>
+        </div>
+
+        <div id="bottom-right-controls" class="hidden">
+            <button id="surrender-btn" class="action-btn glow-btn">SURRENDER</button>
+            <button id="double-btn" class="action-btn glow-btn">DOUBLE</button>
+            <button id="hit-btn" class="action-btn glow-btn">HIT</button>
+            <button id="stand-btn" class="action-btn glow-btn">STAND</button>
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div id="result-overlay" class="hidden">
+        <div id="result-content"></div>
+    </div>
+    
+    <div id="game-over-overlay" class="hidden">
+        <div class="game-over-text">GAME OVER</div>
+        <button id="reset-btn" class="glow-btn">RETRY</button>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

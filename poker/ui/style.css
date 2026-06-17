@@ -1,0 +1,373 @@
+:root {
+    --bg-dark: #1a0b2e;
+    --primary-purple: #4b0082;
+    --lavender: #e6e6fa;
+    --pastel-pink: #ffb7c5;
+    --moon-gold: #fffacd;
+    --star-gold: #ffd700;
+}
+
+body {
+    margin: 0; padding: 0;
+    background-color: var(--bg-dark);
+    display: flex; justify-content: center; align-items: center;
+    height: 100vh; overflow: hidden;
+    font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
+}
+
+#game-container {
+    width: 100%; height: 100vh;
+    background-image: url('../assets/poker背景2.png');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0,0,0,1);
+    overflow: hidden;
+}
+
+/* 音声切り替えボタン */
+#sound-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(43, 22, 70, 0.8);
+    border: 1px solid var(--lavender);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+    font-size: 1.5rem;
+    transition: 0.3s;
+}
+#sound-toggle:hover {
+    background: var(--lavender);
+    color: var(--primary-purple);
+    box-shadow: 0 0 10px var(--lavender);
+}
+
+.screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+.hidden { display: none !important; }
+
+.centered-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.invisible-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px #000;
+    transition: 0.3s;
+}
+.invisible-btn:hover {
+    color: var(--star-gold);
+    transform: scale(1.1);
+}
+
+#player-hand {
+    position: absolute;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+}
+
+#cpu-area {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+}
+
+.cpu-player {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cpu-player.pos-0 { top: 15%; left: 15%; transform: rotate(-12deg); }
+.cpu-player.pos-1 { top: 10%; left: 50%; transform: translateX(-50%); }
+.cpu-player.pos-2 { top: 15%; right: 15%; transform: rotate(12deg); }
+.cpu-player.pos-easy { top: 12%; left: 50%; transform: translateX(-50%); }
+
+.cpu-rank-label {
+    background: rgba(0,0,0,0.6);
+    color: var(--star-gold);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.player-rank-label {
+    position: absolute;
+    bottom: 270px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--star-gold);
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px #000;
+    background: rgba(0,0,0,0.4);
+    padding: 5px 20px;
+    border-radius: 20px;
+}
+
+.exchange-btn-container {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.betting-actions {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+}
+
+.action-btn {
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    border-radius: 20px;
+    border: 2px solid white;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+.btn-fold { background: #666; color: white; }
+.btn-check { background: var(--primary-purple); color: white; }
+.btn-raise { background: var(--star-gold); color: var(--bg-dark); border-color: var(--star-gold); }
+
+.action-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.card {
+    width: 95px; height: 135px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    justify-content: space-between; align-items: center;
+    padding: 6px;
+    transition: 0.3s, transform 0.6s;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+    cursor: pointer;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    transform-style: preserve-3d;
+}
+
+.card.flipping { transform: rotateY(90deg); }
+
+.card.back {
+    background: var(--primary-purple);
+    border: 3px solid var(--moon-gold);
+    color: var(--moon-gold);
+    background-image: radial-gradient(circle, var(--primary-purple) 0%, #1a0b2e 100%);
+}
+
+.card.selected {
+    transform: translateY(-40px);
+    box-shadow: 0 0 25px var(--pastel-pink);
+    border: 3px solid var(--pastel-pink);
+}
+
+.card.highlight {
+    box-shadow: 0 0 20px var(--star-gold);
+    border: 3px solid var(--star-gold);
+    z-index: 10;
+}
+
+@keyframes deal-card {
+    0% {
+        transform: translate(-50%, -150%) scale(0) rotate(720deg);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.deal-animation {
+    animation: deal-card 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 勝利演出用パーティクル */
+.win-particle {
+    position: absolute;
+    top: -30px;
+    pointer-events: none;
+    z-index: 2000;
+    color: var(--star-gold);
+    text-shadow: 0 0 5px white;
+    opacity: 0.7;
+    animation: fall-and-sway 3.5s ease-in forwards;
+}
+
+@keyframes fall-and-sway {
+    0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(750px) translateX(var(--drift)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.card .suit { font-size: 2.2rem; }
+.card .rank { font-size: 1.6rem; font-weight: bold; }
+.card.red { color: #d40000; }
+.card.black { color: #000; }
+
+.cpu-hand { display: flex; gap: 5px; }
+.cpu-hand .card { width: 55px; height: 75px; font-size: 0.8rem; }
+.cpu-hand .card .suit { font-size: 1rem; }
+.cpu-hand .card .rank { font-size: 0.9rem; }
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.menu-buttons button {
+    background: rgba(43, 22, 70, 0.9);
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    padding: 15px 40px;
+    border-radius: 30px;
+    cursor: pointer;
+    min-width: 250px;
+    font-size: 1.2rem;
+    transition: 0.3s;
+}
+
+.menu-buttons button:hover {
+    background: #ffffff;
+    color: var(--primary-purple);
+}
+
+.status-box {
+    background: rgba(0,0,0,0.7);
+    padding: 25px 50px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid var(--primary-purple);
+    color: #ffffff;
+}
+
+/* 常設Renga表示 */
+#permanent-renga-display {
+    position: absolute;
+    bottom: 100px;
+    right: 0px;
+    width: 210px;
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.95rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px #000;
+    pointer-events: none;
+    z-index: 100;
+    background: rgba(0,0,0,0.4);
+    border-radius: 10px;
+    transition: font-size 0.3s ease;
+}
+
+/* ストレスゲージ */
+#stress-gauge-container {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    width: 150px;
+    height: 12px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--lavender);
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 100;
+}
+
+#stress-gauge-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #4b0082, #ff00ff);
+    transition: width 0.5s ease-in-out;
+}
+
+#stress-label {
+    position: absolute;
+    top: 32px;
+    left: 25px;
+    color: var(--lavender);
+    font-size: 0.8rem;
+    text-shadow: 1px 1px 2px #000;
+    z-index: 100;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* ベット入力 */
+.bet-input {
+    background: rgba(0,0,0,0.6);
+    border: 2px solid var(--primary-purple);
+    color: var(--star-gold);
+    font-size: 2rem;
+    width: 200px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+.bet-input:focus {
+    outline: none;
+    border-color: var(--star-gold);
+    box-shadow: 0 0 10px var(--star-gold);
+}
+
+.overlay-content {
+    background: #1a0b2e;
+    padding: 30px;
+    border: 2px solid var(--lavender);
+    border-radius: 15px;
+    max-width: 80%;
+    max-height: 85%;
+    overflow-y: auto;
+    color: white;
+}
+
+.rank-item {
+    margin-bottom: 20px;
+    border-left: 4px solid var(--star-gold);
+    padding-left: 15px;
+}
+.rank-item h3 { color: var(--star-gold); margin: 5px 0; }
+.rank-item p { margin: 0; font-size: 0.95rem; opacity: 0.9; }
