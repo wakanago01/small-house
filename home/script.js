@@ -43,9 +43,6 @@ const uiElements = {
     // HUD permanent gauges
     sideBarHunger: document.getElementById('side-bar-hunger'),
     sideBarStress: document.getElementById('side-bar-stress'),
-    sideBarAlcohol: document.getElementById('side-bar-alcohol'),
-    sideBarCigarette: document.getElementById('side-bar-cigarette'),
-    sideBarSleep: document.getElementById('side-bar-sleep-hud'),
     // Modal elements
     inventoryList: document.getElementById('inventory-list'),
     itemDetail: document.getElementById('item-detail-area'),
@@ -67,9 +64,6 @@ function updateUI() {
     // Header HUD gauges
     updateProgressBar(uiElements.sideBarHunger, gameState.hunger, true);
     updateProgressBar(uiElements.sideBarStress, gameState.stress, false);
-    updateProgressBar(uiElements.sideBarAlcohol, gameState.alcohol, false);
-    updateProgressBar(uiElements.sideBarCigarette, gameState.cigarette, false);
-    updateProgressBar(uiElements.sideBarSleep, gameState.sleep, false); // Lower sleepiness is better
 
     // Status Modal Detail Bars (if visible)
     if (!document.getElementById('status-modal').classList.contains('hidden')) {

@@ -16,7 +16,7 @@
     <div id="app-container">
         <!-- TOP STATUS BAR -->
         <header id="top-status-bar">
-            <!-- Left: Survival Gauges (4 Rows) -->
+            <!-- Left: Survival Gauges (2 Rows) -->
             <div class="glass-panel status-left gauges-stack-panel">
                 <div class="stat-row">
                     <span class="icon">🍱</span>
@@ -28,27 +28,6 @@
                     <span class="gauge-label-text">STRESS</span>
                     <div class="meter-group">
                         <div class="meter-bar small"><div id="side-bar-stress" class="fill" style="width: 20%;"></div></div>
-                    </div>
-                </div>
-                <div class="stat-row">
-                    <span class="icon">🍷</span>
-                    <span class="gauge-label-text">ALCOHOL</span>
-                    <div class="meter-group">
-                        <div class="meter-bar small"><div id="side-bar-alcohol" class="fill" style="width: 45%;"></div></div>
-                    </div>
-                </div>
-                <div class="stat-row">
-                    <span class="icon">🚬</span>
-                    <span class="gauge-label-text">SMOKE</span>
-                    <div class="meter-group">
-                        <div class="meter-bar small"><div id="side-bar-cigarette" class="fill" style="width: 10%;"></div></div>
-                    </div>
-                </div>
-                <div class="stat-row">
-                    <span class="icon">🛌</span>
-                    <span class="gauge-label-text">SLEEP</span>
-                    <div class="meter-group">
-                        <div class="meter-bar small"><div id="side-bar-sleep-hud" class="fill" style="width: 0%;"></div></div>
                     </div>
                 </div>
             </div>
@@ -291,30 +270,21 @@
             <!-- CENTER CONTENT - FULL WIDTH CENTERED -->
             <main id="center-content">
                 <div class="game-grid">
+                    <!-- ROULETTE -->
+                    <div class="game-card glass-panel floating" onclick="playGame('roulette')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">🎡</div>
+                            <h2 class="game-title">ROULETTE</h2>
+                            <p class="game-desc">銀色の球が描く放物線。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
                     <!-- SLOT -->
                     <div class="game-card glass-panel floating" onclick="playGame('slot')">
                         <div class="card-inner">
                             <div class="card-image-placeholder">🎰</div>
                             <h2 class="game-title">SLOT</h2>
                             <p class="game-desc">運命の歯車を回して。</p>
-                            <button class="play-btn">PLAY</button>
-                        </div>
-                    </div>
-                    <!-- BLACKJACK -->
-                    <div class="game-card glass-panel floating" onclick="playGame('blackjack')">
-                        <div class="card-inner">
-                            <div class="card-image-placeholder">🃏</div>
-                            <h2 class="game-title">BLACKJACK</h2>
-                            <p class="game-desc">21に秘められた甘い罠。</p>
-                            <button class="play-btn">PLAY</button>
-                        </div>
-                    </div>
-                    <!-- POKER -->
-                    <div class="game-card glass-panel floating" onclick="playGame('poker')">
-                        <div class="card-inner">
-                            <div class="card-image-placeholder">🎭</div>
-                            <h2 class="game-title">POKER</h2>
-                            <p class="game-desc">嘘と真実の境界線で。</p>
                             <button class="play-btn">PLAY</button>
                         </div>
                     </div>
@@ -327,21 +297,30 @@
                             <button class="play-btn">PLAY</button>
                         </div>
                     </div>
-                    <!-- HORSE RACE -->
-                    <div class="game-card glass-panel floating" onclick="playGame('horserace')">
+                    <!-- BLACKJACK -->
+                    <div class="game-card glass-panel floating" onclick="playGame('blackjack')">
                         <div class="card-inner">
-                            <div class="card-image-placeholder">🐎</div>
-                            <h2 class="game-title">HORSE RACE</h2>
-                            <p class="game-desc">夢を託して走れ。</p>
+                            <div class="card-image-placeholder">🃏</div>
+                            <h2 class="game-title">BLACKJACK</h2>
+                            <p class="game-desc">21に秘められた甘い罠。</p>
                             <button class="play-btn">PLAY</button>
                         </div>
                     </div>
-                    <!-- ROULETTE -->
-                    <div class="game-card glass-panel floating" onclick="playGame('roulette')">
+                    <!-- CHINCHIRO -->
+                    <div class="game-card glass-panel floating" onclick="playGame('chinchiro')">
                         <div class="card-inner">
-                            <div class="card-image-placeholder">🎡</div>
-                            <h2 class="game-title">ROULETTE</h2>
-                            <p class="game-desc">銀色の球が描く放物線。</p>
+                            <div class="card-image-placeholder">🎲</div>
+                            <h2 class="game-title">CHINCHIRO</h2>
+                            <p class="game-desc">三つのサイコロに魂を込めて。</p>
+                            <button class="play-btn">PLAY</button>
+                        </div>
+                    </div>
+                    <!-- POKER -->
+                    <div class="game-card glass-panel floating" onclick="playGame('poker')">
+                        <div class="card-inner">
+                            <div class="card-image-placeholder">🎭</div>
+                            <h2 class="game-title">POKER</h2>
+                            <p class="game-desc">嘘と真実の境界線で。</p>
                             <button class="play-btn">PLAY</button>
                         </div>
                     </div>
