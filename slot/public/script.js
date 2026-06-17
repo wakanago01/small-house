@@ -30,13 +30,24 @@ const symbolImages = {
 };
 
 const reelStrips = {
-    reel1:["seven","grape","bell","cherry","bar","rabbit","grape","bell"],
-    reel2:["grape","seven","cherry","bell","rabbit","bar","grape","bell"],
-    reel3:["bell","grape","seven","rabbit","bar","cherry","grape","bell"]
+    reel1:["seven","grape","bell","cherry","bar","rabbit","grape","bell","grape","bell"],
+    reel2:["grape","seven","cherry","bell","rabbit","bar","grape","bell","grape","rabbit"],
+    reel3:["bell","grape","seven","rabbit","bar","cherry","grape","bell","grape","rabbit"]
+};
+
+const payouts = {
+    big:340,
+    reg:120,
+    bell:15,
+    grape:10,
+    cherry:1,
+    rabbit:0
 };
 
 let renga = 1000;
 let currentBet = 0;
+let betUsedThisSpin = 0;
+let retryMode = false;
 
 let bigCount = 0;
 let grapeCount = 0;
@@ -112,6 +123,11 @@ function setBet(amount){
         return;
     }
 
+    if(retryMode){
+        showResultText("リトライ中");
+        return;
+    }
+
     if(renga < amount){
         showResultText("レンガ不足");
         return;
@@ -172,60 +188,134 @@ function stopReel(reelId){
 
 }
 
-function getCenterSymbol(reelId){
+function getVisibleSymbols(reelId){
 
     const strip = reelStrips[reelId];
     const pos = reelPositions[reelId];
 
-    return strip[(pos + 1) % strip.length];
+    return [
+        strip[pos % strip.length],
+        strip[(pos + 1) % strip.length],
+        strip[(pos + 2) % strip.length]
+    ];
+
+}
+
+function getAllLines(){
+
+    const left = getVisibleSymbols("reel1");
+    const center = getVisibleSymbols("reel2");
+    const right = getVisibleSymbols("reel3");
+
+    return [
+        [left[0], center[0], right[0]],
+        [left[1], center[1], right[1]],
+        [left[2], center[2], right[2]],
+        [left[0], center[1], right[2]],
+        [left[2], center[1], right[0]]
+    ];
+
+}
+
+function judgeLine(line){
+
+    const left = line[0];
+    const center = line[1];
+    const right = line[2];
+
+    if(left === "seven" && center === "seven" && right === "seven"){
+        return "big";
+    }
+
+    if(left === "seven" && center === "seven" && right === "bar"){
+        return "reg";
+    }
+
+    if(left === center && center === right){
+        return left;
+    }
+
+    return "lose";
 
 }
 
 function checkResult(){
 
-    const left = getCenterSymbol("reel1");
-    const center = getCenterSymbol("reel2");
-    const right = getCenterSymbol("reel3");
+    const lines = getAllLines();
 
-    console.log("中央ライン:", left, center, right);
+    console.log("判定ライン:", lines);
+
+    let result = "lose";
+
+    for(const line of lines){
+        if(judgeLine(line) === "big"){
+            result = "big";
+            break;
+        }
+    }
+
+    if(result === "lose"){
+        for(const line of lines){
+            if(judgeLine(line) === "reg"){
+                result = "reg";
+                break;
+            }
+        }
+    }
+
+    if(result === "lose"){
+        for(const line of lines){
+            const lineResult = judgeLine(line);
+
+            if(lineResult !== "lose"){
+                result = lineResult;
+                break;
+            }
+        }
+    }
 
     let payout = 0;
     let message = "ハズレ";
 
-    if(left === "seven" && center === "seven" && right === "seven"){
+    if(result === "big"){
 
-        payout = currentBet * 100;
+        payout = payouts.big;
         message = "BIG BONUS! +" + payout;
         bigCount = 1;
         triggerPekari();
 
-    }else if(left === "seven" && center === "seven" && right === "bar"){
+    }else if(result === "reg"){
 
-        payout = currentBet * 30;
+        payout = payouts.reg;
         message = "REG BONUS! +" + payout;
         triggerPekari();
 
-    }else if(left === "bell" && center === "bell" && right === "bell"){
+    }else if(result === "bell"){
 
-        payout = currentBet * 10;
+        payout = payouts.bell;
         message = "ベル成立 +" + payout;
 
-    }else if(left === "grape" && center === "grape" && right === "grape"){
+    }else if(result === "grape"){
 
-        payout = currentBet * 5;
+        payout = payouts.grape;
         message = "ぶどう成立 +" + payout;
         grapeCount++;
 
-    }else if(left === "cherry" && center === "cherry" && right === "cherry"){
+    }else if(result === "cherry"){
 
-        payout = currentBet * 3;
+        payout = payouts.cherry;
         message = "チェリー成立 +" + payout;
 
-    }else if(left === "rabbit" && center === "rabbit" && right === "rabbit"){
+    }else if(result === "rabbit"){
 
-        payout = currentBet;
-        message = "うさぎリプレイ";
+        payout = payouts.rabbit;
+        message = "うさぎリトライ";
         rabbitCount++;
+        retryMode = true;
+
+    }else{
+
+        retryMode = false;
 
     }
 
@@ -244,18 +334,29 @@ function startSpin(){
         return;
     }
 
-    if(currentBet === 0){
+    if(!retryMode && currentBet === 0){
         showResultText("BETしてね");
         return;
     }
 
-    if(renga < currentBet){
+    if(!retryMode && renga < currentBet){
         showResultText("レンガ不足");
         return;
     }
 
-    renga -= currentBet;
-    updateRenga();
+    if(retryMode){
+
+        showResultText("リトライ");
+
+    }else{
+
+        betUsedThisSpin = currentBet;
+        renga -= currentBet;
+        updateRenga();
+
+    }
+
+    retryMode = false;
 
     isSpinning = true;
     stopCount = 0;
