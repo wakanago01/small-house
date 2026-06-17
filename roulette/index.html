@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Roulette</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dream Roulette</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="game">
+
+    <!-- 背景に文字があるので、ここはゲーム用の現在値だけ重ねます -->
     <header id="topBar">
         <div id="balance">Balance : 50,000 Renga</div>
         <div id="gameTitle">European Roulette</div>
@@ -15,38 +17,31 @@
 
     <main id="gameArea">
         <section id="rouletteArea">
-            <div id="rouletteFrame">
-                <canvas id="rouletteCanvas"></canvas>
-            </div>
+            <canvas id="rouletteCanvas"></canvas>
         </section>
 
         <section id="betArea">
-            <div id="betPanel">
-                <div class="betTitle">BET</div>
-                <div id="betTable"></div>
+            <div id="betTable"></div>
 
-                <div id="chipSelector">
-                    <button class="chip active" data-chip="100">100</button>
-                    <button class="chip" data-chip="500">500</button>
-                    <button class="chip" data-chip="1000">1000</button>
-                </div>
+            <div id="chipSelector">
+                <button class="chip active" data-chip="100">100</button>
+                <button class="chip" data-chip="500">500</button>
+                <button class="chip" data-chip="1000">1000</button>
+            </div>
 
-                <div id="resultDisplay">Result : -</div>
+            <div id="resultDisplay">Result : -</div>
 
-                <div id="controls">
-                    <button id="spinButton" class="gameButton spin-button">SPIN</button>
-                    <button id="clearButton" class="gameButton">CLEAR</button>
-                    <button id="backButton" class="gameButton">BACK</button>
-                </div>
+            <div id="controls">
+                <button id="spinButton" class="gameButton spin-button">SPIN</button>
+                <button id="clearButton" class="gameButton">CLEAR</button>
+                <button id="backButton" class="gameButton">BACK</button>
             </div>
         </section>
     </main>
 
     <footer id="messageBox">
-        <div id="catDialogue">
-            <div id="catName">BlackCat</div>
-            <div id="catMessage">幸運を祈るにゃ。良い結果が待っているかもしれないにゃ。</div>
-        </div>
+        <div id="catName">BlackCat</div>
+        <div id="catMessage">幸運を祈るにゃ。良い結果が待っているかもしれないにゃ。</div>
     </footer>
 </div>
 

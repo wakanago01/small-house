@@ -265,8 +265,8 @@ function drawRoulette() {
 
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
-    const outer = canvas.width * 0.47;
-    const inner = canvas.width * 0.30;
+    const outer = canvas.width * 0.485;
+    const inner = canvas.width * 0.37;
     const angleSize = (Math.PI * 2) / rouletteNumbers.length;
 
     ctx.save();
@@ -311,14 +311,14 @@ function drawRoulette() {
     ctx.restore();
 
     ctx.beginPath();
-    ctx.arc(cx, cy, inner - 6, 0, Math.PI * 2);
+    ctx.arc(cx, cy, inner - 4, 0, Math.PI * 2);
     ctx.fillStyle = "#2b1736";
     ctx.fill();
     ctx.strokeStyle = "#d9b147";
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    drawCurledCat(cx, cy, canvas.width * 0.17);
+    drawCurledCat(cx, cy, canvas.width * 0.19);
 
     ctx.beginPath();
     ctx.arc(cx, cy, canvas.width * 0.028, 0, Math.PI * 2);
