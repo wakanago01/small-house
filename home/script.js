@@ -293,7 +293,7 @@ function useItem(index) {
 /**
  * Survival Loop
  */
-const DAY_DURATION_SEC = 20 * 60; // 1200 seconds
+const DAY_DURATION_SEC = 20 * 60; // 20 minutes
 const HUNGER_DRAIN_PER_SEC = 100 / 3600; 
 const SLEEP_INC_PER_SEC = 100 / 1200; // Max in 20 mins
 const STRESS_BASE_INC_PER_SEC = 5 / 1200; // Base ~5 per day
@@ -302,11 +302,10 @@ function updateSurvivalClock() {
     // 1. Hunger Drain
     gameState.hunger = Math.max(0, gameState.hunger - HUNGER_DRAIN_PER_SEC);
     
-    // 2. Sleepiness (fills up over 20 mins)
+    // 2. Sleepiness
     gameState.sleep = Math.min(100, gameState.sleep + SLEEP_INC_PER_SEC);
     
-    // 3. Stress Growth (accelerates with sleepiness)
-    // Formula: Increases faster as character gets sleepier (up to 3x base rate)
+    // 3. Stress Growth
     const stressMultiplier = 1 + (gameState.sleep / 50); 
     gameState.stress = Math.min(100, gameState.stress + (STRESS_BASE_INC_PER_SEC * stressMultiplier));
 
@@ -317,20 +316,46 @@ function updateSurvivalClock() {
 
     secondsPassed++;
     const progress = secondsPassed / DAY_DURATION_SEC;
-    const offset = 283 * (1 - progress); // 283 to 0
+    const offset = 283 * (1 - progress);
     if (uiElements.clockProgress) uiElements.clockProgress.style.strokeDashoffset = offset;
 
     if (secondsPassed >= DAY_DURATION_SEC) {
-        advanceDay();
+        advanceDay(true); // Forced all-nighter
     }
     updateUI();
 }
 
-function advanceDay() {
+function advanceDay(isAllNighter = false) {
     secondsPassed = 0;
     gameState.days += 1;
-    // Motivation/Other daily shifts can be added here
-    showToast(`${gameState.days}日目を迎えました。`);
+    
+    let message = "新しい朝を迎えました。";
+    if (isAllNighter) {
+        message = "徹夜してしまった...。";
+        gameState.stress = Math.min(100, gameState.stress + 5);
+        showToast("徹夜によりストレスが上昇しました。");
+    }
+
+    showDayStartOverlay(gameState.days, message);
+}
+
+function showDayStartOverlay(day, message) {
+    const overlay = document.getElementById('day-start-overlay');
+    const dayText = document.getElementById('day-number-text');
+    const msgText = document.getElementById('day-message-text');
+    
+    dayText.textContent = `DAY ${day}`;
+    msgText.textContent = message;
+    
+    overlay.classList.remove('hidden');
+    overlay.classList.remove('fade-out-overlay');
+
+    setTimeout(() => {
+        overlay.classList.add('fade-out-overlay');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+        }, 1000);
+    }, 4000);
 }
 
 function triggerGameOver() {
@@ -345,16 +370,33 @@ setInterval(updateSurvivalClock, 1000);
 /**
  * Actions
  */
-function handleAction(type) {
+async function handleAction(type) {
     switch(type) {
         case 'sleep':
+            // Sleep only allowed after half a day (10 minutes / 600 seconds)
+            const SLEEP_THRESHOLD = 600; 
+            if (secondsPassed < SLEEP_THRESHOLD) {
+                showToast("まだ昼なので、眠くありません。");
+                return;
+            }
+
             if (confirm("眠りに落ちて、次の日を迎えますか？")) {
-                gameState.days += 1;
-                gameState.hunger = Math.max(0, gameState.hunger - 30);
-                gameState.sleep = 0; // Reset sleepiness
-                gameState.stress = Math.max(0, gameState.stress - 25);
-                secondsPassed = 0;
-                showToast("心地よい眠りから覚めました。");
+                const blackout = document.getElementById('sleep-blackout');
+                blackout.classList.remove('hidden');
+                
+                // Wait for blackout animation
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Apply survival penalties/bonuses
+                gameState.hunger = Math.max(0, gameState.hunger - 20); // 20% drain
+                gameState.stress = Math.max(0, gameState.stress - 10); // 10% recovery
+                gameState.sleep = 0;
+                
+                // Move to next day
+                advanceDay(false); 
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                blackout.classList.add('hidden');
             }
             break;
     }

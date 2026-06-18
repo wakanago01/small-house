@@ -670,7 +670,7 @@ body {
 .speech-bubble {
     position: relative;
     left: -180px; /* Further left */
-    top: -120px;  /* Further up */
+    top: -82px;   /* Lowered by ~1cm (approx 38px) from -120px */
     background: rgba(40, 0, 60, 0.7);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 153, 204, 0.5);
