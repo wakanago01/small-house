@@ -284,8 +284,8 @@ body {
 /* 常設Renga表示 */
 #permanent-renga-display {
     position: absolute;
-    bottom: 100px;
-    right: 0px;
+    bottom: 120px;
+    right: 10px;
     width: 210px;
     height: 55px;
     display: flex;
@@ -297,9 +297,30 @@ body {
     text-shadow: 2px 2px 4px #000;
     pointer-events: none;
     z-index: 100;
-    background: rgba(0,0,0,0.4);
+    background: transparent;
     border-radius: 10px;
-    transition: font-size 0.3s ease;
+    transition: font-size 0.3s ease, bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), top 0.4s ease, right 0.3s ease;
+}
+
+/* 全画面表示（F11や大画面）時の調整 */
+/* 通常のブラウザ表示では反応しないよう、しきい値を950pxに引き上げ */
+@media screen and (min-height: 950px) {
+    #permanent-renga-display {
+        bottom: 185px;
+        right: 5px;
+    }
+}
+
+/* JSで付与するバックアップ用のクラス（全画面時のみ厳格に付与） */
+.fullscreen-active #permanent-renga-display {
+    bottom: 185px !important;
+    right: 5px !important;
+}
+
+#game-container:fullscreen #permanent-renga-display,
+#game-container:-webkit-full-screen #permanent-renga-display {
+    bottom: 185px;
+    right: 5px;
 }
 
 /* ストレスゲージ */

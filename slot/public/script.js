@@ -20,6 +20,9 @@ const settingBtn = document.getElementById("settingBtn");
 const rengaText = document.getElementById("rengaText");
 const missionArea = document.getElementById("missionArea");
 
+const SAVE_KEY = "smallHouseSlotData";
+const AUTO_BET_AMOUNT = 3;
+
 const symbolImages = {
     seven:"../image/seven.png",
     bar:"../image/bar.png",
@@ -46,12 +49,15 @@ const payouts = {
 
 let renga = 1000;
 let currentBet = 0;
-let betUsedThisSpin = 0;
 let retryMode = false;
 
-let bigCount = 0;
-let grapeCount = 0;
-let rabbitCount = 0;
+let gameCount = 0;
+let bigTotal = 0;
+let regTotal = 0;
+let grapeTotal = 0;
+
+let autoMode = false;
+let autoTimer = null;
 
 let reelPositions = {
     reel1:0,
@@ -74,17 +80,94 @@ let reelStopped = {
 let isSpinning = false;
 let stopCount = 0;
 
+function saveGameData(){
+
+    const data = {
+        renga:renga,
+        gameCount:gameCount,
+        bigTotal:bigTotal,
+        regTotal:regTotal,
+        grapeTotal:grapeTotal
+    };
+
+    localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+
+}
+
+function loadGameData(){
+
+    const savedData = localStorage.getItem(SAVE_KEY);
+
+    if(!savedData){
+        return;
+    }
+
+    const data = JSON.parse(savedData);
+
+    renga = data.renga ?? 1000;
+    gameCount = data.gameCount ?? 0;
+    bigTotal = data.bigTotal ?? 0;
+    regTotal = data.regTotal ?? 0;
+    grapeTotal = data.grapeTotal ?? 0;
+
+}
+
 function updateRenga(){
+
     rengaText.textContent = renga;
+
+}
+
+function getBonusRate(){
+
+    const bonusTotal = bigTotal + regTotal;
+
+    if(bonusTotal === 0){
+        return "---";
+    }
+
+    return "1/" + (gameCount / bonusTotal).toFixed(1);
+
+}
+
+function getBigRate(){
+
+    if(bigTotal === 0){
+        return "---";
+    }
+
+    return "1/" + (gameCount / bigTotal).toFixed(1);
+
+}
+
+function getRegRate(){
+
+    if(regTotal === 0){
+        return "---";
+    }
+
+    return "1/" + (gameCount / regTotal).toFixed(1);
+
+}
+
+function getGrapeRate(){
+
+    if(grapeTotal === 0){
+        return "---";
+    }
+
+    return "1/" + (gameCount / grapeTotal).toFixed(1);
+
 }
 
 function updateMission(){
 
     missionArea.innerHTML = `
-        <p>今月のミッション</p>
-        <p>BIGを1回当てる　${bigCount}/1</p>
-        <p>ぶどうを10回そろえる　${grapeCount}/10</p>
-        <p>うさぎを3回そろえる　${rabbitCount}/3</p>
+        <p>総回転　${gameCount}G</p>
+        <p>BIG　${bigTotal}　${getBigRate()}</p>
+        <p>REG　${regTotal}　${getRegRate()}</p>
+        <p>合成　${getBonusRate()}</p>
+        <p>ぶどう　${getGrapeRate()}</p>
     `;
 
 }
@@ -155,7 +238,6 @@ function showReel(reelId){
 
         const img = document.createElement("img");
         img.src = symbolImages[symbolName];
-        img.dataset.symbol = symbolName;
 
         div.appendChild(img);
         reel.appendChild(div);
@@ -243,8 +325,6 @@ function checkResult(){
 
     const lines = getAllLines();
 
-    console.log("判定ライン:", lines);
-
     let result = "lose";
 
     for(const line of lines){
@@ -281,13 +361,14 @@ function checkResult(){
 
         payout = payouts.big;
         message = "BIG BONUS! +" + payout;
-        bigCount = 1;
+        bigTotal++;
         triggerPekari();
 
     }else if(result === "reg"){
 
         payout = payouts.reg;
         message = "REG BONUS! +" + payout;
+        regTotal++;
         triggerPekari();
 
     }else if(result === "bell"){
@@ -299,7 +380,7 @@ function checkResult(){
 
         payout = payouts.grape;
         message = "ぶどう成立 +" + payout;
-        grapeCount++;
+        grapeTotal++;
 
     }else if(result === "cherry"){
 
@@ -310,7 +391,6 @@ function checkResult(){
 
         payout = payouts.rabbit;
         message = "うさぎリトライ";
-        rabbitCount++;
         retryMode = true;
 
     }else{
@@ -320,11 +400,20 @@ function checkResult(){
     }
 
     renga += payout;
+
     updateRenga();
     updateMission();
+    saveGameData();
+
     showResultText(message);
 
     currentBet = 0;
+
+    if(autoMode){
+        autoTimer = setTimeout(() => {
+            autoPlay();
+        },1400);
+    }
 
 }
 
@@ -350,13 +439,16 @@ function startSpin(){
 
     }else{
 
-        betUsedThisSpin = currentBet;
         renga -= currentBet;
         updateRenga();
 
     }
 
     retryMode = false;
+
+    gameCount++;
+    updateMission();
+    saveGameData();
 
     isSpinning = true;
     stopCount = 0;
@@ -400,6 +492,92 @@ function stopNextReel(){
 
 }
 
+function autoPlay(){
+
+    if(!autoMode){
+        return;
+    }
+
+    if(isSpinning){
+        return;
+    }
+
+    if(!retryMode && renga < AUTO_BET_AMOUNT){
+        autoMode = false;
+        showResultText("AUTO終了");
+        return;
+    }
+
+    if(!retryMode){
+        currentBet = AUTO_BET_AMOUNT;
+    }
+
+    startSpin();
+
+    setTimeout(() => {
+        stopNextReel();
+    },700);
+
+    setTimeout(() => {
+        stopNextReel();
+    },1100);
+
+    setTimeout(() => {
+        stopNextReel();
+    },1500);
+
+}
+
+function toggleAuto(){
+
+    autoMode = !autoMode;
+
+    if(autoMode){
+
+        showResultText("AUTO ON");
+        autoPlay();
+
+    }else{
+
+        clearTimeout(autoTimer);
+        showResultText("AUTO OFF");
+
+    }
+
+}
+
+function resetGameData(){
+
+    const ok = confirm("レンガ・回転数・BIG・REG・ぶどう確率をリセットしますか？");
+
+    if(!ok){
+        return;
+    }
+
+    localStorage.removeItem(SAVE_KEY);
+
+    renga = 1000;
+    currentBet = 0;
+    retryMode = false;
+
+    gameCount = 0;
+    bigTotal = 0;
+    regTotal = 0;
+    grapeTotal = 0;
+
+    autoMode = false;
+    clearTimeout(autoTimer);
+
+    updateRenga();
+    updateMission();
+    saveGameData();
+
+    showResultText("データリセット");
+
+}
+
+loadGameData();
+
 showReel("reel1");
 showReel("reel2");
 showReel("reel3");
@@ -411,7 +589,6 @@ function setButton(button,name,action){
     button.addEventListener("click",() => {
 
         pressButton(button);
-        console.log(name);
 
         if(action){
             action();
@@ -447,9 +624,15 @@ setButton(startBtn,"START / STOP",() => {
 
 });
 
-setButton(autoBtn,"AUTO");
+setButton(autoBtn,"AUTO",() => {
+    toggleAuto();
+});
+
 setButton(missionBtn,"MISSION");
-setButton(settingBtn,"SETTING");
+
+setButton(settingBtn,"SETTING",() => {
+    resetGameData();
+});
 
 document.addEventListener("keydown",(e)=>{
 
