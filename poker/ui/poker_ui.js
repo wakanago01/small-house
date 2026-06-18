@@ -25,6 +25,15 @@ class PokerUI {
         this.isBgmStarted = false;
 
         document.addEventListener('click', () => this.startBgm(), { once: true });
+
+        // 全画面検知のバックアップ
+        const handleResize = () => {
+            const isFull = window.innerHeight === window.screen.height || document.fullscreenElement;
+            document.body.classList.toggle('fullscreen-active', isFull);
+        };
+        window.addEventListener('resize', handleResize);
+        document.addEventListener('fullscreenchange', handleResize);
+        handleResize(); // 初期チェック
     }
 
     setVolume() {
