@@ -2,6 +2,31 @@
  * Small House - Home Screen Logic
  */
 
+// DOM Elements
+const uiElements = {
+    coins: document.getElementById('stat-coins'),
+    debt: document.getElementById('stat-debt'),
+    debtRem: document.getElementById('stat-debt-rem'),
+    days: document.getElementById('stat-days'),
+    sideBarHunger: document.getElementById('side-bar-hunger'),
+    sideBarStress: document.getElementById('side-bar-stress'),
+    
+    // Repay Modal
+    repayCurrentCoins: document.getElementById('repay-current-coins'),
+    repayRemainingDebt: document.getElementById('repay-remaining-debt'),
+    repayAmountInput: document.getElementById('repay-amount-input'),
+    
+    // Inventory
+    inventoryList: document.getElementById('inventory-list'),
+    itemDetail: document.getElementById('item-detail'),
+    detailName: document.getElementById('detail-name'),
+    detailDesc: document.getElementById('detail-desc'),
+    useItemBtn: document.getElementById('use-item-btn'),
+    
+    // Clock
+    clockProgress: document.getElementById('clock-progress')
+};
+
 // Initial Game State Constants for Reset
 const INITIAL_STATE = {
     coins: 1000,
@@ -54,6 +79,8 @@ function loadGameState() {
  * Update UI with current game state
  */
 function updateUI() {
+    loadGameState(); // Always sync from disk before displaying and auto-saving
+
     // Financials
     uiElements.coins.textContent = gameState.coins.toLocaleString();
     uiElements.debt.textContent = gameState.debt.toLocaleString();
@@ -352,7 +379,10 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-window.onload = () => { updateUI(); };
+window.onload = () => { 
+    loadGameState();
+    updateUI(); 
+};
 
 const style = document.createElement('style');
 style.innerHTML = `@keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, 20px); } 15% { opacity: 1; transform: translate(-50%, 0); } 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -20px); } }`;
