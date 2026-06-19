@@ -2,11 +2,41 @@
 let deck = [];
 let playerHand = [];
 let dealerHand = [];
-let balance = 1000;
-let currentBet = 10;
 let gameOver = false;
 
 let initialBet = 10;
+let currentBet = 10;
+
+/**
+ * State Persistence (Synchronized with Home)
+ */
+const STORAGE_KEY = 'small_house_game_state';
+const INITIAL_STATE = {
+    coins: 1000,
+    debt: 100000000,
+    remainingDebt: 100000000,
+    hunger: 100,
+    stress: 20,
+    days: 1
+};
+
+let gameState = { ...INITIAL_STATE };
+
+function loadGameState() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            gameState = { ...INITIAL_STATE, ...parsed };
+        } catch (e) {
+            console.error("Failed to parse saved state:", e);
+        }
+    }
+}
+
+function saveGameState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+}
 
 // DOM要素
 const statCoins = document.getElementById('stat-coins');
@@ -25,44 +55,6 @@ const betSetupArea = document.getElementById('bet-setup-area');
 const currentBetArea = document.getElementById('current-bet-area');
 const betAmountDisplay = document.getElementById('bet-amount-display');
 const currentBetDisplay = document.getElementById('current-bet-display');
-
-// Mock external status for synchronization
-let externalStatus = {
-    debt: 100000000, 
-    remainingDebt: 100000000,
-    hunger: 80,
-    stress: 20,
-    days: 1
-};
-
-function updateProgressBar(el, value, isInverse = false) {
-    if (!el) return;
-    el.style.width = `${Math.min(100, Math.max(0, value))}%`;
-    
-    if (isInverse) { // Higher is better (Hunger)
-        if (value < 20) el.style.background = 'linear-gradient(90deg, #ff7675, #d63031)';
-        else if (value < 50) el.style.background = 'linear-gradient(90deg, #ffeaa7, #fdcb6e)';
-        else el.style.background = 'linear-gradient(90deg, #b8e994, #78e08f)';
-    } else { // Lower is better (Stress)
-        if (value > 80) el.style.background = 'linear-gradient(90deg, #ff7675, #d63031)';
-        else if (value > 50) el.style.background = 'linear-gradient(90deg, #ffeaa7, #fdcb6e)';
-        else el.style.background = 'linear-gradient(90deg, #b8e994, #78e08f)';
-    }
-}
-
-function updateUI() {
-    if (statCoins) statCoins.textContent = balance.toLocaleString();
-    if (statDebt) statDebt.textContent = externalStatus.debt.toLocaleString();
-    if (statDebtRem) statDebtRem.textContent = externalStatus.remainingDebt.toLocaleString();
-    if (statDays) statDays.textContent = `DAY ${externalStatus.days}`;
-
-    updateProgressBar(sideBarHunger, externalStatus.hunger, true);
-    updateProgressBar(sideBarStress, externalStatus.stress, false);
-
-    if (betAmountDisplay) betAmountDisplay.textContent = currentBet.toLocaleString();
-    if (currentBetDisplay) currentBetDisplay.textContent = currentBet.toLocaleString();
-}
-
 
 const betM100 = document.getElementById('bet-m100');
 const betM50 = document.getElementById('bet-m50');
@@ -118,7 +110,7 @@ const rabbitDialogues = {
     lose: ["あーあ、壊れちゃった。", "…夢はここでおしまい。ふふ。", "負けちゃったね。痛い？"],
     bust: ["欲張りすぎると…弾けちゃうわよ？", "あはは！壊れちゃった！", "…自滅。滑稽ね。"],
     blackjack: ["…最高の夢を見せてくれるのね。", "ブラックジャック…素敵、壊したいわ。", "ふふ、おめでとう。特別なご褒美ね。"],
-    push: ["…引き分け。まだ終わらせてくれないのね。", "おそろい。ふふ、不気味ね。", "…変わらない二人。"],
+    push: ["…引き分け。まだ終わらせてくれないのね。", "おそろい. ふふ、不気味ね。", "…変わらない二人。"],
     surrender: ["…逃げ出すの？臆病な子。", "ふふ、賢明な判断…なのかなぁ？", "…逃がさない。今は見逃してあげるだけ。"]
 };
 
@@ -134,6 +126,36 @@ function rabbitSpeak(category) {
     speechTimeout = setTimeout(() => {
         rabbitSpeech.classList.add('hidden');
     }, 4000);
+}
+
+function updateProgressBar(el, value, isInverse = false) {
+    if (!el) return;
+    el.style.width = `${Math.min(100, Math.max(0, value))}%`;
+    
+    if (isInverse) { // Higher is better (Hunger)
+        if (value < 20) el.style.background = 'linear-gradient(90deg, #ff7675, #d63031)';
+        else if (value < 50) el.style.background = 'linear-gradient(90deg, #ffeaa7, #fdcb6e)';
+        else el.style.background = 'linear-gradient(90deg, #b8e994, #78e08f)';
+    } else { // Lower is better (Stress)
+        if (value > 80) el.style.background = 'linear-gradient(90deg, #ff7675, #d63031)';
+        else if (value > 50) el.style.background = 'linear-gradient(90deg, #ffeaa7, #fdcb6e)';
+        else el.style.background = 'linear-gradient(90deg, #b8e994, #78e08f)';
+    }
+}
+
+function updateUI() {
+    loadGameState();
+
+    if (statCoins) statCoins.textContent = gameState.coins.toLocaleString();
+    if (statDebt) statDebt.textContent = gameState.debt.toLocaleString();
+    if (statDebtRem) statDebtRem.textContent = gameState.remainingDebt.toLocaleString();
+    if (statDays) statDays.textContent = `DAY ${gameState.days}`;
+
+    updateProgressBar(sideBarHunger, gameState.hunger, true);
+    updateProgressBar(sideBarStress, gameState.stress, false);
+
+    if (betAmountDisplay) betAmountDisplay.textContent = currentBet.toLocaleString();
+    if (currentBetDisplay) currentBetDisplay.textContent = currentBet.toLocaleString();
 }
 
 // カードの定義
@@ -354,16 +376,20 @@ function renderGame(showFullDealerHand) {
 async function startGame() {
     playSound('click');
     rabbitSpeak('start');
-    if (currentBet > balance) {
-        currentBet = balance;
-        updateUI();
+    
+    loadGameState();
+    
+    if (currentBet > gameState.coins) {
+        currentBet = gameState.coins;
     }
-    if (currentBet <= 0 || balance <= 0) { 
+    
+    if (currentBet <= 0 || gameState.coins <= 0) { 
         showGameOver();
         return; 
     }
 
-    balance -= currentBet;
+    gameState.coins -= currentBet;
+    saveGameState();
     updateUI();
     
     betSetupArea.classList.add('hidden');
@@ -415,15 +441,12 @@ async function startGame() {
         updateScoreDisplays(false);
     });
     
-    // Auto-blackjack check removed: Player must now press STAND even with 21.
-
     bottomRightControls.classList.remove('hidden');
     hitBtn.disabled = false;
     standBtn.disabled = false;
     
-    // Double Down & Surrender are only allowed if balance/state permits
     doubleBtn.classList.remove('hidden');
-    doubleBtn.disabled = (balance < currentBet);
+    doubleBtn.disabled = (gameState.coins < currentBet);
     surrenderBtn.classList.remove('hidden');
     surrenderBtn.disabled = false;
 }
@@ -438,7 +461,9 @@ async function surrender() {
 
     // Return half the bet
     const refund = Math.floor(currentBet / 2);
-    balance += refund;
+    gameState.coins += refund;
+    saveGameState();
+    
     const loss = currentBet - refund;
     updateUI();
 
@@ -450,21 +475,19 @@ async function doubleDown() {
     hitBtn.disabled = true;
     standBtn.disabled = true;
     doubleBtn.disabled = true;
-    surrenderBtn.disabled = true; // Cannot surrender after doubling
+    surrenderBtn.disabled = true;
 
     // Double the bet
-    balance -= currentBet;
-    initialBet = currentBet; // Store for resetting
+    gameState.coins -= currentBet;
+    initialBet = currentBet;
     currentBet *= 2;
+    saveGameState();
     updateUI();
 
-    // 1. Knock sound
     playSound('knock');
     await sleep(1000);
 
     const newCard = deck.pop();
-
-    // 2. Play paper sound while moving the card
     playSound('paper');
     renderCard(newCard, playerCardsEl, true, true, () => {
         playerHand.push(newCard);
@@ -485,17 +508,13 @@ async function hit() {
     rabbitSpeak('hit');
     hitBtn.disabled = true;
     standBtn.disabled = true;
-    doubleBtn.disabled = true; // Cannot double down after hitting
-    surrenderBtn.disabled = true; // Cannot surrender after hitting
+    doubleBtn.disabled = true;
+    surrenderBtn.disabled = true;
     
-    // 1. Knock sound
     playSound('knock');
-    // 2. Wait while knock is playing (approx 1s delay)
     await sleep(1000);
     
     const newCard = deck.pop();
-    
-    // 3. Play paper sound while moving the card
     playSound('paper');
     renderCard(newCard, playerCardsEl, true, true, () => {
         playerHand.push(newCard);
@@ -553,17 +572,17 @@ function showOverlayEffect(type, profit = 0) {
     switch(type) {
         case 'win':
             resultContent.innerHTML = `<div class="victory-text-win">YOU WIN<div class="result-amount win">${amountText}</div></div>`;
-            createParticles('#ff66cc', 50); // Pink particles
-            createParticles('#fff', 30); // Sparkles
+            createParticles('#ff66cc', 50);
+            createParticles('#fff', 30);
             break;
         case 'lose':
             resultContent.innerHTML = `<div class="victory-text-lose">YOU LOSE<div class="result-amount lose">${amountText}</div></div>`;
-            createParticles('#4b0082', 50); // Dark purple mist
+            createParticles('#4b0082', 50);
             break;
         case 'blackjack':
             resultContent.innerHTML = `<div class="radiant-light"></div><div class="victory-text-bj">BLACKJACK<div class="result-amount bj">${amountText}</div></div>`;
-            createParticles('#00ffff', 50); // Cyan/Star burst
-            createParticles('#ff00ff', 50); // Magenta burst
+            createParticles('#00ffff', 50);
+            createParticles('#ff00ff', 50);
             break;
         case 'push':
             resultContent.innerHTML = `<div style="color: #ccc; text-shadow: 0 0 10px #fff; font-size: 80px; text-align: center;">PUSH<div class="result-amount">${amountText}</div></div>`;
@@ -592,10 +611,8 @@ async function endGame(result, fixedProfit = null) {
     renderGame(true);
     
     let profit = fixedProfit !== null ? fixedProfit : 0;
-    const pScore = calculateScore(playerHand);
 
     if (fixedProfit === null) {
-        // Sequential BLACKJACK -> YOU WIN only for natural 21 (2 cards)
         if (result === 'blackjack' && playerHand.length === 2) {
             rabbitSpeak('blackjack');
             resultOverlay.classList.remove('hidden');
@@ -606,26 +623,25 @@ async function endGame(result, fixedProfit = null) {
             await sleep(2000);
             resultOverlay.classList.add('hidden');
 
-            balance += Math.floor(currentBet * 2.5);
+            const payout = Math.floor(currentBet * 2.5);
+            gameState.coins += payout;
             profit = Math.floor(currentBet * 1.5);
-            result = 'win'; // Proceed to show YOU WIN
+            result = 'win';
         } else if (result === 'win') {
             rabbitSpeak('win');
-            balance += currentBet * 2;
+            gameState.coins += currentBet * 2;
             profit = currentBet;
         } else if (result === 'blackjack') {
-            // This case handles if 'blackjack' was passed but it's not a natural 21
             rabbitSpeak('win');
-            balance += currentBet * 2;
+            gameState.coins += currentBet * 2;
             profit = currentBet;
             result = 'win';
         } else if (result === 'push') {
             rabbitSpeak('push');
-            balance += currentBet;
+            gameState.coins += currentBet;
             profit = 0;
         } else if (result === 'bust') {
             rabbitSpeak('bust');
-            // Sequential BUST -> YOU LOSE display
             resultOverlay.classList.remove('hidden');
             resultContent.className = '';
             resultContent.innerHTML = `<div style="color: #ff3333; text-shadow: 0 0 25px #ff0000, 0 0 50px #800000; font-size: 100px; font-weight: bold; letter-spacing: 10px;">BUST</div>`;
@@ -634,26 +650,26 @@ async function endGame(result, fixedProfit = null) {
             resultOverlay.classList.add('hidden');
             
             profit = -currentBet;
-            result = 'lose'; // Change result to 'lose' to show the YOU LOSE screen next
+            result = 'lose';
         } else {
             rabbitSpeak('lose');
             profit = -currentBet;
         }
     }
     
+    saveGameState();
     showOverlayEffect(result, profit);
     updateUI();
 }
 
 function resetRound() {
-    if (balance <= 0) {
+    loadGameState();
+    if (gameState.coins <= 0) {
         showGameOver();
         return;
     }
     
-    // Reset bet to the amount before double down if needed
     currentBet = initialBet;
-    
     betSetupArea.classList.remove('hidden');
     currentBetArea.classList.add('hidden');
     
@@ -662,17 +678,17 @@ function resetRound() {
     dealerScoreBadge.textContent = '?';
     playerScoreBadge.textContent = '0';
     
-    // Check bet limit
-    if (currentBet > balance) {
-        currentBet = balance;
+    if (currentBet > gameState.coins) {
+        currentBet = gameState.coins;
     }
     updateUI();
 }
 
 function fullReset() {
-    balance = 1000;
+    gameState = { ...INITIAL_STATE };
     currentBet = 10;
     initialBet = 10;
+    saveGameState();
     updateUI();
     gameOverOverlay.classList.add('hidden');
     resetRound();
@@ -709,25 +725,25 @@ betM10.addEventListener('click', () => {
 
 betP10.addEventListener('click', () => { 
     playSound('click');
-    currentBet = Math.min(balance, currentBet + 10);
+    currentBet = Math.min(gameState.coins, currentBet + 10);
     updateUI();
 });
 
 betP50.addEventListener('click', () => { 
     playSound('click');
-    currentBet = Math.min(balance, currentBet + 50);
+    currentBet = Math.min(gameState.coins, currentBet + 50);
     updateUI();
 });
 
 betP100.addEventListener('click', () => { 
     playSound('click');
-    currentBet = Math.min(balance, currentBet + 100);
+    currentBet = Math.min(gameState.coins, currentBet + 100);
     updateUI();
 });
 
 betAllIn.addEventListener('click', () => { 
     playSound('click');
-    currentBet = balance;
+    currentBet = gameState.coins;
     updateUI();
 });
 
@@ -750,7 +766,6 @@ closeMenuBtn.addEventListener('click', () => {
 
 homeBtn.addEventListener('click', () => {
     playSound('click');
-    // フェードアウト効果を加えてHomeに戻る
     document.body.style.transition = 'opacity 0.8s ease';
     document.body.style.opacity = '0';
     setTimeout(() => {

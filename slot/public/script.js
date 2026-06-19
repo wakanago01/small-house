@@ -38,6 +38,12 @@ const reelStrips = {
     reel3:["bell","grape","seven","rabbit","bar","cherry","grape","bell","grape","rabbit"]
 };
 
+const VISIBLE_SYMBOL_COUNT = 3;
+const TRACK_BUFFER_SYMBOLS = 4;
+const SYMBOL_HEIGHT_PERCENT = 100 / VISIBLE_SYMBOL_COUNT;
+const REEL_SPEED = 0.014;
+const REEL_SNAP_DURATION = 120;
+
 const payouts = {
     big:340,
     reg:120,
@@ -69,6 +75,12 @@ let reelTimers = {
     reel1:null,
     reel2:null,
     reel3:null
+};
+
+let reelAnimations = {
+    reel1:{offset:0,lastTime:0,snapTimer:null},
+    reel2:{offset:0,lastTime:0,snapTimer:null},
+    reel3:{offset:0,lastTime:0,snapTimer:null}
 };
 
 let reelStopped = {
@@ -221,52 +233,191 @@ function setBet(amount){
 
 }
 
-function showReel(reelId){
+function normalizeReelPosition(position,reelId){
+
+    const strip = reelStrips[reelId];
+
+    return ((position % strip.length) + strip.length) % strip.length;
+
+}
+
+function createSymbol(symbolName){
+
+    const div = document.createElement("div");
+    div.className = "symbol";
+
+    const img = document.createElement("img");
+    img.src = symbolImages[symbolName];
+
+    div.appendChild(img);
+
+    return div;
+
+}
+
+function setReelOffset(reelId,offset){
+
+    const reel = document.getElementById(reelId);
+    const track = reel.querySelector(".reelTrack");
+
+    if(!track){
+        return;
+    }
+
+    track.style.transform = `translateY(${-offset * SYMBOL_HEIGHT_PERCENT}%)`;
+
+}
+
+function renderReelTrack(reelId,startPosition,symbolCount){
 
     const reel = document.getElementById(reelId);
     const strip = reelStrips[reelId];
-    const pos = reelPositions[reelId];
+    const pos = normalizeReelPosition(startPosition,reelId);
 
     reel.innerHTML = "";
 
-    for(let i=0;i<3;i++){
+    const track = document.createElement("div");
+    track.className = "reelTrack";
+
+    for(let i=0;i<symbolCount;i++){
 
         const symbolName = strip[(pos + i) % strip.length];
-
-        const div = document.createElement("div");
-        div.className = "symbol";
-
-        const img = document.createElement("img");
-        img.src = symbolImages[symbolName];
-
-        div.appendChild(img);
-        reel.appendChild(div);
+        track.appendChild(createSymbol(symbolName));
 
     }
+
+    reel.appendChild(track);
+    setReelOffset(reelId,0);
+
+}
+
+function showReel(reelId){
+
+    renderReelTrack(reelId,reelPositions[reelId],VISIBLE_SYMBOL_COUNT);
 
 }
 
 function spinReel(reelId){
 
-    reelTimers[reelId] = setInterval(() => {
+    const animation = reelAnimations[reelId];
 
-        reelPositions[reelId]++;
+    if(reelTimers[reelId]){
+        cancelAnimationFrame(reelTimers[reelId]);
+    }
+
+    if(animation.snapTimer){
+        cancelAnimationFrame(animation.snapTimer);
+        animation.snapTimer = null;
+    }
+
+    animation.offset = 0;
+    animation.lastTime = 0;
+
+    renderReelTrack(
+        reelId,
+        reelPositions[reelId],
+        reelStrips[reelId].length + VISIBLE_SYMBOL_COUNT + TRACK_BUFFER_SYMBOLS
+    );
+
+    const animate = (time) => {
+
+        if(reelStopped[reelId]){
+            reelTimers[reelId] = null;
+            return;
+        }
+
+        if(animation.lastTime === 0){
+            animation.lastTime = time;
+        }
+
+        const elapsed = Math.min(time - animation.lastTime,64);
+        animation.lastTime = time;
+        animation.offset += elapsed * REEL_SPEED;
+
+        while(animation.offset >= 1){
+
+            animation.offset--;
+            reelPositions[reelId] = normalizeReelPosition(reelPositions[reelId] + 1,reelId);
+
+            renderReelTrack(
+                reelId,
+                reelPositions[reelId],
+                reelStrips[reelId].length + VISIBLE_SYMBOL_COUNT + TRACK_BUFFER_SYMBOLS
+            );
+
+        }
+
+        setReelOffset(reelId,animation.offset);
+
+        reelTimers[reelId] = requestAnimationFrame(animate);
+
+    };
+
+    reelTimers[reelId] = requestAnimationFrame(animate);
+
+}
+
+function snapReelToSymbol(reelId,startPosition,startOffset,targetOffset,finalPosition){
+
+    const animation = reelAnimations[reelId];
+    const startTime = performance.now();
+
+    renderReelTrack(
+        reelId,
+        startPosition,
+        reelStrips[reelId].length + VISIBLE_SYMBOL_COUNT + TRACK_BUFFER_SYMBOLS
+    );
+
+    const animateSnap = (time) => {
+
+        const progress = Math.min((time - startTime) / REEL_SNAP_DURATION,1);
+        const easedProgress = 1 - Math.pow(1 - progress,3);
+        const offset = startOffset + (targetOffset - startOffset) * easedProgress;
+
+        setReelOffset(reelId,offset);
+
+        if(progress < 1){
+
+            animation.snapTimer = requestAnimationFrame(animateSnap);
+            return;
+
+        }
+
+        animation.offset = 0;
+        animation.snapTimer = null;
+        reelPositions[reelId] = finalPosition;
         showReel(reelId);
 
-    },90);
+    };
+
+    animation.snapTimer = requestAnimationFrame(animateSnap);
 
 }
 
 function stopReel(reelId){
 
     if(reelStopped[reelId]){
-        return;
+        return 0;
     }
 
-    clearInterval(reelTimers[reelId]);
-    reelStopped[reelId] = true;
+    const animation = reelAnimations[reelId];
+    const startPosition = reelPositions[reelId];
+    const startOffset = animation.offset;
+    const shouldAdvance = startOffset >= 0.5;
+    const targetOffset = shouldAdvance ? 1 : 0;
+    const finalPosition = normalizeReelPosition(startPosition + (shouldAdvance ? 1 : 0),reelId);
 
-    showReel(reelId);
+    if(reelTimers[reelId]){
+        cancelAnimationFrame(reelTimers[reelId]);
+        reelTimers[reelId] = null;
+    }
+
+    reelStopped[reelId] = true;
+    reelPositions[reelId] = finalPosition;
+
+    snapReelToSymbol(reelId,startPosition,startOffset,targetOffset,finalPosition);
+
+    return REEL_SNAP_DURATION;
 
 }
 
@@ -481,12 +632,16 @@ function stopNextReel(){
 
     }else if(stopCount === 3){
 
-        stopReel("reel3");
+        const stopDelay = stopReel("reel3");
 
-        isSpinning = false;
-        stopCount = 0;
+        setTimeout(() => {
 
-        checkResult();
+            isSpinning = false;
+            stopCount = 0;
+
+            checkResult();
+
+        },stopDelay);
 
     }
 
@@ -567,6 +722,26 @@ function resetGameData(){
 
     autoMode = false;
     clearTimeout(autoTimer);
+
+    for(const reelId of Object.keys(reelTimers)){
+
+        if(reelTimers[reelId]){
+            cancelAnimationFrame(reelTimers[reelId]);
+            reelTimers[reelId] = null;
+        }
+
+        if(reelAnimations[reelId].snapTimer){
+            cancelAnimationFrame(reelAnimations[reelId].snapTimer);
+            reelAnimations[reelId].snapTimer = null;
+        }
+
+        reelAnimations[reelId].offset = 0;
+        reelAnimations[reelId].lastTime = 0;
+
+    }
+
+    isSpinning = false;
+    stopCount = 0;
 
     updateRenga();
     updateMission();
