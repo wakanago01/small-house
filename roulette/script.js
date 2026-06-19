@@ -4,27 +4,60 @@ const canvas = document.getElementById("rouletteCanvas");
 const ctx = canvas.getContext("2d");
 const catBodyImg = new Image();
 const catTailImg = new Image();
-catBodyImg.src = "img/center-cat-body.png";
-catTailImg.src = "img/center-cat-tail.png";
+catBodyImg.src = "img/cat_hontai.png";
+catTailImg.src = "img/cat_sippo.png";
 
 let catBodyReady = false;
 let catTailReady = false;
+let catBodyAsset = null;
+let catTailAsset = null;
 function redrawWhenCatReady() {
   if (catBodyReady && catTailReady) drawRoulette();
 }
+function makeGreenTransparentAsset(img) {
+  const asset = document.createElement("canvas");
+  const assetCtx = asset.getContext("2d");
+  asset.width = img.naturalWidth || img.width;
+  asset.height = img.naturalHeight || img.height;
+  assetCtx.drawImage(img, 0, 0);
+
+  const imageData = assetCtx.getImageData(0, 0, asset.width, asset.height);
+  const data = imageData.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const strongestNonGreen = Math.max(r, b);
+    const greenDominance = g - strongestNonGreen;
+
+    if (g > 80 && g > r * 1.22 && g > b * 1.22 && greenDominance > 28) {
+      const alpha = Math.max(0, Math.min(255, 255 - (greenDominance - 28) * 5));
+      data[i + 3] = Math.min(data[i + 3], alpha);
+      data[i + 1] = Math.min(g, strongestNonGreen);
+    }
+  }
+
+  assetCtx.putImageData(imageData, 0, 0);
+  return asset;
+}
 catBodyImg.onload = () => {
+  catBodyAsset = makeGreenTransparentAsset(catBodyImg);
   catBodyReady = true;
   redrawWhenCatReady();
 };
 catTailImg.onload = () => {
+  catTailAsset = makeGreenTransparentAsset(catTailImg);
   catTailReady = true;
   redrawWhenCatReady();
 };
 catBodyImg.onerror = () => {
+  catBodyAsset = null;
   catBodyReady = false;
   drawRoulette();
 };
 catTailImg.onerror = () => {
+  catTailAsset = null;
   catTailReady = false;
   drawRoulette();
 };
@@ -240,12 +273,12 @@ function getSlotDisplayAngleForNumber(num) {
 }
 
 function drawRotatingTail(cx, cy, ringR) {
-  if (!catTailReady) return;
+  if (!catTailReady || !catTailAsset) return;
 
-  const pivotX = catTailImg.width * 0.18;
-  const pivotY = catTailImg.height * 0.92;
-  const tipX = catTailImg.width * 0.56;
-  const tipY = catTailImg.height * 0.1;
+  const pivotX = catTailAsset.width * 0.2;
+  const pivotY = catTailAsset.height * 0.9;
+  const tipX = catTailAsset.width * 0.38;
+  const tipY = catTailAsset.height * 0.08;
   const sourceAngle = Math.atan2(tipY - pivotY, tipX - pivotX);
   const sourceLength = Math.hypot(tipX - pivotX, tipY - pivotY);
   const scale = ringR / sourceLength;
@@ -254,7 +287,7 @@ function drawRotatingTail(cx, cy, ringR) {
   ctx.translate(cx, cy);
   ctx.rotate(tailAngle - sourceAngle);
   ctx.scale(scale, scale);
-  ctx.drawImage(catTailImg, -pivotX, -pivotY);
+  ctx.drawImage(catTailAsset, -pivotX, -pivotY);
   ctx.restore();
 }
 
@@ -266,10 +299,10 @@ function drawCenterCat(cx, cy, r, ringR) {
 
   drawRotatingTail(cx, cy, ringR);
 
-  if (catBodyReady) {
+  if (catBodyReady && catBodyAsset) {
     const bodyH = r * 2;
-    const bodyW = bodyH * (catBodyImg.width / catBodyImg.height);
-    ctx.drawImage(catBodyImg, cx - bodyW * 0.52, cy - bodyH * 0.5, bodyW, bodyH);
+    const bodyW = bodyH * (catBodyAsset.width / catBodyAsset.height);
+    ctx.drawImage(catBodyAsset, cx - bodyW * 0.52, cy - bodyH * 0.5, bodyW, bodyH);
   } else {
     ctx.fillStyle = "#120d16";
     ctx.beginPath();
