@@ -75,23 +75,48 @@ body {
     gap: 12px;
     border: 2px solid rgba(212, 181, 232, 0.3);
     width: fit-content;
-    background: rgba(30, 10, 40, 0.4);
-    backdrop-filter: blur(8px);
+    background: rgba(30, 10, 45, 0.45);
+    backdrop-filter: blur(15px);
     border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(120, 31, 190, 0.2);
 }
 
-.stat-row { display: flex; align-items: center; gap: 15px; width: 100%; }
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
 .gauge-label-text {
     font-family: 'Cinzel', serif;
     font-size: 14px;
     letter-spacing: 2px;
-    color: var(--accent);
+    color: #ffb3e6;
     width: 90px;
+    text-align: left;
 }
 
-.meter-bar { height: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 5px; overflow: hidden; flex-grow: 1; border: 1px solid rgba(255, 255, 255, 0.1); }
-.meter-bar.small { width: 300px; height: 16px; }
-.fill { height: 100%; background: linear-gradient(90deg, var(--accent-dark), var(--accent)); box-shadow: 0 0 10px var(--accent); transition: width 0.5s ease-in-out; }
+.meter-bar {
+    height: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    overflow: hidden;
+    flex-grow: 1;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meter-bar.small {
+    width: 300px;
+    height: 16px;
+}
+
+.fill {
+    height: 100%;
+    background: linear-gradient(90deg, #b85cad, #ffb3e6);
+    box-shadow: 0 0 10px #ffb3e6;
+    transition: width 0.5s ease-in-out;
+}
 
 /* Right Group: Coins + Clock */
 .status-right-group {
@@ -107,7 +132,7 @@ body {
     padding: 12px 40px;
     gap: 30px;
     background: rgba(30, 10, 50, 0.5);
-    border: 2px double var(--accent);
+    border: 2px double #ffb3e6;
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(212, 181, 232, 0.3);
 }
@@ -145,24 +170,43 @@ body {
 
 #clock-progress {
     fill: none;
-    stroke: var(--accent-pink);
+    stroke: #ff66cc;
     stroke-width: 8;
     stroke-linecap: round;
     stroke-dasharray: 283;
     stroke-dashoffset: 283;
     transition: stroke-dashoffset 1s linear;
-    filter: drop-shadow(0 0 8px var(--accent-pink));
+    filter: drop-shadow(0 0 8px #ff66cc);
 }
 
 .clock-icon {
     position: absolute;
     font-size: 22px;
-    filter: drop-shadow(0 0 5px var(--accent-light));
+    filter: drop-shadow(0 0 5px #f7d8ef);
 }
 
-.status-item { display: flex; flex-direction: column; align-items: center; }
-.label { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color: var(--accent-light); margin-bottom: 2px; opacity: 0.8; }
-.value { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700; color: #fff; text-shadow: 0 0 15px var(--accent); }
+.status-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #f7d8ef;
+    margin-bottom: 2px;
+    opacity: 0.8;
+}
+
+.value {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 15px #ffb3e6;
+}
 
 /* Top Controls */
 #hamburger-menu {
@@ -647,12 +691,12 @@ body {
 #deck-pile.stacked-deck.glow {
     filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.8));
     box-shadow: 
-        1px 1px 0 #fff, 2px 2px 0 #2b0040,
-        3px 3px 0 #fff, 4px 4px 0 #2b0040,
-        5px 5px 0 #fff, 6px 6px 0 #2b0040,
-        7px 7px 0 #fff, 8px 8px 0 #2b0040,
-        9px 9px 0 #fff, 10px 10px 0 #2b0040,
-        15px 15px 25px rgba(0, 0, 0, 0.7),
+        0px 2px 0 #fff, 0px 4px 0 #2b0040,
+        0px 6px 0 #fff, 0px 8px 0 #2b0040,
+        0px 10px 0 #fff, 0px 12px 0 #2b0040,
+        0px 14px 0 #fff, 0px 16px 0 #2b0040,
+        0px 18px 0 #fff, 0px 20px 0 #2b0040,
+        0px 30px 25px rgba(0, 0, 0, 0.7),
         0 0 30px rgba(255, 0, 255, 0.9) inset;
 }
 

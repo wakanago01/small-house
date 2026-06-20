@@ -13,11 +13,22 @@ let currentBet = 10;
 const STORAGE_KEY = 'small_house_game_state';
 const INITIAL_STATE = {
     coins: 1000,
-    debt: 100000000,
+    debt: 100000000, // 100 Million
     remainingDebt: 100000000,
     hunger: 100,
     stress: 20,
-    days: 1
+    alcohol: 45,
+    cigarette: 10,
+    days: 1,
+    inventory: [],
+    // Extended status fields
+    thirst: 90,
+    sleep: 0, // 0 is fully awake, 100 is max sleepiness
+    health: 100,
+    fatigue: 10,
+    motivation: 70,
+    energy: 100,
+    condition: 100
 };
 
 let gameState = { ...INITIAL_STATE };
@@ -144,8 +155,6 @@ function updateProgressBar(el, value, isInverse = false) {
 }
 
 function updateUI() {
-    loadGameState();
-
     if (statCoins) statCoins.textContent = gameState.coins.toLocaleString();
     if (statDebt) statDebt.textContent = gameState.debt.toLocaleString();
     if (statDebtRem) statDebtRem.textContent = gameState.remainingDebt.toLocaleString();
@@ -657,6 +666,10 @@ async function endGame(result, fixedProfit = null) {
         }
     }
     
+    if (result === 'lose') {
+        gameState.stress = Math.min(100, gameState.stress + 5);
+    }
+    
     saveGameState();
     showOverlayEffect(result, profit);
     updateUI();
@@ -766,6 +779,7 @@ closeMenuBtn.addEventListener('click', () => {
 
 homeBtn.addEventListener('click', () => {
     playSound('click');
+    saveGameState(); // Make sure state is saved before returning home
     document.body.style.transition = 'opacity 0.8s ease';
     document.body.style.opacity = '0';
     setTimeout(() => {
@@ -773,5 +787,68 @@ homeBtn.addEventListener('click', () => {
     }, 800);
 });
 
+// Survival Loop
+const DAY_DURATION_SEC = 20 * 60; // 20 minutes
+const HUNGER_DRAIN_PER_SEC = 100 / 3600; 
+const SLEEP_INC_PER_SEC = 100 / 1200; // Max in 20 mins
+const STRESS_BASE_INC_PER_SEC = 5 / 1200; // Base ~5 per day
+
+let secondsPassed = 0;
+
+function updateSurvivalClock() {
+    // If the game over screen (due to out of coins) is visible, do not run the clock
+    if (gameOverOverlay && !gameOverOverlay.classList.contains('hidden')) return;
+
+    // 1. Hunger Drain
+    gameState.hunger = Math.max(0, gameState.hunger - HUNGER_DRAIN_PER_SEC);
+    
+    // 2. Sleepiness
+    gameState.sleep = Math.min(100, (gameState.sleep || 0) + SLEEP_INC_PER_SEC);
+    
+    // 3. Stress Growth
+    const stressMultiplier = 1 + ((gameState.sleep || 0) / 50); 
+    gameState.stress = Math.min(100, gameState.stress + (STRESS_BASE_INC_PER_SEC * stressMultiplier));
+
+    if (gameState.hunger <= 0) {
+        triggerGameOver();
+        return;
+    }
+
+    secondsPassed++;
+    const progress = secondsPassed / DAY_DURATION_SEC;
+    const offset = 283 * (1 - progress);
+    const clockProgress = document.getElementById('clock-progress');
+    if (clockProgress) clockProgress.style.strokeDashoffset = offset;
+
+    if (secondsPassed >= DAY_DURATION_SEC) {
+        advanceDay(true); // Forced all-nighter
+    }
+    saveGameState();
+    updateUI();
+}
+
+function advanceDay(isAllNighter = false) {
+    secondsPassed = 0;
+    gameState.days += 1;
+    
+    if (isAllNighter) {
+        gameState.stress = Math.min(100, gameState.stress + 5);
+        alert("徹夜によりストレスが上昇しました。");
+    }
+    saveGameState();
+    updateUI();
+}
+
+function triggerGameOver() {
+    alert("【GAME OVER】\n生存の糸が切れてしまいました...\n全ての記録がリセットされます。");
+    gameState = { ...INITIAL_STATE };
+    saveGameState();
+    window.location.href = '../home/index.html';
+}
+
+// Start survival loop in blackjack
+setInterval(updateSurvivalClock, 1000);
+
 // Initialize
+loadGameState();
 updateUI();

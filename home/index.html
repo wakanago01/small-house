@@ -391,10 +391,31 @@
                 </div>
                 <div class="repay-input-section">
                     <input type="number" id="repay-amount-input" class="glass-panel" placeholder="Enter amount..." min="1">
+                    
                     <div class="repay-quick-actions">
+                        <button class="glow-btn small" onclick="setRepayAmount(1000)">+1k</button>
                         <button class="glow-btn small" onclick="setRepayAmount(10000)">+10k</button>
                         <button class="glow-btn small" onclick="setRepayAmount(100000)">+100k</button>
-                        <button class="glow-btn small" onclick="setRepayMax()">MAX</button>
+                        <button class="glow-btn small" onclick="setRepayAmount(1000000)">+1M</button>
+                        <button class="glow-btn small max-btn" onclick="setRepayMax()">MAX</button>
+                    </div>
+
+                    <div class="repay-calc-grid">
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('7')">7</button>
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('8')">8</button>
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('9')">9</button>
+                        
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('4')">4</button>
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('5')">5</button>
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('6')">6</button>
+                        
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('1')">1</button>
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('2')">2</button>
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('3')">3</button>
+                        
+                        <button class="glow-btn calc-key clear-key" onclick="pressCalcKey('C')">C</button>
+                        <button class="glow-btn calc-key" onclick="pressCalcKey('0')">0</button>
+                        <button class="glow-btn calc-key backspace-key" onclick="pressCalcKey('BS')">⌫</button>
                     </div>
                 </div>
                 <div class="repay-confirm-area">

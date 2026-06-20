@@ -79,8 +79,6 @@ function loadGameState() {
  * Update UI with current game state
  */
 function updateUI() {
-    loadGameState(); // Always sync from disk before displaying and auto-saving
-
     // Financials
     uiElements.coins.textContent = gameState.coins.toLocaleString();
     uiElements.debt.textContent = gameState.debt.toLocaleString();
@@ -204,6 +202,26 @@ function confirmRepayment() {
     closeModal('repay-modal');
 }
 
+function pressCalcKey(key) {
+    const input = document.getElementById('repay-amount-input');
+    if (!input) return;
+    let val = input.value;
+    
+    if (key === 'C') {
+        input.value = '';
+    } else if (key === 'BS') {
+        input.value = val.slice(0, -1);
+    } else {
+        if (val === '') {
+            if (key === '0') return; // Don't start with 0
+            input.value = key;
+        } else {
+            input.value = val + key;
+        }
+    }
+}
+
+window.pressCalcKey = pressCalcKey;
 window.setRepayAmount = setRepayAmount;
 window.setRepayMax = setRepayMax;
 window.confirmRepayment = confirmRepayment;
@@ -404,6 +422,7 @@ async function handleAction(type) {
 }
 
 function playGame(gameId) {
+    saveGameState();
     document.body.style.opacity = '0';
     setTimeout(() => { window.location.href = `../${gameId}/index.html`; }, 500);
 }
