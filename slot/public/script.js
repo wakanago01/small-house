@@ -19,9 +19,17 @@ const settingBtn = document.getElementById("settingBtn");
 
 const rengaText = document.getElementById("rengaText");
 const missionArea = document.getElementById("missionArea");
+const backgroundImage = document.getElementById("background");
+const starRain = document.getElementById("starRain");
 
 const SAVE_KEY = "smallHouseSlotData";
 const AUTO_BET_AMOUNT = 3;
+
+const backgroundImages = {
+    normal:"../image/background.png",
+    peka:"../image/background_peka.png",
+    bonus:"../image/background_bounus.png"
+};
 
 const symbolImages = {
     seven:"../image/seven.png",
@@ -43,19 +51,34 @@ const TRACK_BUFFER_SYMBOLS = 4;
 const SYMBOL_HEIGHT_PERCENT = 100 / VISIBLE_SYMBOL_COUNT;
 const REEL_SPEED = 0.014;
 const REEL_SNAP_DURATION = 120;
+const MAX_SLIP_SYMBOLS = 9;
+
+const outcomeLottery = [
+    {result:"big", weight:4},
+    {result:"reg", weight:3},
+    {result:"bell", weight:85},
+    {result:"grape", weight:140},
+    {result:"cherry", weight:35},
+    {result:"rabbit", weight:25},
+    {result:"lose", weight:708}
+];
 
 const payouts = {
     big:340,
     reg:120,
     bell:15,
     grape:10,
-    cherry:1,
+    cherry:2,
     rabbit:0
 };
 
 let renga = 1000;
 let currentBet = 0;
 let retryMode = false;
+let pendingBonus = null;
+let currentOutcome = "lose";
+let bonusMode = null;
+let bonusRemainingPayout = 0;
 
 let gameCount = 0;
 let bigTotal = 0;
@@ -174,13 +197,7 @@ function getGrapeRate(){
 
 function updateMission(){
 
-    missionArea.innerHTML = `
-        <p>総回転　${gameCount}G</p>
-        <p>BIG　${bigTotal}　${getBigRate()}</p>
-        <p>REG　${regTotal}　${getRegRate()}</p>
-        <p>合成　${getBonusRate()}</p>
-        <p>ぶどう　${getGrapeRate()}</p>
-    `;
+    missionArea.innerHTML = "";
 
 }
 
@@ -197,24 +214,91 @@ function showResultText(text){
 
 }
 
+function setBackground(mode){
+
+    backgroundImage.src = backgroundImages[mode] || backgroundImages.normal;
+
+}
+
+function setupStarRain(){
+
+    if(!starRain || starRain.children.length > 0){
+        return;
+    }
+
+    for(let i=0;i<24;i++){
+
+        const star = document.createElement("span");
+        star.className = "fallingStar";
+        star.style.left = (8 + Math.random() * 86) + "%";
+        star.style.animationDelay = (-Math.random() * 7).toFixed(2) + "s";
+        star.style.animationDuration = (5 + Math.random() * 4).toFixed(2) + "s";
+        star.style.opacity = (0.45 + Math.random() * 0.45).toFixed(2);
+
+        const size = (0.22 + Math.random() * 0.42).toFixed(2) + "vw";
+        star.style.width = size;
+        star.style.height = size;
+
+        starRain.appendChild(star);
+
+    }
+
+}
+
 function triggerPekari(){
 
     const game = document.getElementById("game");
     const pekariText = document.getElementById("pekariText");
 
     game.classList.add("pekariGlow");
+    game.classList.remove("bonusGlow");
+    setBackground("peka");
     pekariText.classList.add("on");
+    pekariText.textContent = "CHANCE";
 
-    setTimeout(() => {
-        game.classList.remove("pekariGlow");
-        pekariText.classList.remove("on");
-    },3000);
+}
+
+function clearPekari(){
+
+    const game = document.getElementById("game");
+    const pekariText = document.getElementById("pekariText");
+
+    game.classList.remove("pekariGlow");
+    pekariText.classList.remove("on");
+    setBackground("normal");
+
+}
+
+function triggerBonusEffects(){
+
+    const game = document.getElementById("game");
+    const pekariText = document.getElementById("pekariText");
+
+    setupStarRain();
+    game.classList.add("bonusGlow");
+    game.classList.remove("pekariGlow");
+    setBackground("bonus");
+    pekariText.classList.remove("on");
+
+}
+
+function clearBonusEffects(){
+
+    const game = document.getElementById("game");
+
+    game.classList.remove("bonusGlow");
+    setBackground(pendingBonus ? "peka" : "normal");
 
 }
 
 function setBet(amount){
 
     if(isSpinning){
+        return;
+    }
+
+    if(bonusMode){
+        showResultText("BONUS中");
         return;
     }
 
@@ -291,6 +375,216 @@ function renderReelTrack(reelId,startPosition,symbolCount){
 
 }
 
+function getReelIds(){
+
+    return ["reel1","reel2","reel3"];
+
+}
+
+function getVisibleSymbolsAt(reelId,position){
+
+    const strip = reelStrips[reelId];
+    const pos = normalizeReelPosition(position,reelId);
+
+    return [
+        strip[pos % strip.length],
+        strip[(pos + 1) % strip.length],
+        strip[(pos + 2) % strip.length]
+    ];
+
+}
+
+function getLinesFromPositions(positions){
+
+    const left = getVisibleSymbolsAt("reel1",positions.reel1);
+    const center = getVisibleSymbolsAt("reel2",positions.reel2);
+    const right = getVisibleSymbolsAt("reel3",positions.reel3);
+
+    return [
+        [left[0], center[0], right[0]],
+        [left[1], center[1], right[1]],
+        [left[2], center[2], right[2]],
+        [left[0], center[1], right[2]],
+        [left[2], center[1], right[0]]
+    ];
+
+}
+
+function getLineResultsFromPositions(positions){
+
+    return getLinesFromPositions(positions).map((line) => judgeLine(line));
+
+}
+
+function hasBonusLine(positions){
+
+    const lineResults = getLineResultsFromPositions(positions);
+
+    return lineResults.includes("big") || lineResults.includes("reg");
+
+}
+
+function hasOutcomeLine(positions,outcome){
+
+    return getLineResultsFromPositions(positions).includes(outcome);
+
+}
+
+function hasThreeCherryLine(positions){
+
+    return getLinesFromPositions(positions)
+        .some((line) => line[0] === "cherry" && line[1] === "cherry" && line[2] === "cherry");
+
+}
+
+function getWinningResults(positions){
+
+    return getLineResultsFromPositions(positions)
+        .filter((result) => result !== "lose");
+
+}
+
+function isFinalStateValid(positions,outcome){
+
+    if(hasThreeCherryLine(positions)){
+        return false;
+    }
+
+    const winningResults = getWinningResults(positions);
+
+    if(outcome === "lose"){
+        return winningResults.length === 0;
+    }
+
+    return winningResults.length === 1 && winningResults[0] === outcome;
+
+}
+
+function getStopChoiceScore(positions,outcome){
+
+    const winningResults = getWinningResults(positions);
+
+    if(hasThreeCherryLine(positions)){
+        return 40 + winningResults.length;
+    }
+
+    if(isFinalStateValid(positions,outcome)){
+        return 0;
+    }
+
+    if(winningResults.length === 0){
+        return 1;
+    }
+
+    if(winningResults.length === 1 && winningResults[0] === outcome){
+        return 2;
+    }
+
+    if(!hasBonusLine(positions)){
+        return 3 + winningResults.length;
+    }
+
+    return 20 + winningResults.length;
+
+}
+
+function canCompleteOutcome(partialPositions,remainingReelIds,outcome,index = 0){
+
+    if(index >= remainingReelIds.length){
+        return isFinalStateValid(partialPositions,outcome);
+    }
+
+    const reelId = remainingReelIds[index];
+    const strip = reelStrips[reelId];
+
+    for(let position=0;position<strip.length;position++){
+
+        partialPositions[reelId] = position;
+
+        if(canCompleteOutcome(partialPositions,remainingReelIds,outcome,index + 1)){
+            return true;
+        }
+
+    }
+
+    return false;
+
+}
+
+function getStopChoices(reelId,startPosition,startOffset){
+
+    const choices = [];
+    const usedPositions = new Set();
+    const firstAdvance = Math.ceil(startOffset);
+    const lastAdvance = firstAdvance + MAX_SLIP_SYMBOLS;
+
+    for(let advance=firstAdvance;advance<=lastAdvance;advance++){
+
+        const finalPosition = normalizeReelPosition(startPosition + advance,reelId);
+
+        if(usedPositions.has(finalPosition)){
+            continue;
+        }
+
+        usedPositions.add(finalPosition);
+        choices.push({
+            finalPosition:finalPosition,
+            targetOffset:advance
+        });
+
+    }
+
+    return choices;
+
+}
+
+function chooseStopChoice(reelId,choices){
+
+    const reelIds = getReelIds();
+    const remainingReelIds = reelIds.filter((id) => id !== reelId && !reelStopped[id]);
+    const outcome = currentOutcome || "lose";
+    let bestFallback = choices[0];
+    let bestFallbackScore = Infinity;
+
+    for(const choice of choices){
+
+        const positions = {...reelPositions};
+        positions[reelId] = choice.finalPosition;
+
+        if(canCompleteOutcome(positions,remainingReelIds,outcome)){
+            return choice;
+        }
+
+        if(remainingReelIds.length === 0){
+            const score = getStopChoiceScore(positions,outcome);
+
+            if(score < bestFallbackScore){
+                bestFallback = choice;
+                bestFallbackScore = score;
+            }
+        }
+
+    }
+
+    if(remainingReelIds.length === 0){
+        return bestFallback;
+    }
+
+    for(const choice of choices){
+
+        const positions = {...reelPositions};
+        positions[reelId] = choice.finalPosition;
+
+        if(canCompleteOutcome(positions,remainingReelIds,"lose")){
+            return choice;
+        }
+
+    }
+
+    return bestFallback;
+
+}
+
 function showReel(reelId){
 
     renderReelTrack(reelId,reelPositions[reelId],VISIBLE_SYMBOL_COUNT);
@@ -357,7 +651,7 @@ function spinReel(reelId){
 
 }
 
-function snapReelToSymbol(reelId,startPosition,startOffset,targetOffset,finalPosition){
+function snapReelToSymbol(reelId,startPosition,startOffset,targetOffset,finalPosition,duration = REEL_SNAP_DURATION){
 
     const animation = reelAnimations[reelId];
     const startTime = performance.now();
@@ -370,7 +664,7 @@ function snapReelToSymbol(reelId,startPosition,startOffset,targetOffset,finalPos
 
     const animateSnap = (time) => {
 
-        const progress = Math.min((time - startTime) / REEL_SNAP_DURATION,1);
+        const progress = Math.min((time - startTime) / duration,1);
         const easedProgress = 1 - Math.pow(1 - progress,3);
         const offset = startOffset + (targetOffset - startOffset) * easedProgress;
 
@@ -403,9 +697,17 @@ function stopReel(reelId){
     const animation = reelAnimations[reelId];
     const startPosition = reelPositions[reelId];
     const startOffset = animation.offset;
-    const shouldAdvance = startOffset >= 0.5;
-    const targetOffset = shouldAdvance ? 1 : 0;
-    const finalPosition = normalizeReelPosition(startPosition + (shouldAdvance ? 1 : 0),reelId);
+    const stopChoice = chooseStopChoice(
+        reelId,
+        getStopChoices(reelId,startPosition,startOffset)
+    );
+    const targetOffset = stopChoice.targetOffset;
+    const finalPosition = stopChoice.finalPosition;
+    const symbolDistance = Math.max(targetOffset - startOffset,0);
+    const stopDuration = Math.max(
+        REEL_SNAP_DURATION,
+        symbolDistance / REEL_SPEED
+    );
 
     if(reelTimers[reelId]){
         cancelAnimationFrame(reelTimers[reelId]);
@@ -415,9 +717,9 @@ function stopReel(reelId){
     reelStopped[reelId] = true;
     reelPositions[reelId] = finalPosition;
 
-    snapReelToSymbol(reelId,startPosition,startOffset,targetOffset,finalPosition);
+    snapReelToSymbol(reelId,startPosition,startOffset,targetOffset,finalPosition,stopDuration);
 
-    return REEL_SNAP_DURATION;
+    return stopDuration;
 
 }
 
@@ -464,7 +766,11 @@ function judgeLine(line){
         return "reg";
     }
 
-    if(left === center && center === right){
+    if(left === "cherry" && center === "cherry" && right !== "cherry"){
+        return "cherry";
+    }
+
+    if(left === center && center === right && left !== "cherry"){
         return left;
     }
 
@@ -472,55 +778,130 @@ function judgeLine(line){
 
 }
 
+function drawInternalOutcome(){
+
+    const totalWeight = outcomeLottery.reduce((total,outcome) => total + outcome.weight,0);
+    let randomValue = Math.random() * totalWeight;
+
+    for(const outcome of outcomeLottery){
+
+        randomValue -= outcome.weight;
+
+        if(randomValue < 0){
+            return outcome.result;
+        }
+
+    }
+
+    return "lose";
+
+}
+
+function findResult(lines,targetResults){
+
+    for(const line of lines){
+
+        const lineResult = judgeLine(line);
+
+        if(targetResults.includes(lineResult)){
+            return lineResult;
+        }
+
+    }
+
+    return "lose";
+
+}
+
+function startBonusTime(type){
+
+    bonusMode = type;
+    bonusRemainingPayout = payouts[type];
+    pendingBonus = null;
+    currentOutcome = "grape";
+
+    triggerBonusEffects();
+
+}
+
+function finishBonusTime(){
+
+    const finishedBonus = bonusMode;
+
+    bonusMode = null;
+    bonusRemainingPayout = 0;
+    currentOutcome = "lose";
+    pendingBonus = null;
+
+    clearBonusEffects();
+    clearPekari();
+
+    showResultText((finishedBonus === "big" ? "BIG" : "REG") + " 終了");
+
+}
+
 function checkResult(){
 
     const lines = getAllLines();
-
+    const outcome = currentOutcome || "lose";
+    const matchedResult = findResult(lines,[outcome]);
     let result = "lose";
 
-    for(const line of lines){
-        if(judgeLine(line) === "big"){
-            result = "big";
-            break;
-        }
-    }
-
-    if(result === "lose"){
-        for(const line of lines){
-            if(judgeLine(line) === "reg"){
-                result = "reg";
-                break;
-            }
-        }
-    }
-
-    if(result === "lose"){
-        for(const line of lines){
-            const lineResult = judgeLine(line);
-
-            if(lineResult !== "lose"){
-                result = lineResult;
-                break;
-            }
-        }
+    if(matchedResult === outcome){
+        result = outcome;
     }
 
     let payout = 0;
     let message = "ハズレ";
 
+    if(bonusMode){
+
+        if(result === "grape"){
+
+            payout = Math.min(payouts.grape,bonusRemainingPayout);
+            bonusRemainingPayout -= payout;
+            message = "BONUS +" + payout + " 残り" + bonusRemainingPayout;
+
+        }else{
+
+            message = "BONUS 継続";
+
+        }
+
+        renga += payout;
+
+        updateRenga();
+        updateMission();
+        saveGameData();
+        showResultText(message);
+
+        currentBet = 0;
+
+        if(bonusRemainingPayout <= 0){
+            finishBonusTime();
+        }
+
+        if(autoMode){
+            autoTimer = setTimeout(() => {
+                autoPlay();
+            },1400);
+        }
+
+        return;
+
+    }
+
     if(result === "big"){
 
-        payout = payouts.big;
-        message = "BIG BONUS! +" + payout;
+        message = "BIG 入賞";
         bigTotal++;
-        triggerPekari();
+        startBonusTime("big");
 
     }else if(result === "reg"){
 
-        payout = payouts.reg;
-        message = "REG BONUS! +" + payout;
+        message = "REG 入賞";
         regTotal++;
-        triggerPekari();
+        startBonusTime("reg");
 
     }else if(result === "bell"){
 
@@ -548,6 +929,10 @@ function checkResult(){
 
         retryMode = false;
 
+        if(outcome === "big" || outcome === "reg"){
+            message = "ボーナス成立中";
+        }
+
     }
 
     renga += payout;
@@ -559,6 +944,9 @@ function checkResult(){
     showResultText(message);
 
     currentBet = 0;
+    currentOutcome = bonusMode
+        ? "grape"
+        : pendingBonus || "lose";
 
     if(autoMode){
         autoTimer = setTimeout(() => {
@@ -574,17 +962,23 @@ function startSpin(){
         return;
     }
 
-    if(!retryMode && currentBet === 0){
+    if(!bonusMode && !retryMode && currentBet === 0){
         showResultText("BETしてね");
         return;
     }
 
-    if(!retryMode && renga < currentBet){
+    if(!bonusMode && !retryMode && renga < currentBet){
         showResultText("レンガ不足");
         return;
     }
 
-    if(retryMode){
+    if(bonusMode){
+
+        currentOutcome = "grape";
+        triggerBonusEffects();
+        showResultText("BONUS");
+
+    }else if(retryMode){
 
         showResultText("リトライ");
 
@@ -598,6 +992,23 @@ function startSpin(){
     retryMode = false;
 
     gameCount++;
+
+    if(bonusMode){
+        currentOutcome = "grape";
+    }else if(pendingBonus){
+        currentOutcome = pendingBonus;
+        triggerPekari();
+    }else{
+        currentOutcome = drawInternalOutcome();
+
+        if(currentOutcome === "big" || currentOutcome === "reg"){
+            pendingBonus = currentOutcome;
+            triggerPekari();
+        }else{
+            clearPekari();
+        }
+    }
+
     updateMission();
     saveGameData();
 
@@ -657,13 +1068,13 @@ function autoPlay(){
         return;
     }
 
-    if(!retryMode && renga < AUTO_BET_AMOUNT){
+    if(!bonusMode && !retryMode && renga < AUTO_BET_AMOUNT){
         autoMode = false;
         showResultText("AUTO終了");
         return;
     }
 
-    if(!retryMode){
+    if(!bonusMode && !retryMode){
         currentBet = AUTO_BET_AMOUNT;
     }
 
@@ -714,6 +1125,12 @@ function resetGameData(){
     renga = 1000;
     currentBet = 0;
     retryMode = false;
+    pendingBonus = null;
+    currentOutcome = "lose";
+    bonusMode = null;
+    bonusRemainingPayout = 0;
+    clearBonusEffects();
+    clearPekari();
 
     gameCount = 0;
     bigTotal = 0;
@@ -753,6 +1170,7 @@ function resetGameData(){
 
 loadGameData();
 
+setBackground("normal");
 showReel("reel1");
 showReel("reel2");
 showReel("reel3");
