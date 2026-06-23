@@ -1,5 +1,5 @@
 /* ==========================================
-   フォントと基本設定
+   フォントと基本設定（よりダークに）
    ========================================== */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=DotGothic16&display=swap');
 
@@ -11,50 +11,70 @@
 
 body {
     font-family: 'DotGothic16', sans-serif;
-    background-color: #1a1520; /* 暗い紫（不穏さのベース） */
-    background-image: url('background.png'); /* 後から差し替え可能 */
+    background-color: #0d0914; /* 漆黒に近い不気味な深紫 */
+    background-image: url('background.png'); /* あなたの用意する背景画像が主役になります */
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    color: #fff;
+    color: #e0d5e8;
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
     overflow-x: hidden;
 }
 
 /* ==========================================
+   最上部ステータスバー（追加・改善）
+   ========================================== */
+.top-status-bar {
+    width: 100%;
+    background: rgba(13, 9, 20, 0.85); /* 背景画像の上に馴染む半透明の黒紫 */
+    border-bottom: 3px double #a291f3; /* 毒気のある紫のライン */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 5px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.status-item {
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    letter-spacing: 1px;
+}
+/* 闇に浮かび上がるステータスカラー */
+.debt { color: #ff4d6d; }   /* 警告を連想させるくすんだ赤 */
+.money { color: #73fcd6; }  /* 不気味に光る蛍光ミントグリーン */
+.stress { color: #cf9fff; } /* 狂気のパステルパープル */
+.streak { color: #ffb57d; } /* 焦燥感のあるオレンジ */
+
+/* ==========================================
    不穏・演出用オーバーレイ
    ========================================== */
-/* ストレス値による画面の暗転・歪み効果 */
 #stress-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.9) 100%);
-    opacity: 0; /* JSで動的に変更 */
-    pointer-events: none;
-    z-index: 10;
-    transition: opacity 0.5s ease, filter 0.5s ease;
-}
-
-/* 敗北時の赤フラッシュ */
-#flash-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(255, 0, 50, 0.6);
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.95) 100%);
     opacity: 0;
     pointer-events: none;
-    z-index: 20;
+    z-index: 90;
+    transition: opacity 0.5s ease;
 }
 
-/* フラッシュアニメーションクラス */
+#flash-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(186, 12, 47, 0.5); /* 血のようなどす黒い赤 */
+    opacity: 0;
+    pointer-events: none;
+    z-index: 95;
+}
+
 .flash-animation {
     animation: flashActive 0.4s ease-out;
 }
@@ -64,60 +84,40 @@ body {
 }
 
 /* ==========================================
-   メインレイアウト（レスポンシブ対応）
+   メインゲーム画面（画面全体を主画面に）
    ========================================== */
-.game-container {
-    width: 95%;
+.main-game-screen {
+    width: 100%;
     max-width: 600px;
-    background: rgba(255, 230, 240, 0.85); /* パステルピンク（半透明） */
-    border: 6px double #b19ffb; /* 薄紫の二重線 */
-    border-radius: 20px;
+    margin: 70px auto 20px auto; /* 上部バーを避ける余白 */
     padding: 20px;
-    box-shadow: 0 0 20px rgba(177, 159, 251, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.6);
-    color: #4a3b52; /* 濃い紫の文字 */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     z-index: 5;
-    backdrop-filter: blur(4px);
+    background: rgba(20, 15, 30, 0.6); /* 背景画像が透ける不気味な半透明ブラック */
+    border-left: 2px solid rgba(162, 145, 243, 0.2);
+    border-right: 2px solid rgba(162, 145, 243, 0.2);
 }
 
-/* ヘッダー・ステータス */
 .game-title {
     font-family: 'Cinzel', serif;
     text-align: center;
-    font-size: 2.2rem;
-    color: #ff9ebb; /* パステルピンク */
-    text-shadow: 2px 2px 0px #b19ffb, -1px -1px 0px #fff, 0 0 8px rgba(0,0,0,0.2);
-    margin-bottom: 15px;
-}
-
-.status-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 10px;
-    border-radius: 12px;
-    border: 2px dashed #ffb7ce;
+    font-size: 2.5rem;
+    color: #ffb7ce; /* ダーク可愛いピンク */
+    text-shadow: 0 0 10px rgba(255, 183, 206, 0.6), 3px 3px 0px #4a2a6b;
     margin-bottom: 20px;
-    font-size: 0.95rem;
+    letter-spacing: 2px;
 }
-
-.status-item {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-weight: bold;
-}
-.debt { color: #d63031; grid-column: 1 / 3; text-align: center; border-bottom: 1px solid #ffb7ce; }
-.money { color: #2ecc71; }
-.stress { color: #8e44ad; }
-.streak { color: #e67e22; text-align: right; }
 
 /* ==========================================
-   カードデザイン（めくるアニメーション）
+   カードデザイン（ホバー＆めくるアニメ）
    ========================================== */
 .card-area {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .card-wrapper {
@@ -126,46 +126,46 @@ body {
 
 .card-label {
     font-size: 0.85rem;
-    margin-bottom: 5px;
-    color: #7d6b88;
-    font-weight: bold;
+    margin-bottom: 8px;
+    color: #b19ffb;
+    text-shadow: 1px 1px 2px #000;
 }
 
 .card {
-    width: 100px;
-    height: 150px;
-    background: #fff;
+    width: 110px;
+    height: 165px;
+    background: #1f1929; /* 暗いカード台紙 */
     border: 4px solid #ffb7ce;
     border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: bold;
-    color: #4a3b52;
-    box-shadow: 5px 5px 0px #b19ffb;
-    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: #ffb7ce; /* 文字もパステルピンクに */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,183,206,0.2);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transform-style: preserve-3d;
-    position: relative;
-    cursor: default;
+    cursor: pointer;
 }
 
-/* 改善案：カードのホバー効果（お人形の部屋のような浮遊感） */
+/* ホバー時の呪われた浮遊感 */
 .card:hover {
-    transform: translateY(-5px) rotate(2deg);
+    transform: translateY(-8px) rotate(-3deg);
+    border-color: #a2d2ff;
+    color: #a2d2ff;
+    box-shadow: 0 12px 20px rgba(162, 210, 255, 0.3);
 }
 
-/* 裏面（不気味なパステル） */
+/* 裏面（おもちゃの檻のような不気味なストライプ） */
 .card-back {
-    background: repeating-linear-gradient(45deg, #ffb7ce, #ffb7ce 10px, #b19ffb 10px, #b19ffb 20px);
+    background: repeating-linear-gradient(45deg, #2e1f3c, #2e1f3c 10px, #1c1326 10px, #1c1326 20px);
+    border: 4px solid #b19ffb;
     color: transparent;
-    text-shadow: none;
-    border: 4px solid #fff;
 }
 
-/* カードをめくるアニメーション用クラス */
 .flip-animation {
-    animation: flipCard 0.6s ease-in-out;
+    animation: flipCard 0.5s ease-in-out;
 }
 @keyframes flipCard {
     0% { transform: scale(1) rotateY(0); }
@@ -174,118 +174,126 @@ body {
 }
 
 /* ==========================================
-   メッセージ・操作エリア
+   結果・テキストエリア（狂気テキスト用）
    ========================================== */
 .result-area {
-    background: #4a3b52;
-    color: #fff;
-    padding: 12px;
-    border-radius: 10px;
-    min-height: 55px;
+    background: rgba(13, 9, 20, 0.9);
+    color: #e0d5e8;
+    padding: 15px;
+    border-radius: 8px;
+    min-height: 65px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin-bottom: 20px;
-    border: 2px solid #ffb7ce;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    margin-bottom: 25px;
+    border: 1px solid #4a3b52;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
     font-size: 0.95rem;
+    line-height: 1.4;
 }
 
+/* ==========================================
+   操作エリア
+   ========================================== */
 .bet-input-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.bet-input-wrapper label {
+    font-size: 0.9rem;
+    color: #b19ffb;
 }
 
 .bet-input-wrapper input {
-    width: 100px;
-    padding: 6px;
-    border: 2px solid #b19ffb;
-    border-radius: 8px;
+    width: 120px;
+    padding: 8px;
+    background: #130d1c;
+    border: 2px solid #4a3b52;
+    border-radius: 6px;
     text-align: center;
     font-family: 'DotGothic16', sans-serif;
-    font-size: 1.1rem;
-    color: #4a3b52;
+    font-size: 1.2rem;
+    color: #73fcd6; /* 入力したお金はミントグリーンに光る */
 }
 
 #btn-max {
-    background: #ffb7ce;
-    border: 2px solid #fff;
-    padding: 4px 8px;
-    border-radius: 6px;
+    background: #4a3b52;
+    border: 1px solid #b19ffb;
+    padding: 5px 10px;
+    border-radius: 4px;
     cursor: pointer;
     font-family: 'DotGothic16', sans-serif;
-    color: #fff;
-    text-shadow: 1px 1px 0 #4a3b52;
+    color: #ffb7ce;
 }
+#btn-max:hover { background: #b19ffb; color: #130d1c; }
 
 .action-buttons {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
 }
 
-/* ボタンの基本デザイン（ぬいぐるみ・クッキー風） */
+/* ボタンをシックでダークなゴシック調に */
 .game-btn {
-    padding: 12px 30px;
+    padding: 14px 40px;
     font-size: 1.2rem;
     font-family: 'DotGothic16', sans-serif;
     font-weight: bold;
     border: none;
-    border-radius: 50px; /* 丸みを持たせて可愛く */
+    border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 5px 0px rgba(0,0,0,0.15);
-    transition: all 0.1s ease;
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: all 0.2s ease;
+    color: #fff;
 }
 
-.game-btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 2px 0px rgba(0,0,0,0.15);
-}
+.game-btn:hover { transform: translateY(-2px); }
+.game-btn:active { transform: translateY(1px); }
 
-.high-btn { background: #ff9ebb; border: 3px solid #fff; } /* 水色とピンクの対比 */
-.low-btn { background: #a2d2ff; border: 3px solid #fff; }
-.next-btn { background: #b19ffb; border: 3px solid #fff; width: 80%; margin: 0 auto; display: block;}
+.high-btn { background: #b85776; border: 2px solid #ffb7ce; text-shadow: 0 0 5px #ffb7ce; }
+.low-btn { background: #477299; border: 2px solid #a2d2ff; text-shadow: 0 0 5px #a2d2ff; }
+.next-btn { background: #5d4799; border: 2px solid #b19ffb; width: 100%; }
 
 .hidden { display: none !important; }
 
 /* ==========================================
-   履歴エリア
+   履歴エリア（最下部）
    ========================================== */
 footer {
-    margin-top: 25px;
-    border-top: 2px dashed #b19ffb;
-    padding-top: 15px;
+    margin-top: 30px;
 }
-footer h3 { font-size: 0.9rem; text-align: center; color: #7d6b88; margin-bottom: 8px; }
+.history-title {
+    font-size: 0.85rem;
+    text-align: center;
+    color: #63506d;
+    margin-bottom: 8px;
+}
 .history-log {
-    max-height: 80px;
+    max-height: 90px;
     overflow-y: auto;
     font-size: 0.8rem;
-    color: #63506d;
-    padding: 5px;
-    background: rgba(255,255,255,0.4);
-    border-radius: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    border: 1px solid #2e1f3c;
 }
-.history-item { margin-bottom: 4px; border-bottom: 1px dotted rgba(0,0,0,0.1); }
+.history-item { margin-bottom: 4px; color: #9c8ca6; }
 
 /* ==========================================
-   演出：キラキラ（パーティクル）
+   特殊演出
    ========================================== */
 .sparkle {
     position: fixed;
-    width: 8px;
-    height: 8px;
-    background: #fff;
+    width: 6px; height: 6px;
     border-radius: 50%;
     pointer-events: none;
     z-index: 100;
-    animation: sparkleAnim 1s ease-out forwards;
+    animation: sparkleAnim 1.2s ease-out forwards;
 }
 @keyframes sparkleAnim {
     0% { transform: translate(0, 0) scale(1); opacity: 1; }
@@ -293,41 +301,39 @@ footer h3 { font-size: 0.9rem; text-align: center; color: #7d6b88; margin-bottom
 }
 
 /* ==========================================
-   ゲームオーバー画面（不気味な暗転）
+   ゲームオーバー画面（絶望）
    ========================================== */
 #game-over-screen {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #000;
+    background: #050308;
     z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
 }
-.game-over-content p { color: #ff9ebb; margin-bottom: 20px; font-size: 1.2rem;}
+.game-over-content p { color: #ff4d6d; margin-bottom: 30px; font-size: 1.2rem; letter-spacing: 2px;}
 #btn-restart {
     background: transparent;
-    border: 2px solid #b19ffb;
-    color: #b19ffb;
-    padding: 10px 20px;
+    border: 2px solid #ff4d6d;
+    color: #ff4d6d;
+    padding: 12px 24px;
     font-family: 'DotGothic16', sans-serif;
     cursor: pointer;
     font-size: 1.1rem;
     transition: all 0.3s;
 }
-#btn-restart:hover { background: #b19ffb; color: #000; }
+#btn-restart:hover { background: #ff4d6d; color: #000; box-shadow: 0 0 15px #ff4d6d; }
 
-/* グリッチテキスト効果 */
 .glitch-text {
     font-family: 'Cinzel', serif;
-    font-size: 4rem;
+    font-size: 4.5rem;
     color: #ff003c;
-    letter-spacing: 5px;
-    animation: glitch 1s infinite;
+    animation: glitch 0.3s infinite;
 }
 @keyframes glitch {
-    0% { text-shadow: 2px 2px #b19ffb; }
-    50% { text-shadow: -3px -2px #a2d2ff; }
-    100% { text-shadow: 2px -2px #ffb7ce; }
+    0% { transform: translate(2px, 1px) cubic-bezier(0.1, 0.9, 0.2, 1); text-shadow: 3px 0 #b19ffb; }
+    50% { transform: translate(-1px, -1px); text-shadow: -3px 0 #73fcd6; }
+    100% { transform: translate(1px, 2px); text-shadow: 2px 2px #000; }
 }

@@ -10,15 +10,16 @@
     <div id="stress-overlay"></div>
     <div id="flash-overlay"></div>
 
-    <div class="game-container">
+    <div class="top-status-bar">
+        <div class="status-item debt">借金: <span id="debt-display">100,000,000</span> renga</div>
+        <div class="status-item money">所持金: <span id="money-display">50,000</span> renga</div>
+        <div class="status-item stress">ストレス: <span id="stress-display">0</span>%</div>
+        <div class="status-item streak">連勝: <span id="streak-display">0</span></div>
+    </div>
+
+    <div class="main-game-screen">
         <header>
             <h1 class="game-title">Small House</h1>
-            <div class="status-container">
-                <div class="status-item debt">借金: <span id="debt-display">100,000,000</span> renga</div>
-                <div class="status-item money">所持金: <span id="money-display">50,000</span> renga</div>
-                <div class="status-item stress">ストレス: <span id="stress-display">0</span>%</div>
-                <div class="status-item streak">連勝数: <span id="streak-display">0</span></div>
-            </div>
         </header>
 
         <main>
@@ -39,7 +40,7 @@
 
             <div class="control-area">
                 <div class="bet-input-wrapper">
-                    <label for="bet-input">賭け金 (renga):</label>
+                    <label for="bet-input">BET金額:</label>
                     <input type="number" id="bet-input" value="1000" min="1">
                     <button id="btn-max">MAX</button>
                 </div>
@@ -47,12 +48,12 @@
                     <button id="btn-high" class="game-btn high-btn">▲ HIGH</button>
                     <button id="btn-low" class="game-btn low-btn">▼ LOW</button>
                 </div>
-                <button id="btn-next-round" class="game-btn next-btn hidden">次のラウンドへ</button>
+                <button id="btn-next-round" class="game-btn next-btn hidden">次のカードを配る</button>
             </div>
         </main>
 
         <footer>
-            <h3>ーー 記憶の断片（勝敗履歴） ーー</h3>
+            <div class="history-title">ーー 記憶の断片（勝敗履歴） ーー</div>
             <div id="history-log" class="history-log"></div>
         </footer>
     </div>
