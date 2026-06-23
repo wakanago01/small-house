@@ -16,19 +16,39 @@ const startBtn = document.getElementById("startBtn");
 const autoBtn = document.getElementById("autoBtn");
 const missionBtn = document.getElementById("missionBtn");
 const settingBtn = document.getElementById("settingBtn");
+const startScreen = document.getElementById("startScreen");
+const openGameBtn = document.getElementById("openGameBtn");
+const autoStartBtn = document.getElementById("autoStartBtn");
+const startResetBtn = document.getElementById("startResetBtn");
+const startRengaText = document.getElementById("startRengaText");
+const startGameCountText = document.getElementById("startGameCountText");
+const startBonusCountText = document.getElementById("startBonusCountText");
 
 const rengaText = document.getElementById("rengaText");
+const creditMeter = document.getElementById("creditMeter");
+const countMeter = document.getElementById("countMeter");
+const payoutMeter = document.getElementById("payoutMeter");
 const missionArea = document.getElementById("missionArea");
-const backgroundImage = document.getElementById("background");
 const starRain = document.getElementById("starRain");
 
 const SAVE_KEY = "smallHouseSlotData";
+const SAVE_VERSION = 2;
 const AUTO_BET_AMOUNT = 3;
-
-const backgroundImages = {
-    normal:"../image/background.png",
-    peka:"../image/background_peka.png",
-    bonus:"../image/background_bounus.png"
+const DEFAULT_GAME_DATA = {
+    renga:1000,
+    gameCount:0,
+    bigTotal:0,
+    regTotal:0,
+    grapeTotal:0,
+    retryMode:false,
+    pendingBonus:null,
+    bonusMode:null,
+    bonusRemainingPayout:0,
+    reelPositions:{
+        reel1:0,
+        reel2:0,
+        reel3:0
+    }
 };
 
 const symbolImages = {
@@ -43,7 +63,7 @@ const symbolImages = {
 const reelStrips = {
     reel1:["seven","grape","bell","cherry","bar","rabbit","grape","bell","grape","bell"],
     reel2:["grape","seven","cherry","bell","rabbit","bar","grape","bell","grape","rabbit"],
-    reel3:["bell","grape","seven","rabbit","bar","cherry","grape","bell","grape","rabbit"]
+    reel3:["bell","grape","seven","bar","rabbit","cherry","grape","bell","grape","rabbit"]
 };
 
 const VISIBLE_SYMBOL_COUNT = 3;
@@ -54,13 +74,13 @@ const REEL_SNAP_DURATION = 120;
 const MAX_SLIP_SYMBOLS = 9;
 
 const outcomeLottery = [
-    {result:"big", weight:4},
-    {result:"reg", weight:3},
+    {result:"big", weight:12},
+    {result:"reg", weight:8},
     {result:"bell", weight:85},
-    {result:"grape", weight:140},
+    {result:"grape", weight:145},
     {result:"cherry", weight:35},
     {result:"rabbit", weight:25},
-    {result:"lose", weight:708}
+    {result:"lose", weight:690}
 ];
 
 const payouts = {
@@ -84,6 +104,7 @@ let gameCount = 0;
 let bigTotal = 0;
 let regTotal = 0;
 let grapeTotal = 0;
+let lastPayout = 0;
 
 let autoMode = false;
 let autoTimer = null;
@@ -114,18 +135,43 @@ let reelStopped = {
 
 let isSpinning = false;
 let stopCount = 0;
+let isStartScreenOpen = true;
 
 function saveGameData(){
 
     const data = {
+        version:SAVE_VERSION,
         renga:renga,
         gameCount:gameCount,
         bigTotal:bigTotal,
         regTotal:regTotal,
-        grapeTotal:grapeTotal
+        grapeTotal:grapeTotal,
+        retryMode:retryMode,
+        pendingBonus:pendingBonus,
+        bonusMode:bonusMode,
+        bonusRemainingPayout:bonusRemainingPayout,
+        reelPositions:{...reelPositions}
     };
 
     localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+
+}
+
+function getNumber(value,defaultValue){
+
+    return Number.isFinite(value) ? value : defaultValue;
+
+}
+
+function getBoolean(value,defaultValue){
+
+    return typeof value === "boolean" ? value : defaultValue;
+
+}
+
+function getBonusType(value){
+
+    return value === "big" || value === "reg" ? value : null;
 
 }
 
@@ -137,19 +183,126 @@ function loadGameData(){
         return;
     }
 
-    const data = JSON.parse(savedData);
+    try{
 
-    renga = data.renga ?? 1000;
-    gameCount = data.gameCount ?? 0;
-    bigTotal = data.bigTotal ?? 0;
-    regTotal = data.regTotal ?? 0;
-    grapeTotal = data.grapeTotal ?? 0;
+        const data = JSON.parse(savedData);
+        const savedReelPositions = data.reelPositions || DEFAULT_GAME_DATA.reelPositions;
+
+        renga = getNumber(data.renga,DEFAULT_GAME_DATA.renga);
+        gameCount = getNumber(data.gameCount,DEFAULT_GAME_DATA.gameCount);
+        bigTotal = getNumber(data.bigTotal,DEFAULT_GAME_DATA.bigTotal);
+        regTotal = getNumber(data.regTotal,DEFAULT_GAME_DATA.regTotal);
+        grapeTotal = getNumber(data.grapeTotal,DEFAULT_GAME_DATA.grapeTotal);
+        retryMode = getBoolean(data.retryMode,DEFAULT_GAME_DATA.retryMode);
+        pendingBonus = getBonusType(data.pendingBonus);
+        bonusMode = getBonusType(data.bonusMode);
+        bonusRemainingPayout = getNumber(data.bonusRemainingPayout,DEFAULT_GAME_DATA.bonusRemainingPayout);
+        reelPositions = {
+            reel1:getNumber(savedReelPositions.reel1,DEFAULT_GAME_DATA.reelPositions.reel1),
+            reel2:getNumber(savedReelPositions.reel2,DEFAULT_GAME_DATA.reelPositions.reel2),
+            reel3:getNumber(savedReelPositions.reel3,DEFAULT_GAME_DATA.reelPositions.reel3)
+        };
+
+        if(bonusMode && bonusRemainingPayout <= 0){
+            bonusRemainingPayout = payouts[bonusMode];
+        }
+
+        currentOutcome = bonusMode ? "grape" : pendingBonus || "lose";
+
+    }catch(error){
+
+        localStorage.removeItem(SAVE_KEY);
+
+    }
+
+}
+
+function restoreSavedEffects(){
+
+    if(bonusMode){
+        triggerBonusEffects();
+        return;
+    }
+
+    if(pendingBonus){
+        triggerPekari();
+        return;
+    }
+
+    clearGameEffects();
 
 }
 
 function updateRenga(){
 
-    rengaText.textContent = renga;
+    rengaText.textContent = renga + " renga";
+    updateMachineMeters();
+
+}
+
+function updateMachineMeters(){
+
+    renderSevenSegmentNumber(creditMeter,renga);
+    renderSevenSegmentNumber(countMeter,gameCount);
+    renderSevenSegmentNumber(payoutMeter,lastPayout);
+
+}
+
+function renderSevenSegmentNumber(container,value){
+
+    const digitSegments = {
+        "0":["a","b","c","d","e","f"],
+        "1":["b","c"],
+        "2":["a","b","g","e","d"],
+        "3":["a","b","c","d","g"],
+        "4":["f","g","b","c"],
+        "5":["a","f","g","c","d"],
+        "6":["a","f","e","d","c","g"],
+        "7":["a","b","c"],
+        "8":["a","b","c","d","e","f","g"],
+        "9":["a","b","c","d","f","g"]
+    };
+    const segmentNames = ["a","b","c","d","e","f","g"];
+    const text = String(Math.max(0,Math.floor(value)));
+
+    container.textContent = "";
+    container.setAttribute("aria-label",text);
+
+    for(const char of text){
+
+        const digit = document.createElement("span");
+        digit.className = "segDigit";
+
+        const activeSegments = digitSegments[char] || [];
+
+        for(const segmentName of segmentNames){
+
+            const segment = document.createElement("span");
+            segment.className = activeSegments.includes(segmentName)
+                ? "seg seg-" + segmentName + " on"
+                : "seg seg-" + segmentName;
+            digit.appendChild(segment);
+
+        }
+
+        container.appendChild(digit);
+
+    }
+
+}
+
+function updateStartScreenStats(){
+
+    startRengaText.textContent = renga;
+    startGameCountText.textContent = gameCount;
+    startBonusCountText.textContent = bigTotal + regTotal;
+
+}
+
+function closeStartScreen(){
+
+    isStartScreenOpen = false;
+    startScreen.classList.add("hidden");
 
 }
 
@@ -214,28 +367,22 @@ function showResultText(text){
 
 }
 
-function setBackground(mode){
-
-    backgroundImage.src = backgroundImages[mode] || backgroundImages.normal;
-
-}
-
 function setupStarRain(){
 
     if(!starRain || starRain.children.length > 0){
         return;
     }
 
-    for(let i=0;i<24;i++){
+    for(let i=0;i<72;i++){
 
         const star = document.createElement("span");
         star.className = "fallingStar";
         star.style.left = (8 + Math.random() * 86) + "%";
-        star.style.animationDelay = (-Math.random() * 7).toFixed(2) + "s";
-        star.style.animationDuration = (5 + Math.random() * 4).toFixed(2) + "s";
-        star.style.opacity = (0.45 + Math.random() * 0.45).toFixed(2);
+        star.style.animationDelay = (-Math.random() * 8).toFixed(2) + "s";
+        star.style.animationDuration = (3.2 + Math.random() * 4.8).toFixed(2) + "s";
+        star.style.opacity = (0.38 + Math.random() * 0.6).toFixed(2);
 
-        const size = (0.22 + Math.random() * 0.42).toFixed(2) + "vw";
+        const size = (0.18 + Math.random() * 0.58).toFixed(2) + "vw";
         star.style.width = size;
         star.style.height = size;
 
@@ -252,9 +399,19 @@ function triggerPekari(){
 
     game.classList.add("pekariGlow");
     game.classList.remove("bonusGlow");
-    setBackground("peka");
     pekariText.classList.add("on");
     pekariText.textContent = "CHANCE";
+
+}
+
+function clearGameEffects(){
+
+    const game = document.getElementById("game");
+    const pekariText = document.getElementById("pekariText");
+
+    game.classList.remove("pekariGlow");
+    game.classList.remove("bonusGlow");
+    pekariText.classList.remove("on");
 
 }
 
@@ -265,7 +422,6 @@ function clearPekari(){
 
     game.classList.remove("pekariGlow");
     pekariText.classList.remove("on");
-    setBackground("normal");
 
 }
 
@@ -277,7 +433,6 @@ function triggerBonusEffects(){
     setupStarRain();
     game.classList.add("bonusGlow");
     game.classList.remove("pekariGlow");
-    setBackground("bonus");
     pekariText.classList.remove("on");
 
 }
@@ -287,7 +442,10 @@ function clearBonusEffects(){
     const game = document.getElementById("game");
 
     game.classList.remove("bonusGlow");
-    setBackground(pendingBonus ? "peka" : "normal");
+
+    if(pendingBonus){
+        triggerPekari();
+    }
 
 }
 
@@ -545,6 +703,10 @@ function chooseStopChoice(reelId,choices){
     const outcome = currentOutcome || "lose";
     let bestFallback = choices[0];
     let bestFallbackScore = Infinity;
+
+    if(pendingBonus && !bonusMode){
+        return choices[0];
+    }
 
     for(const choice of choices){
 
@@ -836,14 +998,13 @@ function finishBonusTime(){
     clearBonusEffects();
     clearPekari();
 
-    showResultText((finishedBonus === "big" ? "BIG" : "REG") + " 終了");
-
 }
 
 function checkResult(){
 
     const lines = getAllLines();
     const outcome = currentOutcome || "lose";
+    const bonusResult = findResult(lines,["big","reg"]);
     const matchedResult = findResult(lines,[outcome]);
     let result = "lose";
 
@@ -869,12 +1030,11 @@ function checkResult(){
         }
 
         renga += payout;
+        lastPayout = payout;
 
         updateRenga();
         updateMission();
         saveGameData();
-        showResultText(message);
-
         currentBet = 0;
 
         if(bonusRemainingPayout <= 0){
@@ -888,6 +1048,20 @@ function checkResult(){
         }
 
         return;
+
+    }
+
+    if(pendingBonus){
+
+        if(bonusResult === "big" || bonusResult === "reg"){
+
+            result = bonusResult;
+
+        }else{
+
+            result = findResult(lines,["bell","grape","cherry","rabbit"]);
+
+        }
 
     }
 
@@ -936,12 +1110,11 @@ function checkResult(){
     }
 
     renga += payout;
+    lastPayout = payout;
 
     updateRenga();
     updateMission();
     saveGameData();
-
-    showResultText(message);
 
     currentBet = 0;
     currentOutcome = bonusMode
@@ -992,11 +1165,12 @@ function startSpin(){
     retryMode = false;
 
     gameCount++;
+    lastPayout = 0;
 
     if(bonusMode){
         currentOutcome = "grape";
     }else if(pendingBonus){
-        currentOutcome = pendingBonus;
+        currentOutcome = "lose";
         triggerPekari();
     }else{
         currentOutcome = drawInternalOutcome();
@@ -1010,6 +1184,7 @@ function startSpin(){
     }
 
     updateMission();
+    updateMachineMeters();
     saveGameData();
 
     isSpinning = true;
@@ -1114,7 +1289,7 @@ function toggleAuto(){
 
 function resetGameData(){
 
-    const ok = confirm("レンガ・回転数・BIG・REG・ぶどう確率をリセットしますか？");
+    const ok = confirm("レンガ・回転数・BIG・REG・ぶどう確率・ボーナス状態・リール位置をリセットしますか？");
 
     if(!ok){
         return;
@@ -1136,6 +1311,8 @@ function resetGameData(){
     bigTotal = 0;
     regTotal = 0;
     grapeTotal = 0;
+    lastPayout = 0;
+    reelPositions = {...DEFAULT_GAME_DATA.reelPositions};
 
     autoMode = false;
     clearTimeout(autoTimer);
@@ -1160,8 +1337,13 @@ function resetGameData(){
     isSpinning = false;
     stopCount = 0;
 
+    showReel("reel1");
+    showReel("reel2");
+    showReel("reel3");
     updateRenga();
     updateMission();
+    updateMachineMeters();
+    updateStartScreenStats();
     saveGameData();
 
     showResultText("データリセット");
@@ -1170,12 +1352,14 @@ function resetGameData(){
 
 loadGameData();
 
-setBackground("normal");
+restoreSavedEffects();
 showReel("reel1");
 showReel("reel2");
 showReel("reel3");
 updateRenga();
 updateMission();
+updateMachineMeters();
+updateStartScreenStats();
 
 function setButton(button,name,action){
 
@@ -1227,7 +1411,35 @@ setButton(settingBtn,"SETTING",() => {
     resetGameData();
 });
 
+setButton(openGameBtn,"START",() => {
+    closeStartScreen();
+});
+
+setButton(autoStartBtn,"AUTO START",() => {
+    closeStartScreen();
+
+    if(!autoMode){
+        toggleAuto();
+    }
+
+});
+
+setButton(startResetBtn,"RESET DATA",() => {
+    resetGameData();
+});
+
 document.addEventListener("keydown",(e)=>{
+
+    if(isStartScreenOpen){
+
+        if(e.code === "Enter" || e.code === "Space"){
+            e.preventDefault();
+            openGameBtn.click();
+        }
+
+        return;
+
+    }
 
     if(e.key==="1") bet1.click();
     if(e.key==="2") bet2.click();

@@ -12,9 +12,19 @@
 
     <div id="game">
 
-        <img src="../image/background.png" id="background">
+        <img src="../image/background.png" id="background" class="gameLayer">
+        <img src="../image/peka.png" id="pekaLamp" class="gameLayer effectLayer">
+        <img src="../image/bounus.png" id="bonusLamp" class="gameLayer effectLayer">
+        <img src="../image/slotdai.png" id="slotMachine" class="gameLayer">
+        <img src="../image/kanban.png" id="kanbanPanel" class="gameLayer">
+        <img src="../image/haitouhyou.PNG" id="payoutTable" class="gameLayer">
+        <img src="../image/syojirenga.png" id="rengaPanel" class="gameLayer">
 
-        <div id="rengaText">1000</div>
+        <div class="machineMeter" id="creditMeter">1000</div>
+        <div class="machineMeter" id="countMeter">0</div>
+        <div class="machineMeter" id="payoutMeter">0</div>
+
+        <div id="rengaText">1000 renga</div>
 
         <div id="reelArea">
 
@@ -39,6 +49,61 @@
         <button class="hotspot" id="autoBtn"></button>
         <button class="hotspot" id="missionBtn"></button>
         <button class="hotspot" id="settingBtn"></button>
+
+        <div id="startScreen" class="startScreen">
+
+            <div class="startPanel">
+
+                <p class="startEyebrow">Small House Presents</p>
+                <h1>Small House Slot</h1>
+
+                <div class="startStats">
+                    <div>
+                        <span>レンガ</span>
+                        <strong id="startRengaText">1000</strong>
+                    </div>
+                    <div>
+                        <span>回転数</span>
+                        <strong id="startGameCountText">0</strong>
+                    </div>
+                    <div>
+                        <span>BONUS</span>
+                        <strong id="startBonusCountText">0</strong>
+                    </div>
+                </div>
+
+                <div class="ruleGrid">
+                    <section>
+                        <h2>基本操作</h2>
+                        <p>1BET・2BET・3BET・MAX BETで賭け数を選び、STARTでリールを回します。回転中のSTARTで左から順にリールを止めます。</p>
+                    </section>
+                    <section>
+                        <h2>当たり</h2>
+                        <p>同じ図柄が一直線にそろうと配当です。7・7・7はBIG、7・7・BARはREG。CHANCE点灯中はボーナス成立中で、そろえるまで状態が続きます。</p>
+                    </section>
+                    <section>
+                        <h2>特殊役</h2>
+                        <p>うさぎはリトライ、ぶどうはカウント対象です。BONUS中はBET不要で、STARTだけで残り払い出しがなくなるまで続きます。</p>
+                    </section>
+                    <section>
+                        <h2>キーボード</h2>
+                        <p>1・2・3でBET、MでMAX BET、SpaceでSTART/STOP、AでAUTOです。開始画面ではEnterまたはSpaceでゲームへ進みます。</p>
+                    </section>
+                    <section>
+                        <h2>表示</h2>
+                        <p>CREDITは所持レンガ、COUNTは回転数、PAYOUTは直近の払い出しです。所持レンガ表示にも現在の残数が出ます。</p>
+                    </section>
+                </div>
+
+                <div class="startActions">
+                    <button type="button" class="startButton primary" id="openGameBtn">START</button>
+                    <button type="button" class="startButton" id="autoStartBtn">AUTO START</button>
+                    <button type="button" class="startButton subtle" id="startResetBtn">RESET DATA</button>
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
