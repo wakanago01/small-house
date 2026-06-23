@@ -1,87 +1,72 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Small House - High & Low</title>
-
-<link rel="stylesheet" href="style.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small House - High & Low</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div id="stress-overlay"></div>
+    <div id="flash-overlay"></div>
 
-<div class="overlay">
+    <div class="game-container">
+        <header>
+            <h1 class="game-title">Small House</h1>
+            <div class="status-container">
+                <div class="status-item debt">借金: <span id="debt-display">100,000,000</span> renga</div>
+                <div class="status-item money">所持金: <span id="money-display">50,000</span> renga</div>
+                <div class="status-item stress">ストレス: <span id="stress-display">0</span>%</div>
+                <div class="status-item streak">連勝数: <span id="streak-display">0</span></div>
+            </div>
+        </header>
 
-    <div class="panel">
-
-        <h1>🏠 Small House</h1>
-
-        <div class="rabbit">
-            🐰 <span id="rabbitText">
-                こんばんは♪ 今日も返済を頑張ろうね♪
-            </span>
-        </div>
-
-        <div class="status">
-
-            <div>💰 <span id="money">50000</span> renga</div>
-
-            <div>😣 Stress :
-                <span id="stress">0</span>/100
+        <main>
+            <div class="card-area">
+                <div class="card-wrapper">
+                    <p class="card-label">現在のカード</p>
+                    <div class="card" id="current-card">?</div>
+                </div>
+                <div class="card-wrapper">
+                    <p class="card-label">次のカード</p>
+                    <div class="card card-back" id="next-card">?</div>
+                </div>
             </div>
 
-            <div>🔥 Streak :
-                <span id="streak">0</span>
+            <div class="result-area">
+                <p id="message-text">謎の家へようこそ。賭け金を入力して、HIGHかLOWを選べ...</p>
             </div>
 
-        </div>
-
-        <div class="bet-area">
-
-            <button onclick="setBet(100)">100</button>
-            <button onclick="setBet(500)">500</button>
-            <button onclick="setBet(1000)">1000</button>
-            <button onclick="setBet(5000)">5000</button>
-
-        </div>
-
-        <p>現在の賭け金</p>
-        <h2 id="betDisplay">1000</h2>
-
-        <div class="cards">
-
-            <div class="card" id="currentCard"></div>
-
-            <div class="card back" id="nextCard">
-                🏠
+            <div class="control-area">
+                <div class="bet-input-wrapper">
+                    <label for="bet-input">賭け金 (renga):</label>
+                    <input type="number" id="bet-input" value="1000" min="1">
+                    <button id="btn-max">MAX</button>
+                </div>
+                <div class="action-buttons">
+                    <button id="btn-high" class="game-btn high-btn">▲ HIGH</button>
+                    <button id="btn-low" class="game-btn low-btn">▼ LOW</button>
+                </div>
+                <button id="btn-next-round" class="game-btn next-btn hidden">次のラウンドへ</button>
             </div>
+        </main>
 
-        </div>
-
-        <div class="buttons">
-
-            <button class="high"
-                    onclick="play('high')">
-                🌙 HIGH
-            </button>
-
-            <button class="low"
-                    onclick="play('low')">
-                ⭐ LOW
-            </button>
-
-        </div>
-
-        <h2 id="result"></h2>
-
+        <footer>
+            <h3>ーー 記憶の断片（勝敗履歴） ーー</h3>
+            <div id="history-log" class="history-log"></div>
+        </footer>
     </div>
 
-</div>
+    <div id="game-over-screen" class="hidden">
+        <div class="game-over-content">
+            <h2 class="glitch-text">GAME OVER</h2>
+            <p>あなたは「Small House」の底へと沈んでいった...</p>
+            <button id="btn-restart">もう一度やり直す</button>
+        </div>
+    </div>
 
-<script src="script.js"></script>
+    <div id="sparkle-container"></div>
 
+    <script src="script.js"></script>
 </body>
 </html>
