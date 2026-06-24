@@ -1,4 +1,9 @@
 // ==========================================
+// 効果音の設定
+// ==========================================
+const flipSound = new Audio('カードをめくる.mp3');
+
+// ==========================================
 // ゲーム状態の管理
 // ==========================================
 let money = 50000;            // 初期所持金
@@ -117,6 +122,12 @@ function play(choice) {
     btnLow.disabled = true;
 
     nextCardValue = getRandomCard();
+    
+    // ---- 🔊 効果音を鳴らす（ここを追加しました） ----
+    flipSound.currentTime = 0; 
+    flipSound.play();
+    // ----------------------------------------------
+
     nextCardEl.classList.add('flip-animation');
     
     setTimeout(() => {
