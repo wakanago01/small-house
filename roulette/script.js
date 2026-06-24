@@ -13,10 +13,52 @@ const totalBetEl=document.getElementById('totalBet');
 const topTotalBetEl=document.getElementById('topTotalBet');
 const resultBadge=document.getElementById('resultBadge');
 const customBet=document.getElementById('customBet');
-let balance=50000, chip=100, rotation=0, spinning=false, bets={}, lastBets=[], history=[], total=0, redHits=0, blackHits=0;
+const hungerFill=document.getElementById('hungerFill');
+const stressFill=document.getElementById('stressFill');
+const hungerValue=document.getElementById('hungerValue');
+const stressValue=document.getElementById('stressValue');
+const debtRemainingEl=document.getElementById('debtRemaining');
+const survivalDayEl=document.getElementById('survivalDay');
+const menuButton=document.querySelector('.menu-button');
+const gameWrap=document.querySelector('.game-wrap');
+const menuOverlay=document.querySelector('.menu-overlay');
+const sideMenu=document.querySelector('.side-menu');
+const rulesBtn=document.getElementById('rulesBtn');
+const menuCloseBtn=document.getElementById('menuCloseBtn');
+const rulesPanel=document.querySelector('.rules-panel');
+const rulesCloseBtn=document.getElementById('rulesCloseBtn');
+const HOME_STORAGE_KEY='small_house_game_state';
+const HOME_DEFAULT_STATE={coins:1000,debt:100000000,remainingDebt:100000000,hunger:100,stress:20,days:1};
+let homeState=loadHomeState();
+let balance=safeNumber(homeState.coins,HOME_DEFAULT_STATE.coins), chip=100, rotation=0, spinning=false, bets={}, lastBets=[], history=[], total=0, redHits=0, blackHits=0;
 function money(n){return n.toLocaleString('ja-JP')}
 function compactMoney(n){return n>=10000?Math.round(n/1000)+'K':money(n)}
 function colorOf(n){return n===0?'green':redSet.has(n)?'red':'black'}
+function safeNumber(value,fallback){const n=Number(value);return Number.isFinite(n)?n:fallback}
+function percent(value,fallback){return Math.max(0,Math.min(100,safeNumber(value,fallback)))}
+function loadHomeState(){
+  try{
+    const saved=localStorage.getItem(HOME_STORAGE_KEY);
+    if(!saved)return {...HOME_DEFAULT_STATE};
+    return {...HOME_DEFAULT_STATE,...JSON.parse(saved)};
+  }catch(e){
+    return {...HOME_DEFAULT_STATE};
+  }
+}
+function saveHomeCoins(){
+  homeState={...HOME_DEFAULT_STATE,...homeState,coins:balance};
+  try{localStorage.setItem(HOME_STORAGE_KEY,JSON.stringify(homeState));}catch(e){}
+}
+function updateHomeHud(){
+  const hunger=percent(homeState.hunger,HOME_DEFAULT_STATE.hunger);
+  const stress=percent(homeState.stress,HOME_DEFAULT_STATE.stress);
+  if(hungerFill)hungerFill.style.width=hunger+'%';
+  if(stressFill)stressFill.style.width=stress+'%';
+  if(hungerValue)hungerValue.textContent=Math.round(hunger)+'%';
+  if(stressValue)stressValue.textContent=Math.round(stress)+'%';
+  if(debtRemainingEl)debtRemainingEl.textContent=money(safeNumber(homeState.remainingDebt,HOME_DEFAULT_STATE.remainingDebt));
+  if(survivalDayEl)survivalDayEl.textContent='DAY '+Math.max(1,Math.round(safeNumber(homeState.days,HOME_DEFAULT_STATE.days)));
+}
 function drawWheel(){
   const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,r=w*.46,inner=w*.18,step=Math.PI*2/rouletteNumbers.length;
   ctx.clearRect(0,0,w,h);ctx.save();ctx.translate(cx,cy);ctx.rotate(rotation);
@@ -53,7 +95,7 @@ function buildGrid(){
 function betAmount(){return Math.max(1,Number(customBet.value)||chip)}
 function placeBet(type,value,el){if(spinning)return;const amt=betAmount();if(balance<amt){msg('コインが足りません','lose');return}const label=el.dataset.label||el.textContent.trim();balance-=amt;const key=type+':'+value;bets[key]=(bets[key]||0)+amt;lastBets.push({key,amt});updateBalance();renderBetAmounts();updateTotalBet();msg(`${label} に ${money(amt)} ベットしました`)}
 function renderBetAmounts(){document.querySelectorAll('.bet').forEach(b=>{b.classList.remove('active');b.querySelector('.amount')?.remove();const key=b.dataset.type+':'+b.dataset.value;if(bets[key]){b.classList.add('active');const s=document.createElement('span');s.className='amount';s.textContent=compactMoney(bets[key]);b.appendChild(s)}})}
-function updateBalance(){balanceEl.textContent=money(balance)}
+function updateBalance(){balanceEl.textContent=money(balance);saveHomeCoins()}
 function totalBet(){return Object.values(bets).reduce((a,b)=>a+b,0)}
 function updateTotalBet(){const total=money(totalBet());totalBetEl.textContent=total;if(topTotalBetEl)topTotalBetEl.textContent=total}
 function setLocked(on){document.querySelectorAll('button,input').forEach(el=>{el.disabled=on});}
@@ -62,11 +104,24 @@ function showResult(text,cls){resultBadge.textContent=text;resultBadge.className
 function msg(t,cls='',html=false){if(html)messageEl.innerHTML=t;else messageEl.textContent=t;messageEl.parentElement.className='message panel '+cls}
 function payout(num){let win=0;Object.entries(bets).forEach(([key,amt])=>{const [type,val]=key.split(':');const n=Number(num);if(type==='number'&&Number(val)===n)win+=amt*36;if(type==='color'&&colorOf(n)===val)win+=amt*2;if(type==='even'&&n!==0&&n%2===0)win+=amt*2;if(type==='odd'&&n%2===1)win+=amt*2;if(type==='low'&&n>=1&&n<=18)win+=amt*2;if(type==='high'&&n>=19&&n<=36)win+=amt*2;if(type==='dozen'&&Math.ceil(n/12)===Number(val))win+=amt*3;if(type==='column'&&n!==0&&((n-1)%3)+1===Number(val))win+=amt*3;});return win}
 function spin(){if(spinning)return;if(Object.keys(bets).length===0){msg('先にベットしてください','lose');return}spinning=true;setLocked(true);resultBadge.classList.add('hidden');msg('ルーレット回転中...') ;const result=rouletteNumbers[Math.floor(Math.random()*rouletteNumbers.length)];const idx=rouletteNumbers.indexOf(result);const step=Math.PI*2/rouletteNumbers.length;const target=-(idx*step);const start=rotation;const end=target+Math.PI*2*(6+Math.floor(Math.random()*3));const duration=3600;const t0=performance.now();function anim(t){const p=Math.min(1,(t-t0)/duration);const ease=1-Math.pow(1-p,4);rotation=start+(end-start)*ease;drawWheel();if(p<1)requestAnimationFrame(anim);else finish(result)}requestAnimationFrame(anim)}
-function finish(result){rotation=((rotation%(Math.PI*2))+Math.PI*2)%(Math.PI*2);const win=payout(result);const before=balance;balance+=win;total++;if(colorOf(result)==='red')redHits++;if(colorOf(result)==='black')blackHits++;history.unshift(result);history=history.slice(0,5);bets={};lastBets=[];spinning=false;setLocked(false);animateBalance(before,balance);renderBetAmounts();updateTotalBet();renderHistory();renderStats();showResult(win?`当選 ${result} / +${money(win)} COINS`:`当選 ${result} / 次こそ`,win?'win':'lose');msg(win?`当選番号 <span class="message-number">${result}</span> / ${money(win)} コイン獲得！`:`当選番号 <span class="message-number">${result}</span> / 次こそ当てましょう`,win?'win':'lose',true)}
+function finish(result){rotation=((rotation%(Math.PI*2))+Math.PI*2)%(Math.PI*2);const win=payout(result);const before=balance;balance+=win;saveHomeCoins();total++;if(colorOf(result)==='red')redHits++;if(colorOf(result)==='black')blackHits++;history.unshift(result);history=history.slice(0,5);bets={};lastBets=[];spinning=false;setLocked(false);animateBalance(before,balance);renderBetAmounts();updateTotalBet();renderHistory();renderStats();showResult(win?`当選 ${result} / +${money(win)} COINS`:`当選 ${result} / 次こそ`,win?'win':'lose');msg(win?`当選番号 <span class="message-number">${result}</span> / ${money(win)} コイン獲得！`:`当選番号 <span class="message-number">${result}</span> / 次こそ当てましょう`,win?'win':'lose',true)}
 function renderHistory(){historyEl.innerHTML='';history.forEach(n=>{const s=document.createElement('span');s.className=colorOf(n);s.textContent=n;historyEl.appendChild(s)})}
 function renderStats(){totalSpinsEl.textContent=total;redRateEl.textContent=total?Math.round(redHits/total*100)+'%':'0%';blackRateEl.textContent=total?Math.round(blackHits/total*100)+'%':'0%'}
 document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');chip=Number(b.dataset.chip)});
 document.getElementById('clearBtn').onclick=()=>{const refund=Object.values(bets).reduce((a,b)=>a+b,0);balance+=refund;bets={};lastBets=[];updateBalance();renderBetAmounts();updateTotalBet();msg('ベットをクリアしました')};
-document.getElementById('backBtn').onclick=()=>{const last=lastBets.pop();if(!last)return;balance+=last.amt;bets[last.key]-=last.amt;if(bets[last.key]<=0)delete bets[last.key];updateBalance();renderBetAmounts();updateTotalBet();msg('ひとつ戻しました')};
+const backBtn=document.getElementById('backBtn');
+if(backBtn)backBtn.onclick=()=>{const last=lastBets.pop();if(!last)return;balance+=last.amt;bets[last.key]-=last.amt;if(bets[last.key]<=0)delete bets[last.key];updateBalance();renderBetAmounts();updateTotalBet();msg('ひとつ戻しました')};
 document.getElementById('spinBtn').onclick=spin;
-buildGrid();drawWheel();updateBalance();updateTotalBet();renderStats();
+function openMenu(){gameWrap?.classList.add('menu-open');gameWrap?.classList.remove('rules-open');menuButton?.setAttribute('aria-expanded','true');sideMenu?.setAttribute('aria-hidden','false');rulesPanel?.setAttribute('aria-hidden','true');}
+function closeMenu(){gameWrap?.classList.remove('menu-open');menuButton?.setAttribute('aria-expanded','false');sideMenu?.setAttribute('aria-hidden','true');}
+function closeRules(){gameWrap?.classList.remove('rules-open');rulesPanel?.setAttribute('aria-hidden','true');}
+function openRules(){closeMenu();gameWrap?.classList.add('rules-open');rulesPanel?.setAttribute('aria-hidden','false');}
+function closeAllMenus(){closeMenu();closeRules();}
+function toggleMenu(){gameWrap?.classList.contains('menu-open')?closeMenu():openMenu()}
+menuButton?.addEventListener('click',toggleMenu);
+menuOverlay?.addEventListener('click',closeAllMenus);
+menuCloseBtn?.addEventListener('click',closeAllMenus);
+rulesCloseBtn?.addEventListener('click',closeRules);
+rulesBtn?.addEventListener('click',openRules);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllMenus();});
+buildGrid();drawWheel();updateHomeHud();updateBalance();updateTotalBet();renderStats();
