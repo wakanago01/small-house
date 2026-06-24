@@ -335,7 +335,7 @@
     <div class="absolute top-[135px] left-[1145px] w-[365px] flex flex-col gap-3">
       
       <div class="bg-white border-2 border-[#ffbdf4] text-[#311c38] p-4 rounded-2xl relative shadow-xl font-bold text-sm leading-relaxed" style="box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
-        <div id="rabbit-bubble-text">今日はいい目が出そうだね♪</div>
+        <div id="rabbit-bubble-text">「ふふ、今日も借金を背負ってサイコロを振るの？滑稽ね♪」</div>
         <div class="absolute -bottom-2.5 right-12 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white"></div>
       </div>
 
@@ -887,7 +887,7 @@
       let isLose = false;
       let multiplier = 0;
       let yakuName = "通常役";
-      let rabbitSpeech = "「通常の目ですね。次はどうなるかしら。」";
+      let rabbitSpeech = "「通常の目ね。次はどうなるかしら（笑）」";
 
       if (strVal === '1-1-1') {
         isWin = true;
@@ -900,13 +900,13 @@
           multiplier = 2.0;
         }
         yakuName = `借金ままれの目 (x${multiplier})`;
-        rabbitSpeech = "「ふふ、借金の重圧が出目を美しく狂わせたのですね。」";
+        rabbitSpeech = "「ピンゾロ！借金まみれのあなたにぴったりの、最高に狂った出目ね！大勝ちおめでとう♪」";
       }
       else if (strVal === '3-3-3') {
         isWin = true;
         multiplier = 3.0;
         yakuName = "クマの目 (x3)";
-        rabbitSpeech = "「僕と同じ色の出目……うれしいな、お祝いをあげましょう。」";
+        rabbitSpeech = "「3-3-3…僕の色のゾロ目だ！嬉しいからコインはあげる。でも、代わりにストレスもたくさんあげるね♪」";
         stress = Math.min(100, stress + (days >= 30 ? 20 : 10));
         if (days >= 30) nightmare = true;
       }
@@ -915,37 +915,37 @@
         if (smokeLevel > 0) {
           multiplier = 4.0;
           yakuName = "煙草目 (x4)";
-          rabbitSpeech = "「紫煙の向こうに、元の家の面影が見えましたね。」";
+          rabbitSpeech = "「紫煙にまみれて5のゾロ目。元の部屋の幻影でも見えた？無駄なあがきだけどね♪」";
         } else {
           multiplier = 3.0;
           yakuName = "ゾロ目 (x3)";
-          rabbitSpeech = "「お見事、ゾロ目ですよ。この調子で借金を減らしてね。」";
+          rabbitSpeech = "「ゾロ目ね、おめでとう。まあ、これくらいで返せる借金じゃないけどね？」";
         }
       }
       else if (strVal === '1-2-3') {
         isLose = true;
         multiplier = 1.5;
         yakuName = "ヒフミ";
-        rabbitSpeech = "「はじまりの数字ですね。早く元の部屋へ戻りましょう。」";
+        rabbitSpeech = "「ウケる、ヒフミ（1-2-3）で即負け！早くその薄汚いコインを差し出しなさいよ♪」";
 
         if (sakeLevel > 0 && Math.random() < 0.10) {
           isLose = false;
           multiplier = 0;
           yakuName = "ヒフミ (酒により無効)";
-          rabbitSpeech = "「ひどく酔っ払っていて、悪い出目を無効化できたようです。」";
+          rabbitSpeech = "「ゲッ、酔っ払いのくせにヒフミを無効化するなんて…運だけは良いのね。」";
         }
       }
       else if (strVal === '4-5-6') {
         isWin = true;
         multiplier = 2.0;
         yakuName = "シゴロ (x2)";
-        rabbitSpeech = "「シゴロ。とても美しい並びですね。感心します。」";
+        rabbitSpeech = "「チッ、シゴロ（4-5-6）ね。たまには良い目も出さないと、遊んでくれないもんね？」";
       }
       else if (sorted[0] === sorted[1] && sorted[1] === sorted[2]) {
         isWin = true;
         multiplier = 3.0;
         yakuName = "ゾロ目 (x3)";
-        rabbitSpeech = "担当「ゾロ目だよ。この流れを逃さないでくださいね。」";
+        rabbitSpeech = "「ゾロ目ね。これで生き延びた気になってるの？勘違いしないでね？」";
       }
       else {
         let matchedPoint = 0;
@@ -957,24 +957,24 @@
             isWin = true;
             multiplier = 1.0;
             yakuName = `通常役 [目:${matchedPoint}]`;
-            rabbitSpeech = "「勝ちましたね。地道に、少しずつ削っていきましょう。」";
+            rabbitSpeech = "「勝ち。まあ地道に小銭を稼ぎなよ。一生終わらない返済だけどね♪」";
           } else {
             isLose = true;
             multiplier = 1.0;
             yakuName = `通常役 [目:${matchedPoint}]`;
-            rabbitSpeech = "「負けだよ。でも、まだまだこれからでしょう？」";
+            rabbitSpeech = "「はい、負けー！あなたのコインが減るのを見るの、本当に最高♪」";
           }
         } else {
           if (Math.random() < 0.5) {
             isWin = true;
             multiplier = 1.0;
             yakuName = "目なし (勝ち)";
-            rabbitSpeech = "「虚空の勝負、今回は滑り込みであなたの勝ちです。」";
+            rabbitSpeech = "「目なしだけどおまけで勝ちにしてあげる。私、優しいでしょ？」";
           } else {
             isLose = true;
             multiplier = 1.0;
             yakuName = "目なし (負け)";
-            rabbitSpeech = "「何もありませんね。すべてが消えていく出目です。」";
+            rabbitSpeech = "「目なしで負け！何もない空っぽな出目、まるであなたの人生ね♪」";
           }
         }
       }
@@ -1089,13 +1089,16 @@
         const win = Math.random() >= 0.50;
         if (win) {
           showSystemMessage("🎉 成功！配当が倍増しました！");
+          document.getElementById('rabbit-bubble-text').innerText = "「えー、倍賭け成功しちゃうんだ？運が良くてつまんないの。」";
           commitResults(lastCalculatedPayout * 2, lastDiceResult, lastYakuName + " [倍賭成功]", 'WIN');
         } else {
           showSystemMessage("💀 失敗...！配当は没収され、ストレスが蓄積しました。");
+          document.getElementById('rabbit-bubble-text').innerText = "「あはは！倍賭け失敗！欲張るから全部失うのよ、ざまあみろ♪」";
           stress = Math.min(100, stress + 15);
           commitResults(0, lastDiceResult, lastYakuName + " [倍賭失敗]", 'LOSE');
         }
       } else {
+        document.getElementById('rabbit-bubble-text').innerText = "「へえ、勝負から逃げるんだ。まあ、賢明な判断ね（笑）」";
         commitResults(lastCalculatedPayout, lastDiceResult, lastYakuName, 'WIN');
       }
     }
@@ -1132,10 +1135,12 @@
         const gift = Math.floor(currentBet * 1.5);
         coins += gift;
         showSystemMessage(`⚖️ 天秤があなたに傾き、${gift.toLocaleString()} renga 獲得しました。`);
+        document.getElementById('rabbit-bubble-text').innerText = "「天秤チャンスで得しちゃったの？どうせ次で吐き出すことになるけど。」";
       } else {
         const penal = Math.floor(currentBet * 1.0);
         coins = Math.max(0, coins - penal);
         showSystemMessage(`⚖️ 天秤は反対側に傾いた。${penal.toLocaleString()} renga を没収されました。`);
+        document.getElementById('rabbit-bubble-text').innerText = "「あはは！天秤はあなたを見捨てたね！没収、没収〜♪」";
       }
       updateUI();
     }
@@ -1144,9 +1149,11 @@
       if (Math.random() < 0.62) {
         sakeLevel += 3; 
         showSystemMessage("🃏 イカサマ成功！次回のダイス目でゾロ目の出現率が急増します。");
+        document.getElementById('rabbit-bubble-text').innerText = "「イカサマ成功？汚い手を使うのが本当にお得意ね。」";
       } else {
         stress = Math.min(100, stress + 20);
         showSystemMessage("🃏 イカサマを見咎められました！クマの不気味な視線にストレスが跳ね上がりました。");
+        document.getElementById('rabbit-bubble-text').innerText = "「あっ、イカサマ見ーっけた！そんな姑息な真似するからストレス溜まるのよ♪」";
       }
       updateUI();
     }
