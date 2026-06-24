@@ -554,25 +554,32 @@
 
     function resetGameEntirely() {
       if (confirm("本当に進行データをすべて初期化して、1日目の最初からやり直しますか？")) {
-        localStorage.clear();
-        location.reload(); // ページをリロードして初期状態へ
+        localStorage.removeItem('small_house_game_state');
+        location.reload();
       }
     }
 
     function loadGame() {
-      if (localStorage.getItem('sh_save_exists')) {
-        coins = parseInt(localStorage.getItem('sh_coins')) || 50000;
-        debt = parseInt(localStorage.getItem('sh_debt')) || INITIAL_DEBT;
-        days = parseInt(localStorage.getItem('sh_days')) || 12;
-        hunger = parseInt(localStorage.getItem('sh_hunger')) || 55;
-        stress = parseInt(localStorage.getItem('sh_stress')) || 32;
-        san = parseInt(localStorage.getItem('sh_san')) || 18;
-        nightmare = localStorage.getItem('sh_nightmare') === 'true';
-        sakeLevel = parseInt(localStorage.getItem('sh_sakeLevel')) || 0;
-        smokeLevel = parseInt(localStorage.getItem('sh_smokeLevel')) || 0;
-        todayProfit = parseInt(localStorage.getItem('sh_todayProfit')) || 0;
-        totalProfit = parseInt(localStorage.getItem('sh_totalProfit')) || 0;
-        showSystemMessage("セーブデータを自動で復元しました。");
+      const SHARED_KEY = 'small_house_game_state';
+      const saved = localStorage.getItem(SHARED_KEY);
+      if (saved) {
+        try {
+          const gs = JSON.parse(saved);
+          coins = gs.coins !== undefined ? gs.coins : 50000;
+          debt = gs.debt !== undefined ? gs.debt : INITIAL_DEBT;
+          days = gs.days !== undefined ? gs.days : 12;
+          hunger = gs.hunger !== undefined ? gs.hunger : 55;
+          stress = gs.stress !== undefined ? gs.stress : 32;
+          san = gs.alcohol !== undefined ? gs.alcohol : 18;
+          nightmare = gs.nightmare || false;
+          sakeLevel = gs.alcohol !== undefined ? gs.alcohol : 0;
+          smokeLevel = gs.cigarette !== undefined ? gs.cigarette : 0;
+          todayProfit = gs.todayProfit || 0;
+          totalProfit = gs.totalProfit || 0;
+          showSystemMessage("セーブデータを自動で復元しました。");
+        } catch (e) {
+          console.error("Failed to parse saved state:", e);
+        }
       } else {
         addHistoryRow("WIN", "4・4・4", "ゾロ目", 3000);
         addHistoryRow("WIN", "6・6・6", "ゾロ目", 3000);
@@ -584,18 +591,24 @@
     }
 
     function saveGame() {
-      localStorage.setItem('sh_save_exists', 'true');
-      localStorage.setItem('sh_coins', coins);
-      localStorage.setItem('sh_debt', debt);
-      localStorage.setItem('sh_days', days);
-      localStorage.setItem('sh_hunger', hunger);
-      localStorage.setItem('sh_stress', stress);
-      localStorage.setItem('sh_san', san);
-      localStorage.setItem('sh_nightmare', nightmare);
-      localStorage.setItem('sh_sakeLevel', sakeLevel);
-      localStorage.setItem('sh_smokeLevel', smokeLevel);
-      localStorage.setItem('sh_todayProfit', todayProfit);
-      localStorage.setItem('sh_totalProfit', totalProfit);
+      const SHARED_KEY = 'small_house_game_state';
+      let gs = {};
+      const existing = localStorage.getItem(SHARED_KEY);
+      if (existing) {
+        try { gs = JSON.parse(existing); } catch(e) {}
+      }
+      gs.coins = coins;
+      gs.debt = debt;
+      gs.remainingDebt = debt;
+      gs.days = days;
+      gs.hunger = hunger;
+      gs.stress = stress;
+      gs.alcohol = san;
+      gs.cigarette = smokeLevel;
+      gs.nightmare = nightmare;
+      gs.todayProfit = todayProfit;
+      gs.totalProfit = totalProfit;
+      localStorage.setItem(SHARED_KEY, JSON.stringify(gs));
     }
 
     function updateUI() {

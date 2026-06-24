@@ -440,9 +440,67 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-window.onload = () => { 
-    loadGameState();
-    updateUI(); 
+/**
+ * Start Screen Logic
+ */
+window.onload = () => {
+    const startOverlay = document.getElementById('start-screen-overlay');
+    const continueBtn = document.getElementById('continue-btn');
+    const newgameBtn = document.getElementById('newgame-btn');
+    const saveInfo = document.getElementById('save-info');
+    const appContainer = document.getElementById('app-container');
+    const bottomNav = document.getElementById('bottom-nav');
+
+    // Hide main UI initially
+    if (appContainer) appContainer.style.display = 'none';
+    if (bottomNav) bottomNav.style.display = 'none';
+
+    // Check for existing save data
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            continueBtn.style.display = 'flex';
+            // Show save summary
+            saveInfo.style.display = 'block';
+            const savedCoins = (parsed.coins || 0).toLocaleString();
+            const savedDays = parsed.days || 1;
+            const savedHunger = Math.round(parsed.hunger || 0);
+            const savedStress = Math.round(parsed.stress || 0);
+            saveInfo.innerHTML = `<span>💰 ${savedCoins} coins</span><span>📅 DAY ${savedDays}</span><span>🍱 Hunger ${savedHunger}%</span><span>🧠 Stress ${savedStress}%</span>`;
+        } catch (e) {
+            continueBtn.style.display = 'none';
+        }
+    }
+
+    function startGame(isNewGame) {
+        if (isNewGame) {
+            localStorage.removeItem(STORAGE_KEY);
+            gameState = { ...INITIAL_STATE };
+        } else {
+            loadGameState();
+        }
+        updateUI();
+
+        // Fade out start screen
+        startOverlay.style.opacity = '0';
+        setTimeout(() => {
+            startOverlay.style.display = 'none';
+            if (appContainer) appContainer.style.display = '';
+            if (bottomNav) bottomNav.style.display = '';
+        }, 600);
+    }
+
+    continueBtn.addEventListener('click', () => startGame(false));
+    newgameBtn.addEventListener('click', () => {
+        if (saved) {
+            if (confirm('セーブデータが存在します。最初から始めると現在のデータは消去されます。よろしいですか？')) {
+                startGame(true);
+            }
+        } else {
+            startGame(true);
+        }
+    });
 };
 
 const style = document.createElement('style');
