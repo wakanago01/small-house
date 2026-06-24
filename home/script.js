@@ -3,6 +3,8 @@
  */
 
 // DOM Elements
+let startScreenShown = false;
+
 const uiElements = {
     coins: document.getElementById('stat-coins'),
     debt: document.getElementById('stat-debt'),
@@ -444,6 +446,37 @@ function showToast(message) {
  * Start Screen Logic
  */
 window.onload = () => {
+    const alreadyStarted =
+        sessionStorage.getItem('small_house_started');
+
+    if (alreadyStarted) {
+
+        loadGameState();
+        updateUI();
+
+        const startOverlay =
+            document.getElementById('start-screen-overlay');
+
+        const appContainer =
+            document.getElementById('app-container');
+
+        const bottomNav =
+            document.getElementById('bottom-nav');
+
+        if(startOverlay){
+            startOverlay.style.display = 'none';
+        }
+
+        if(appContainer){
+            appContainer.style.display = '';
+        }
+
+        if(bottomNav){
+            bottomNav.style.display = '';
+        }
+
+        return;
+    }
     const startOverlay = document.getElementById('start-screen-overlay');
     const continueBtn = document.getElementById('continue-btn');
     const newgameBtn = document.getElementById('newgame-btn');
@@ -467,7 +500,27 @@ window.onload = () => {
             const savedDays = parsed.days || 1;
             const savedHunger = Math.round(parsed.hunger || 0);
             const savedStress = Math.round(parsed.stress || 0);
-            saveInfo.innerHTML = `<span>💰 ${savedCoins} coins</span><span>📅 DAY ${savedDays}</span><span>🍱 Hunger ${savedHunger}%</span><span>🧠 Stress ${savedStress}%</span>`;
+            saveInfo.innerHTML = saveInfo.innerHTML = `
+            <div class="dream-record-title">
+            ✦ Dream Record ✦
+            </div>
+
+            <div class="dream-record-row">
+            DAY ${savedDays}
+            </div>
+
+            <div class="dream-record-row">
+            🍱 Hunger ${savedHunger}%
+            </div>
+
+            <div class="dream-record-row">
+            🧠 Stress ${savedStress}%
+            </div>
+
+            <div class="dream-record-coins">
+            ${savedCoins} Coins
+            </div>
+            `;
         } catch (e) {
             continueBtn.style.display = 'none';
         }
@@ -481,6 +534,11 @@ window.onload = () => {
             loadGameState();
         }
         updateUI();
+
+        sessionStorage.setItem(
+            'small_house_started',
+            'true'
+        );
 
         // Fade out start screen
         startOverlay.style.opacity = '0';
