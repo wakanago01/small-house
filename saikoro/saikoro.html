@@ -203,8 +203,12 @@
 
     </div>
 
-    <div class="absolute top-[135px] left-6 w-[310px] flex flex-col gap-3">
+    <div id="left-panel" class="absolute top-[135px] left-6 w-[310px] flex flex-col gap-3 transition-all duration-300 z-20">
       
+      <!-- 画面外トグルボタン -->
+      <button onclick="toggleLeftPanel()" id="btn-toggle-left" class="absolute -right-7 top-1/2 -translate-y-1/2 w-7 h-20 bg-[#1a0b26]/95 border-2 border-l-0 border-[#ca9ec6]/60 hover:border-[#ffaae9] text-[#cca4ca] hover:text-white rounded-r-lg flex items-center justify-center cursor-pointer transition-all shadow-md z-30" style="backdrop-filter: blur(8px);">
+        <i class="fa-solid fa-angle-left text-sm" id="icon-toggle-left"></i>
+      </button>
       <div class="fancy-panel p-4">
         <h2 class="text-sm font-black text-[#fce3f9] text-center mb-2 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">狂気のチンチロ</h2>
         <p class="text-[12px] leading-relaxed text-[#e2cee0]">
@@ -345,53 +349,63 @@
         <div class="absolute w-60 h-60 bg-[#d06eff]/15 rounded-full blur-2xl animate-pulse"></div>
       </div>
 
-      <div class="fancy-panel p-4">
-        <h2 class="text-sm font-black text-[#fce3f9] text-center mb-3 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">あなたの状態 (影響あり)</h2>
-        <div class="space-y-2 text-[12px]">
-          
-          <div class="flex justify-between items-center">
-            <span class="text-[#eddced]"><i class="fa-solid fa-clover text-[#6eff9e] mr-1.5"></i> 運</span>
-            <span class="text-[#6eff9e] font-black text-sm" id="stat-luck">62%</span>
-            <span class="text-[10px] text-[#cca4ca]">良い目が出やすい！(補正+5%)</span>
-          </div>
+      <!-- 右側のステータス＋特殊効果パネルを格納するスライドコンテナ -->
+      <div id="right-panel" class="relative w-full flex flex-col gap-3 transition-all duration-300 z-20">
+        
+        <!-- 画面外トグルボタン -->
+        <button onclick="toggleRightPanel()" id="btn-toggle-right" class="absolute -left-7 top-1/2 -translate-y-1/2 w-7 h-20 bg-[#1a0b26]/95 border-2 border-r-0 border-[#ca9ec6]/60 hover:border-[#ffaae9] text-[#cca4ca] hover:text-white rounded-l-lg flex items-center justify-center cursor-pointer transition-all shadow-md z-30" style="backdrop-filter: blur(8px);">
+          <i class="fa-solid fa-angle-right text-sm" id="icon-toggle-right"></i>
+        </button>
 
-          <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
-            <span class="text-[#eddced]"><i class="fa-solid fa-cookie text-orange-400 mr-1.5"></i> 空腹</span>
-            <span class="text-orange-400 font-bold" id="stat-hunger-detail">55 / 100</span>
-            <span class="text-[10px] text-[#cca4ca]">少しお腹が減っている</span>
-          </div>
+        <div class="fancy-panel p-4">
+          <h2 class="text-sm font-black text-[#fce3f9] text-center mb-3 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">あなたの状態 (影響あり)</h2>
+          <div class="space-y-2 text-[12px]">
+            
+            <div class="flex justify-between items-center">
+              <span class="text-[#eddced]"><i class="fa-solid fa-clover text-[#6eff9e] mr-1.5"></i> 運</span>
+              <span class="text-[#6eff9e] font-black text-sm" id="stat-luck">62%</span>
+              <span class="text-[10px] text-[#cca4ca]">良い目が出やすい！(補正+5%)</span>
+            </div>
 
-          <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
-            <span class="text-[#eddced]"><i class="fa-solid fa-heart-pulse text-pink-400 mr-1.5"></i> ストレス</span>
-            <span class="text-pink-400 font-bold" id="stat-stress-detail">32 / 100</span>
-            <span class="text-[10px] text-[#cca4ca]">平常心を保てている</span>
-          </div>
+            <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
+              <span class="text-[#eddced]"><i class="fa-solid fa-cookie text-orange-400 mr-1.5"></i> 空腹</span>
+              <span class="text-orange-400 font-bold" id="stat-hunger-detail">55 / 100</span>
+              <span class="text-[10px] text-[#cca4ca]">少しお腹が減っている</span>
+            </div>
 
-          <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
-            <span class="text-[#eddced]"><i class="fa-solid fa-brain text-purple-400 mr-1.5"></i> SAN値</span>
-            <span class="text-purple-400 font-bold" id="stat-san-detail">18 / 100</span>
-            <span class="text-[10px] text-[#cca4ca]">まだ正気を保っている</span>
-          </div>
+            <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
+              <span class="text-[#eddced]"><i class="fa-solid fa-heart-pulse text-pink-400 mr-1.5"></i> ストレス</span>
+              <span class="text-pink-400 font-bold" id="stat-stress-detail">32 / 100</span>
+              <span class="text-[10px] text-[#cca4ca]">平常心を保てている</span>
+            </div>
 
-        </div>
-      </div>
+            <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
+              <span class="text-[#eddced]"><i class="fa-solid fa-brain text-purple-400 mr-1.5"></i> SAN値</span>
+              <span class="text-purple-400 font-bold" id="stat-san-detail">18 / 100</span>
+              <span class="text-[10px] text-[#cca4ca]">まだ正気を保っている</span>
+            </div>
 
-      <div class="fancy-panel p-4">
-        <h2 class="text-sm font-black text-[#fce3f9] text-center mb-2.5 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">特殊効果</h2>
-        <div class="space-y-2 text-[12px]">
-          <div class="flex justify-between items-center">
-            <span class="text-[#ff9be1] font-bold">🍀 運補正</span>
-            <span class="text-[#cca4ca]">発動中！良い役の確率+5%</span>
-          </div>
-          <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
-            <span id="eff-double-title" class="text-gray-500 font-bold">⚔️ 倍賭けチャンス</span>
-            <span id="eff-double-desc" class="text-gray-500">ストレス70以上で出現！</span>
-          </div>
-          <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
-            <span id="eff-hallucination-title" class="text-gray-500 font-bold">👁️ 幻覚イベント</span>
-            <span id="eff-hallucination-desc" class="text-gray-500">SAN値90以上で発生！</span>
           </div>
         </div>
+
+        <div class="fancy-panel p-4">
+          <h2 class="text-sm font-black text-[#fce3f9] text-center mb-2.5 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">特殊効果</h2>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex justify-between items-center">
+              <span class="text-[#ff9be1] font-bold">🍀 運補正</span>
+              <span class="text-[#cca4ca]">発動中！良い役の確率+5%</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
+              <span id="eff-double-title" class="text-gray-500 font-bold">⚔️ 倍賭けチャンス</span>
+              <span id="eff-double-desc" class="text-gray-500">ストレス70以上で出現！</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-[#ca9ec6]/15 pt-2">
+              <span id="eff-hallucination-title" class="text-gray-500 font-bold">👁️ 幻覚イベント</span>
+              <span id="eff-hallucination-desc" class="text-gray-500">SAN値90以上で発生！</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -1191,6 +1205,34 @@
         rollSound.volume = vol;
         document.getElementById('lbl-volume-se').innerText = `${value}%`;
         localStorage.setItem('sh_vol_se', vol);
+      }
+    }
+
+    function toggleLeftPanel() {
+      const panel = document.getElementById('left-panel');
+      const icon = document.getElementById('icon-toggle-left');
+      if (panel.classList.contains('panel-hidden')) {
+        panel.classList.remove('panel-hidden');
+        panel.style.left = '24px';
+        icon.className = 'fa-solid fa-angle-left text-sm';
+      } else {
+        panel.classList.add('panel-hidden');
+        panel.style.left = '-310px';
+        icon.className = 'fa-solid fa-angle-right text-sm';
+      }
+    }
+
+    function toggleRightPanel() {
+      const panel = document.getElementById('right-panel');
+      const icon = document.getElementById('icon-toggle-right');
+      if (panel.classList.contains('panel-hidden')) {
+        panel.classList.remove('panel-hidden');
+        panel.style.left = '0px';
+        icon.className = 'fa-solid fa-angle-right text-sm';
+      } else {
+        panel.classList.add('panel-hidden');
+        panel.style.left = '360px';
+        icon.className = 'fa-solid fa-angle-left text-sm';
       }
     }
 
