@@ -4,14 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>small-house チンチロリン</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome for beautiful icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=M+PLUS+Rounded+1c:wght@400;700;900&family=Yuji+Syuku&display=swap');
 
-    /* */
     :root {
       --theme-purple: #1e0b2e;
       --theme-pink: #ffaae9;
@@ -32,14 +29,12 @@
       align-items: center;
     }
 
-    /* 16:9 画面比率を美しく保つためのコンテナ */
     .game-screen-wrapper {
       position: relative;
       width: 1536px;
       height: 1024px;
       aspect-ratio: 1536/1024;
       background-color: #12061c;
-      /* 背景画像を最優先。見つからない場合は超美麗なフォールバック用グラデーションをブレンド */
       background-image: 
         url('Gemini_Generated_Image_5poe035poe035poe.png'), 
         radial-gradient(circle at 50% 40%, #5d257a 0%, #1e092b 40%, #08020d 100%);
@@ -50,8 +45,6 @@
       overflow: hidden;
     }
 
-    /* */
-    /* 95%以上の一致を目指した中世ゴシック風ゴールド・ピンクダブルボーダー */
     .fancy-panel {
       background: var(--panel-bg);
       border: 2px solid rgba(202, 158, 198, 0.6);
@@ -71,7 +64,6 @@
       pointer-events: none;
     }
 
-    /* 各コーナーに施される星屑の装飾 */
     .fancy-title-corner {
       position: relative;
     }
@@ -87,7 +79,6 @@
     .fancy-title-corner::before { left: 8px; }
     .fancy-title-corner::after { right: 8px; }
 
-    /* 高ストレス時の画面ブレ */
     .stress-distortion {
       animation: stress-shake 0.22s infinite alternate;
     }
@@ -96,7 +87,6 @@
       100% { transform: translate(-1.5px, -1px) rotate(-0.2deg); }
     }
 
-    /* サイコロ回転演出 */
     .dice-rolling {
       animation: dice-spin-anim 0.12s infinite linear;
     }
@@ -106,12 +96,10 @@
       100% { transform: rotate(360deg) scale(0.9); }
     }
 
-    /* 蓄光ネオンテキスト */
     .neon-text {
       text-shadow: 0 0 8px rgba(255, 170, 233, 0.7), 0 0 18px rgba(255, 170, 233, 0.3);
     }
 
-    /* スクロールバーのカスタマイズ */
     .custom-scrollbar::-webkit-scrollbar {
       width: 5px;
     }
@@ -123,7 +111,6 @@
       border-radius: 3px;
     }
 
-    /* チップボタンの３D感 */
     .chip-button {
       background: radial-gradient(circle, #5b2169 0%, #20052b 100%);
       border: 2px dashed #fcd558;
@@ -139,14 +126,25 @@
       border-color: #ffffff;
       box-shadow: 0 0 15px rgba(255, 110, 219, 0.8);
     }
+
+    /* おしゃべりしているような、なめらかな頷き＆微呼吸モーション */
+    .talking-nod {
+      animation: talking-nod-anim 3s infinite ease-in-out;
+      transform-origin: bottom center;
+    }
+    @keyframes talking-nod-anim {
+      0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+      20% { transform: translateY(2px) scale(1.01) rotate(0.5deg); }
+      40% { transform: translateY(-1px) scale(0.99) rotate(-0.5deg); }
+      60% { transform: translateY(3px) scale(1.01) rotate(0.8deg); }
+      80% { transform: translateY(0px) scale(1) rotate(-0.3deg); }
+    }
   </style>
 </head>
 <body>
 
-  <!-- -->
   <div id="main-viewport" class="game-screen-wrapper transition-all duration-500">
     
-    <!-- 1. ヘッダータイトルロゴ領域 (左上) -->
     <div class="absolute top-6 left-6 w-[310px] h-[90px] flex flex-col justify-center pl-4">
       <h1 class="logo-title text-[32px] font-black tracking-widest text-[#ffaae9] neon-text" style="font-family: 'Cinzel', serif;">
         ✨small-house🏡
@@ -154,10 +152,8 @@
       <p class="text-[11px] text-[#dfb2db] font-bold tracking-wider mt-1">ここで勝てば、すべてを取り戻せる。</p>
     </div>
 
-    <!-- 2. 上部ステータスバー (完成画像と95%以上完全に一致した配置) -->
     <div class="absolute top-6 left-[340px] w-[1170px] h-[90px] fancy-panel flex items-center justify-between px-6">
       
-      <!-- 所持コイン -->
       <div class="flex flex-col items-center justify-center w-[220px]">
         <span class="text-[11px] text-[#cca4ca] font-bold mb-1">所持コイン（renga）</span>
         <div class="flex items-center gap-2">
@@ -167,7 +163,6 @@
         </div>
       </div>
 
-      <!-- 借金 -->
       <div class="flex flex-col items-center justify-center w-[240px]">
         <span class="text-[11px] text-[#cca4ca] font-bold mb-1">借金</span>
         <div class="flex items-center gap-1.5">
@@ -176,7 +171,6 @@
         </div>
       </div>
 
-      <!-- 空腹ゲージ -->
       <div class="flex flex-col items-center justify-center w-[220px]">
         <span class="text-[11px] text-[#cca4ca] font-bold mb-1">空腹ゲージ</span>
         <div class="flex items-center gap-2">
@@ -188,7 +182,6 @@
         </div>
       </div>
 
-      <!-- ストレス -->
       <div class="flex flex-col items-center justify-center w-[220px]">
         <span class="text-[11px] text-[#cca4ca] font-bold mb-1">ストレス</span>
         <div class="flex items-center gap-2">
@@ -200,7 +193,6 @@
         </div>
       </div>
 
-      <!-- 生存日数 -->
       <div class="flex flex-col items-center justify-center w-[140px]">
         <span class="text-[11px] text-[#cca4ca] font-bold mb-1">生存日数</span>
         <div class="flex items-center gap-1.5 text-lg font-black text-[#d4b2f7]">
@@ -211,10 +203,8 @@
 
     </div>
 
-    <!-- 3. 左側サイドパネル (135pxから配置) -->
     <div class="absolute top-[135px] left-6 w-[310px] flex flex-col gap-3">
       
-      <!-- 狂気のチンチロ解説 -->
       <div class="fancy-panel p-4">
         <h2 class="text-sm font-black text-[#fce3f9] text-center mb-2 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">狂気のチンチロ</h2>
         <p class="text-[12px] leading-relaxed text-[#e2cee0]">
@@ -224,7 +214,6 @@
         </p>
       </div>
 
-      <!-- BET (賭け金を選択) -->
       <div class="fancy-panel p-4">
         <h2 class="text-sm font-black text-[#fce3f9] text-center mb-3 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">BET（賭け金を選択）</h2>
         <div class="flex justify-between px-1 mb-3">
@@ -240,7 +229,6 @@
         <div id="lbl-stress-limit-warning" class="text-[10px] text-red-400 mt-1.5 text-center hidden">※高ストレスによるベット制限発生中</div>
       </div>
 
-      <!-- 役一覧 -->
       <div class="fancy-panel p-4">
         <h2 class="text-sm font-black text-[#fce3f9] text-center mb-2.5 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">役一覧 (強い順)</h2>
         <div class="space-y-1.5 text-[12px]">
@@ -249,7 +237,7 @@
             <span class="text-[#ff7ee6] font-bold">最大 x8倍</span>
           </div>
           <div class="flex justify-between border-b border-[#ca9ec6]/15 pb-1">
-            <span class="text-[#fce3f9]">🐰 うさぎの目 (3-3-3)</span>
+            <span class="text-[#fce3f9]">🧸 クマの目 (3-3-3)</span>
             <span class="text-[#ff7ee6] font-bold">x3倍・不穏</span>
           </div>
           <div class="flex justify-between border-b border-[#ca9ec6]/15 pb-1">
@@ -275,7 +263,6 @@
         </div>
       </div>
 
-      <!-- ルール・特殊効果 -->
       <div class="fancy-panel p-4">
         <h2 class="text-sm font-black text-[#fce3f9] text-center mb-2 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">ルール・特殊効果</h2>
         <ul class="text-[11px] text-[#eddced] space-y-1 list-disc pl-4 leading-normal">
@@ -283,45 +270,37 @@
           <li>空腹が低いと手が震えて不利に…。</li>
           <li>ストレスが高いと「倍賭け」が出現！</li>
           <li>SAN値が高いと幻覚が起きることも…。</li>
+          <li><kbd class="px-1 bg-purple-900 border border-purple-400 rounded text-white text-[9px]">Esc</kbd> キーでメニューを開く</li>
         </ul>
       </div>
 
     </div>
 
-    <!-- -->
-    <!-- 4. 中央ゲームエリア (サイコロ盆とクッションがピッタリ重なる絶妙のレイアウト) -->
     <div class="absolute top-[135px] left-[350px] w-[770px] h-[720px] flex flex-col items-center justify-between">
       
-      <!-- 現在の出目リボン -->
       <div class="fancy-panel px-8 py-1.5 text-sm font-bold text-[#fce3f9] tracking-widest shadow-inner mt-4">
         現在の出目
       </div>
 
-      <!-- サイコロコンテナ (背景の幻想クッションの真上にピッタリ配置されるよう調整) -->
       <div class="flex items-center justify-center gap-6 my-6">
-        <!-- サイコロ 1 -->
         <div id="dice-container-1" class="w-[85px] h-[85px] bg-[#fdf6ff] rounded-[14px] shadow-[2px_10px_20px_rgba(0,0,0,0.65),inset_-4px_-4px_8px_rgba(180,150,190,0.5)] flex items-center justify-center transition-all duration-100">
           <div class="grid grid-cols-3 grid-rows-3 gap-1.5 w-full h-full p-3.5" id="dots-1"></div>
         </div>
-        <!-- サイコロ 2 -->
         <div id="dice-container-2" class="w-[85px] h-[85px] bg-[#fdf6ff] rounded-[14px] shadow-[2px_10px_20px_rgba(0,0,0,0.65),inset_-4px_-4px_8px_rgba(180,150,190,0.5)] flex items-center justify-center transition-all duration-100">
           <div class="grid grid-cols-3 grid-rows-3 gap-1.5 w-full h-full p-3.5" id="dots-2"></div>
         </div>
-        <!-- サイコロ 3 -->
         <div id="dice-container-3" class="w-[85px] h-[85px] bg-[#fdf6ff] rounded-[14px] shadow-[2px_10px_20px_rgba(0,0,0,0.65),inset_-4px_-4px_8px_rgba(180,150,190,0.5)] flex items-center justify-center transition-all duration-100">
           <div class="grid grid-cols-3 grid-rows-3 gap-1.5 w-full h-full p-3.5" id="dots-3"></div>
         </div>
       </div>
 
-      <!-- 役判定リボン -->
       <div class="w-full bg-gradient-to-r from-transparent via-[#ff8be6]/30 to-transparent py-1.5 text-center text-[19px] font-black text-white tracking-widest neon-text h-10 mb-4" id="yaku-banner">
         役：ゾロ目
       </div>
 
-      <!-- メインアクション「サイコロを振る」ボタン -->
       <div class="flex flex-col items-center gap-2 mb-6">
         <button id="btn-roll" onclick="rollDice()" class="px-14 py-3.5 bg-gradient-to-r from-[#df7ec9] to-[#8d3679] hover:from-[#f39be0] hover:to-[#a74692] text-white font-black text-xl rounded-full border-2 border-[#ffffff] shadow-[0_6px_20px_rgba(0,0,0,0.6)] tracking-widest transition-all transform active:scale-95">
-          🎲 サイコロを振る 🐰
+          🎲 サイコロを振る 🧸
         </button>
         
         <label class="flex items-center gap-2 text-xs text-[#dfb2db] cursor-pointer mt-1">
@@ -330,18 +309,14 @@
         </label>
       </div>
 
-      <!-- 下部ボード：直近の結果 & 今日の収支 (580px × 210px) -->
       <div class="w-[580px] h-[210px] fancy-panel p-4 flex gap-4 mb-4">
         
-        <!-- 直近の結果リスト (スクロール可能) -->
         <div class="flex-1 flex flex-col min-w-0">
           <h3 class="text-xs font-black text-[#dfb2db] mb-2"><i class="fa-solid fa-history mr-1"></i> 直近の結果</h3>
           <div id="history-box" class="flex-1 overflow-y-auto space-y-1.5 pr-1.5 custom-scrollbar text-[12px]">
-            <!-- JSにて行を追加 -->
           </div>
         </div>
 
-        <!-- 本日の収支 ＆ 通算収支 -->
         <div class="w-[200px] border-l border-[#ca9ec6]/30 pl-4 flex flex-col justify-center gap-5">
           <div>
             <span class="text-[11px] text-[#cca4ca] block mb-0.5">本日の収支</span>
@@ -357,25 +332,19 @@
 
     </div>
 
-    <!-- -->
-    <!-- 5. 右側キャラクター・詳細ステータスパネル -->
     <div class="absolute top-[135px] left-[1145px] w-[365px] flex flex-col gap-3">
       
-      <!-- ウサギの吹き出しセリフ -->
       <div class="bg-white border-2 border-[#ffbdf4] text-[#311c38] p-4 rounded-2xl relative shadow-xl font-bold text-sm leading-relaxed" style="box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
         <div id="rabbit-bubble-text">今日はいい目が出そうだね♪</div>
-        <!-- 吹き出しのしっぽ -->
         <div class="absolute -bottom-2.5 right-12 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white"></div>
       </div>
 
-      <!-- 不穏ぬいぐるみ位置確保 (画像があれば完璧に重なるスペース、見つからない時はかわいいSVGウサギを配置) -->
-      <div class="h-[120px] relative flex justify-center items-center">
-        <!-- 背景画像がなかった場合のフォールバックうさちゃん。画像がある場合は透過してうさちゃんの真上にオーバーレイ -->
-        <div class="absolute text-7xl animate-bounce" style="animation-duration: 2.5s; opacity: 0.85;">🐰</div>
-        <div class="absolute w-28 h-28 bg-[#d06eff]/15 rounded-full blur-2xl animate-pulse"></div>
+      <!-- クマのサイズ(h-[280px])とおしゃべりモーション -->
+      <div class="h-[280px] relative flex justify-center items-center">
+        <img src="無題310_20260623131318.png" alt="クマ" class="absolute h-full object-contain talking-nod z-10">
+        <div class="absolute w-60 h-60 bg-[#d06eff]/15 rounded-full blur-2xl animate-pulse"></div>
       </div>
 
-      <!-- あなたの状態（影響あり） -->
       <div class="fancy-panel p-4">
         <h2 class="text-sm font-black text-[#fce3f9] text-center mb-3 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">あなたの状態 (影響あり)</h2>
         <div class="space-y-2 text-[12px]">
@@ -407,7 +376,6 @@
         </div>
       </div>
 
-      <!-- 特殊効果 -->
       <div class="fancy-panel p-4">
         <h2 class="text-sm font-black text-[#fce3f9] text-center mb-2.5 fancy-title-corner pb-1 border-b border-[#ca9ec6]/30">特殊効果</h2>
         <div class="space-y-2 text-[12px]">
@@ -428,37 +396,29 @@
 
     </div>
 
-    <!-- -->
-    <!-- 6. 下部アクションバー (戻る ＆ 特殊4大タイルボタン) -->
     <div class="absolute bottom-6 left-6 w-[1485px] h-[90px] flex gap-4 items-end justify-between">
       
-      <!-- ゲーム選択に戻る -->
-      <button onclick="backToRoomSelect()" class="w-[220px] h-[64px] bg-[#1e0c26]/90 border border-[#91618c] text-[#ca9ec6] hover:text-white rounded-lg text-xs font-bold transition-all hover:bg-[#341845] flex items-center justify-center gap-1.5 shadow-md">
-        <i class="fa-solid fa-chevron-left"></i> ゲーム選択に戻る
+      <button onclick="openSystemMenu()" class="w-[220px] h-[64px] bg-[#1e0c26]/90 border border-[#91618c] text-[#ca9ec6] hover:text-white rounded-lg text-xs font-bold transition-all hover:bg-[#341845] flex items-center justify-center gap-1.5 shadow-md">
+        <i class="fa-solid fa-bars"></i> メニューを開く (Esc)
       </button>
 
-      <!-- 特殊4大ボタン群 -->
       <div class="flex gap-4 flex-1 justify-end">
         
-        <!-- 倍賭け -->
         <button id="tile-double" onclick="toggleDoubleBet()" class="w-[200px] h-[76px] fancy-panel flex flex-col items-center justify-center transition-all opacity-40 cursor-not-allowed" disabled>
           <span class="text-sm font-black text-[#fce3f9]">✨ 倍賭け</span>
           <span class="text-[10px] text-[#cca4ca] mt-0.5">(リスクUP) ストレス70以上</span>
         </button>
 
-        <!-- 天秤チャンス -->
         <button onclick="triggerScaleChance()" class="w-[200px] h-[76px] fancy-panel hover:border-pink-300 flex flex-col items-center justify-center transition-all">
           <span class="text-sm font-black text-[#fce3f9] flex items-center gap-1">⚖️ 天秤チャンス</span>
           <span class="text-[10px] text-[#cca4ca] mt-0.5">(何を賭ける？) 低確率発生</span>
         </button>
 
-        <!-- イカサマ -->
         <button onclick="triggerCheat()" class="w-[200px] h-[76px] fancy-panel hover:border-pink-300 flex flex-col items-center justify-center transition-all">
           <span class="text-sm font-black text-[#fce3f9] flex items-center gap-1">🃏 イカサマ</span>
           <span class="text-[10px] text-[#cca4ca] mt-0.5">(出目を操作) 成功率 62%</span>
         </button>
 
-        <!-- やめる -->
         <button onclick="saveAndQuit()" class="w-[200px] h-[76px] fancy-panel border-red-500 hover:border-red-400 flex flex-col items-center justify-center transition-all">
           <span class="text-sm font-black text-red-300 flex items-center gap-1">🚪 やめる</span>
           <span class="text-[10px] text-[#cca4ca] mt-0.5">(今回は降りる / セーブ)</span>
@@ -470,8 +430,26 @@
 
   </div>
 
-  <!-- -->
-  <!-- ダブルオアナッシングモーダル -->
+  <!-- 【復活】Escメニューモーダル (最初からやり直し / 一時中断) -->
+  <div id="modal-system-menu" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden p-4 animate-fade-in">
+    <div class="bg-[#1c0a24] border-2 border-[#ffaae9] rounded-2xl p-6 max-w-sm w-full text-center fancy-panel">
+      <h2 class="text-xl font-black text-[#ffaae9] mb-4 neon-text">⚙️ メニュー</h2>
+      <p class="text-xs text-[#cca4ca] mb-6">ゲームの進行状況を管理します。</p>
+      
+      <div class="flex flex-col gap-3">
+        <button onclick="closeSystemMenu()" class="w-full py-2.5 bg-gradient-to-r from-purple-800 to-indigo-900 text-white font-bold rounded-xl border border-purple-500 hover:from-purple-700 transition-all">
+          ゲームに戻る
+        </button>
+        <button onclick="suspendGame()" class="w-full py-2.5 bg-gray-800 text-gray-200 font-bold rounded-xl hover:bg-gray-700 transition-all">
+          セーブして一時中断
+        </button>
+        <button onclick="resetGameEntirely()" class="w-full py-2.5 bg-red-950/80 text-red-300 font-bold rounded-xl border border-red-900 hover:bg-red-900 hover:text-white transition-all text-xs">
+          データを全削除して最初からやり直す
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="modal-don" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden p-4">
     <div class="bg-[#2a1138] border-4 border-[#ffaae9] rounded-3xl p-7 max-w-md w-full text-center shadow-[0_0_40px_rgba(255,170,233,0.5)] fancy-panel">
       <h2 class="text-2xl font-black text-[#ffaae9] mb-3 neon-text">🔥 DOUBLE OR NOTHING 🔥</h2>
@@ -493,7 +471,6 @@
     </div>
   </div>
 
-  <!-- ビギナーズラック再振りモーダル -->
   <div id="modal-beginner" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden p-4">
     <div class="bg-[#112447] border-4 border-blue-400 rounded-3xl p-7 max-w-md w-full text-center shadow-[0_0_30px_rgba(59,130,246,0.6)]">
       <h2 class="text-2xl font-black text-blue-300 mb-3">🍀 ビギナーズラック 🍀</h2>
@@ -512,7 +489,6 @@
     </div>
   </div>
 
-  <!-- カスタムメッセージアラートモーダル -->
   <div id="modal-alert" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden p-4">
     <div class="bg-[#241230] border-2 border-[#ca9ec6] rounded-2xl p-6 max-w-sm w-full text-center">
       <p id="alert-text" class="text-sm text-[#eddced] mb-4 leading-relaxed"></p>
@@ -522,11 +498,9 @@
     </div>
   </div>
 
-  <!-- -->
   <script>
     const INITIAL_DEBT = 100000000;
     
-    // ゲームデータ変数
     let coins = 50000;
     let debt = INITIAL_DEBT;
     let days = 12;
@@ -534,22 +508,57 @@
     let stress = 32;
     let san = 18;
     let nightmare = false;
-    let sakeLevel = 0; // 酒依存度
-    let smokeLevel = 0; // 煙草使用フラグ
+    let sakeLevel = 0; 
+    let smokeLevel = 0; 
     let todayProfit = 6000;
     let totalProfit = -12000;
 
     let currentBet = 1000;
     let isRolling = false;
     let doubleBetModeActive = false;
-    let hasRerolledToday = false; // ビギナーズ再振り
+    let hasRerolledToday = false; 
 
-    // 判定一時メモリ
     let lastCalculatedPayout = 0;
     let lastDiceResult = [4, 4, 4];
     let lastYakuName = "ゾロ目";
 
-    // --- ロード / セーブ機能 (LocalStorage) ---
+    // Escキー監視用のイベントリスナーを復活
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        toggleSystemMenu();
+      }
+    });
+
+    function toggleSystemMenu() {
+      const menu = document.getElementById('modal-system-menu');
+      if (menu.classList.contains('hidden')) {
+        openSystemMenu();
+      } else {
+        closeSystemMenu();
+      }
+    }
+
+    function openSystemMenu() {
+      document.getElementById('modal-system-menu').classList.remove('hidden');
+    }
+
+    function closeSystemMenu() {
+      document.getElementById('modal-system-menu').classList.add('hidden');
+    }
+
+    function suspendGame() {
+      saveGame();
+      closeSystemMenu();
+      showSystemMessage("セーブ完了しました。いつでも安全にページを閉じて中断できます。");
+    }
+
+    function resetGameEntirely() {
+      if (confirm("本当に進行データをすべて初期化して、1日目の最初からやり直しますか？")) {
+        localStorage.clear();
+        location.reload(); // ページをリロードして初期状態へ
+      }
+    }
+
     function loadGame() {
       if (localStorage.getItem('sh_save_exists')) {
         coins = parseInt(localStorage.getItem('sh_coins')) || 50000;
@@ -565,7 +574,6 @@
         totalProfit = parseInt(localStorage.getItem('sh_totalProfit')) || 0;
         showSystemMessage("セーブデータを自動で復元しました。");
       } else {
-        // 初期状態の履歴
         addHistoryRow("WIN", "4・4・4", "ゾロ目", 3000);
         addHistoryRow("WIN", "6・6・6", "ゾロ目", 3000);
         addHistoryRow("LOSE", "1・2・3", "ヒフミ", -1000);
@@ -590,7 +598,6 @@
       localStorage.setItem('sh_totalProfit', totalProfit);
     }
 
-    // --- ---
     function updateUI() {
       document.getElementById('txt-coins').innerText = coins.toLocaleString();
       document.getElementById('txt-debt').innerText = debt.toLocaleString();
@@ -602,12 +609,10 @@
 
       document.getElementById('lbl-bet').innerText = currentBet.toLocaleString();
 
-      // 詳細パネル同期
       document.getElementById('stat-hunger-detail').innerText = `${hunger} / 100`;
       document.getElementById('stat-stress-detail').innerText = `${stress} / 100`;
       document.getElementById('stat-san-detail').innerText = `${san} / 100`;
 
-      // 収支カラーチェンジ
       const todayLbl = document.getElementById('lbl-today-profit');
       todayLbl.innerText = `${todayProfit >= 0 ? '+' : ''}${todayProfit.toLocaleString()} renga`;
       todayLbl.className = todayProfit >= 0 ? "text-lg font-black text-[#6eff9e]" : "text-lg font-black text-red-400";
@@ -616,7 +621,6 @@
       totalLbl.innerText = `${totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString()} renga`;
       totalLbl.className = totalProfit >= 0 ? "text-lg font-black text-[#6eff9e]" : "text-lg font-black text-red-400";
 
-      // ストレスによるベット制限の計算
       const ratio = getMaxBetRatio();
       const maxBet = Math.floor(coins * ratio);
       if (ratio < 1.0) {
@@ -626,7 +630,6 @@
         document.getElementById('lbl-stress-limit-warning').classList.add('hidden');
       }
 
-      // 「倍賭け」ボタン状態の同期
       const tileDouble = document.getElementById('tile-double');
       const effDoubleTitle = document.getElementById('eff-double-title');
       const effDoubleDesc = document.getElementById('eff-double-desc');
@@ -652,7 +655,6 @@
         tileDouble.style.boxShadow = "";
       }
 
-      // 幻覚イベント
       const effHalTitle = document.getElementById('eff-hallucination-title');
       const effHalDesc = document.getElementById('eff-hallucination-desc');
       if (san >= 90) {
@@ -663,7 +665,6 @@
         effHalDesc.innerText = "SAN値90以上で発生！";
       }
 
-      // 画面ブレ・ノイズ歪みの反映
       const mainViewport = document.getElementById('main-viewport');
       if (stress >= 90) {
         mainViewport.classList.add('stress-distortion');
@@ -679,7 +680,6 @@
       return 0.1;
     }
 
-    // --- ---
     function drawSingleDice(dotsId, value) {
       const container = document.getElementById(dotsId);
       container.innerHTML = '';
@@ -699,7 +699,7 @@
         if (activeDots.includes(i)) {
           dot.className = 'rounded-full mx-auto my-auto transition-all';
           if (value === 1) {
-            dot.className += ' bg-red-500 w-[22px] h-[22px]'; // 赤いピンポイント1
+            dot.className += ' bg-red-500 w-[22px] h-[22px]'; 
           } else {
             dot.className += ' bg-[#3b2a40] w-3.5 h-3.5';
           }
@@ -717,14 +717,12 @@
       }
       currentBet = amount;
       
-      // アクティブなチップチップボタン表示を更新
       document.querySelectorAll('.chip-button').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`chip-${amount}`).classList.add('active');
 
       updateUI();
     }
 
-    // --- ---
     function rollDice() {
       if (isRolling) return;
       if (coins < currentBet) {
@@ -735,7 +733,6 @@
       isRolling = true;
       document.getElementById('btn-roll').disabled = true;
 
-      // 回転アニメーション追加
       document.getElementById('dice-container-1').classList.add('dice-rolling');
       document.getElementById('dice-container-2').classList.add('dice-rolling');
       document.getElementById('dice-container-3').classList.add('dice-rolling');
@@ -755,14 +752,11 @@
     }
 
     function evaluateDiceResult() {
-      // 実際の結果
       let d1 = Math.floor(Math.random() * 6) + 1;
       let d2 = Math.floor(Math.random() * 6) + 1;
       let d3 = Math.floor(Math.random() * 6) + 1;
 
-      // イカサマ、酒状態の運命操作
       if (sakeLevel > 0 && Math.random() < 0.20) {
-        // 酒が入っているとゾロ目が出やすくなる狂気効果
         d1 = d2 = d3 = Math.floor(Math.random() * 6) + 1;
         sakeLevel = Math.max(0, sakeLevel - 1);
       }
@@ -784,7 +778,6 @@
       let yakuName = "通常役";
       let rabbitSpeech = "「通常の目ですね。次はどうなるかしら。」";
 
-      // 1. オリジナル役：借金まみれの目 (1-1-1)
       if (strVal === '1-1-1') {
         isWin = true;
         const debtRatio = debt / INITIAL_DEBT;
@@ -795,19 +788,17 @@
         } else {
           multiplier = 2.0;
         }
-        yakuName = `借金まみれの目 (x${multiplier})`;
-        rabbitSpeech = "「うふふ、借金の重圧が出目を美しく狂わせたのですね。」";
+        yakuName = `借金ままれの目 (x${multiplier})`;
+        rabbitSpeech = "「ふふ、借金の重圧が出目を美しく狂わせたのですね。」";
       }
-      // 2. オリジナル役：うさぎの目 (3-3-3)
       else if (strVal === '3-3-3') {
         isWin = true;
         multiplier = 3.0;
-        yakuName = "うさぎの目 (x3)";
-        rabbitSpeech = "「私と同じ赤いおめめ……うれしいわ、お祝いをあげましょう。」";
+        yakuName = "クマの目 (x3)";
+        rabbitSpeech = "「僕と同じ色の出目……うれしいな、お祝いをあげましょう。」";
         stress = Math.min(100, stress + (days >= 30 ? 20 : 10));
         if (days >= 30) nightmare = true;
       }
-      // 3. オリジナル役：煙草目 (5-5-5)
       else if (strVal === '5-5-5') {
         isWin = true;
         if (smokeLevel > 0) {
@@ -817,17 +808,15 @@
         } else {
           multiplier = 3.0;
           yakuName = "ゾロ目 (x3)";
-          rabbitSpeech = "「お見事、ゾロ目よ。この調子で借金を減らしてね。」";
+          rabbitSpeech = "「お見事、ゾロ目ですよ。この調子で借金を減らしてね。」";
         }
       }
-      // 4. ヒフミ (1-2-3)
       else if (strVal === '1-2-3') {
         isLose = true;
         multiplier = 1.5;
         yakuName = "ヒフミ";
         rabbitSpeech = "「はじまりの数字ですね。早く元の部屋へ戻りましょう。」";
 
-        // お酒を飲んでいれば10%の確率で無効化
         if (sakeLevel > 0 && Math.random() < 0.10) {
           isLose = false;
           multiplier = 0;
@@ -835,21 +824,18 @@
           rabbitSpeech = "「ひどく酔っ払っていて、悪い出目を無効化できたようです。」";
         }
       }
-      // 5. シゴロ (4-5-6)
       else if (strVal === '4-5-6') {
         isWin = true;
         multiplier = 2.0;
         yakuName = "シゴロ (x2)";
         rabbitSpeech = "「シゴロ。とても美しい並びですね。感心します。」";
       }
-      // 6. 通常ゾロ目
       else if (sorted[0] === sorted[1] && sorted[1] === sorted[2]) {
         isWin = true;
         multiplier = 3.0;
         yakuName = "ゾロ目 (x3)";
-        rabbitSpeech = "「ゾロ目よ。この流れを逃さないでくださいね。」";
+        rabbitSpeech = "担当「ゾロ目だよ。この流れを逃さないでくださいね。」";
       }
-      // 7. 通常判定
       else {
         let matchedPoint = 0;
         if (sorted[0] === sorted[1]) matchedPoint = sorted[2];
@@ -865,10 +851,9 @@
             isLose = true;
             multiplier = 1.0;
             yakuName = `通常役 [目:${matchedPoint}]`;
-            rabbitSpeech = "「負けよ。でも、まだまだこれからでしょう？」";
+            rabbitSpeech = "「負けだよ。でも、まだまだこれからでしょう？」";
           }
         } else {
-          // 役なし
           if (Math.random() < 0.5) {
             isWin = true;
             multiplier = 1.0;
@@ -883,10 +868,9 @@
         }
       }
 
-      // 確定データの一時保存
       lastCalculatedPayout = isWin ? Math.floor(currentBet * multiplier) : (isLose ? -Math.floor(currentBet * multiplier) : 0);
       if (doubleBetModeActive && isWin) {
-        lastCalculatedPayout *= 2; // 倍賭け適用
+        lastCalculatedPayout *= 2; 
       }
       lastDiceResult = [d1, d2, d3];
       lastYakuName = yakuName;
@@ -894,7 +878,6 @@
       document.getElementById('yaku-banner').innerText = `役：${yakuName}`;
       document.getElementById('rabbit-bubble-text').innerText = rabbitSpeech;
 
-      // ビギナーズラック救済判定（1〜3日目で、今回の出目が敗北だった場合）
       if (days <= 3 && isLose && !hasRerolledToday) {
         showBeginnerLuckModal();
       } else {
@@ -902,13 +885,11 @@
       }
     }
 
-    // --- ---
     function settleTurn(isWin, isLose) {
       isRolling = false;
       document.getElementById('btn-roll').disabled = false;
 
       if (isWin && lastCalculatedPayout > 0) {
-        // ダブル・オア・ナッシングのモーダル判定
         showDoubleOrNothing(lastCalculatedPayout);
       } else {
         commitResults(lastCalculatedPayout, lastDiceResult, lastYakuName, isLose ? 'LOSE' : 'DRAW');
@@ -923,7 +904,6 @@
       todayProfit += payout;
       totalProfit += payout;
 
-      // 空腹とストレスの変動
       hunger = Math.max(0, hunger - 4);
       if (payout < 0) {
         stress = Math.min(100, stress + 9);
@@ -932,20 +912,17 @@
         stress = Math.max(0, stress - 3);
       }
 
-      // 日数自動進行 (確率)
       if (Math.random() < 0.25) {
         days++;
-        hasRerolledToday = false; // 日付進行で救済が再度使えるようになる
+        hasRerolledToday = false; 
       }
 
-      // 履歴行の生成
       addHistoryRow(resultType, diceArr.join('・'), yakuStr, payout);
 
-      doubleBetModeActive = false; // モード解除
+      doubleBetModeActive = false; 
       saveGame();
       updateUI();
 
-      // 自動振りがオンの場合、再帰的に実行
       if (document.getElementById('chk-auto-roll').checked) {
         setTimeout(() => {
           if (document.getElementById('chk-auto-roll').checked) rollDice();
@@ -953,7 +930,6 @@
       }
     }
 
-    // --- 履歴ボックスへのリスト追加 ---
     function addHistoryRow(type, diceVal, yakuVal, payoutVal) {
       const box = document.getElementById('history-box');
       const row = document.createElement('div');
@@ -983,11 +959,9 @@
       row.appendChild(diceSpan);
       row.appendChild(moneySpan);
 
-      // 先頭に追加
       box.insertBefore(row, box.firstChild);
     }
 
-    // --- ---
     function showDoubleOrNothing(amount) {
       document.getElementById('lbl-don-amount').innerText = amount.toLocaleString();
       if (sakeLevel >= 10) {
@@ -1015,7 +989,6 @@
       }
     }
 
-    // --- ビギナーズラック再振り ---
     function showBeginnerLuckModal() {
       document.getElementById('modal-beginner').classList.remove('hidden');
     }
@@ -1024,7 +997,7 @@
       document.getElementById('modal-beginner').classList.add('hidden');
       hasRerolledToday = true;
       isRolling = false;
-      rollDice(); // 再度ダイスを振る
+      rollDice(); 
     }
 
     function skipBeginnerReroll() {
@@ -1032,7 +1005,6 @@
       settleTurn(false, true);
     }
 
-    // --- 下部4大タイルアクション関数 ---
     function toggleDoubleBet() {
       if (stress < 70) return;
       doubleBetModeActive = !doubleBetModeActive;
@@ -1045,7 +1017,6 @@
     }
 
     function triggerScaleChance() {
-      // 天秤チャンス
       if (Math.random() < 0.40) {
         const gift = Math.floor(currentBet * 1.5);
         coins += gift;
@@ -1059,13 +1030,12 @@
     }
 
     function triggerCheat() {
-      // イカサマ (成功率62%)
       if (Math.random() < 0.62) {
-        sakeLevel += 3; // 酒補正に近いダイス操作ブースト
+        sakeLevel += 3; 
         showSystemMessage("🃏 イカサマ成功！次回のダイス目でゾロ目の出現率が急増します。");
       } else {
         stress = Math.min(100, stress + 20);
-        showSystemMessage("🃏 イカサマを見咎められました！ウサギの不気味な視線にストレスが跳ね上がりました。");
+        showSystemMessage("🃏 イカサマを見咎められました！クマの不気味な視線にストレスが跳ね上がりました。");
       }
       updateUI();
     }
@@ -1075,11 +1045,6 @@
       showSystemMessage("ここまでの進行状況を、LocalStorageにしっかりと記録しました。");
     }
 
-    function backToRoomSelect() {
-      showSystemMessage("他の部屋への鍵はかかっています。借金を全て返済し、小さな元の家へ帰りましょう。");
-    }
-
-    // --- カスタムメッセージモーダル制御 ---
     function showSystemMessage(text) {
       document.getElementById('alert-text').innerText = text;
       document.getElementById('modal-alert').classList.remove('hidden');
@@ -1089,10 +1054,8 @@
       document.getElementById('modal-alert').classList.add('hidden');
     }
 
-    // 起動時処理
     window.onload = function() {
       loadGame();
-      // サイコロ初期表示
       drawSingleDice('dots-1', 4);
       drawSingleDice('dots-2', 5);
       drawSingleDice('dots-3', 6);
