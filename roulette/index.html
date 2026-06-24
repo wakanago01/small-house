@@ -1,1 +1,109 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Dream Roulette</title><link rel="stylesheet" href="style.css"></head><body><div id="stage"><div id="game"><header id="topBar"><div id="balance">Balance : 50,000 Renga</div><div id="gameLabel">European Roulette</div></header><section id="rouletteArea"><canvas id="rouletteCanvas"></canvas></section><section id="betArea"><div id="betTable"></div><div id="chipSelector"><button class="chip active" data-chip="100">100</button><button class="chip" data-chip="500">500</button><button class="chip" data-chip="1000">1000</button></div><div id="resultDisplay">Result : -</div><div id="controls"><button id="spinButton" class="gameButton spinButton">SPIN</button><button id="clearButton" class="gameButton">CLEAR</button><button id="backButton" class="gameButton">BACK</button></div></section><footer id="messageBox"><div id="catMessage">幸運を祈るにゃ。素敵な時間になるといいにゃ。</div></footer></div></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roulette</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-wrap">
+    <section class="top-ui">
+      <div class="hud-panel hud-gauges">
+        <div class="hud-gauge">
+          <span class="hud-icon">✦</span>
+          <span class="hud-label">LUCK</span>
+          <span class="hud-bar"><span style="width:92%"></span></span>
+        </div>
+        <div class="hud-gauge">
+          <span class="hud-icon">◆</span>
+          <span class="hud-label">TENSION</span>
+          <span class="hud-bar tension"><span style="width:38%"></span></span>
+        </div>
+      </div>
+
+      <div class="hud-panel hud-stats">
+        <div class="hud-stat">
+          <span>COINS</span>
+          <strong id="balance">50,000</strong>
+        </div>
+        <div class="hud-stat">
+          <span>TOTAL BET</span>
+          <strong id="topTotalBet">0</strong>
+        </div>
+        <div class="hud-stat hud-history-stat">
+          <span>HISTORY</span>
+          <div id="history" class="history"></div>
+        </div>
+      </div>
+
+      <div class="hud-panel hud-day">
+        <div class="moon-mark">☾</div>
+        <div>
+          <span>SURVIVAL</span>
+          <strong>DAY 1</strong>
+        </div>
+      </div>
+
+      <h1>Roulette</h1>
+    </section>
+
+    <section class="main-area">
+      <div class="wheel-panel">
+        <div class="pointer">▼</div>
+        <canvas id="wheel" width="620" height="620"></canvas>
+        <div id="resultBadge" class="result-badge hidden"></div>
+        <div class="center-cat">
+          <div class="ear left"></div><div class="ear right"></div>
+          <div class="face">× ᴗ ×</div>
+          <div class="bow">◆</div>
+        </div>
+      </div>
+
+      <div class="bet-panel">
+        <div class="bet-grid" id="betGrid"></div>
+      </div>
+    </section>
+
+    <section class="bottom-area">
+      <div class="stats panel">
+        <h2>STATISTICS</h2>
+        <p>RED: <span id="redRate">0%</span>　BLACK: <span id="blackRate">0%</span></p>
+        <p>Total Spins: <span id="totalSpins">0</span></p>
+      </div>
+
+      <div class="total-bet panel">
+        <span>TOTAL BET</span>
+        <strong id="totalBet">0</strong>
+      </div>
+
+      <div class="bet-controls panel">
+        <div class="chips">
+          <button class="chip selected" data-chip="100">100</button>
+          <button class="chip" data-chip="500">500</button>
+          <button class="chip" data-chip="1000">1K</button>
+          <button class="chip" data-chip="5000">5K</button>
+          <button class="chip" data-chip="10000">10K</button>
+        </div>
+        <div class="actions">
+          <label>任意入力<input id="customBet" type="number" min="1" placeholder="0" /></label>
+          <button id="clearBtn">クリア</button>
+          <button id="backBtn">戻る</button>
+        </div>
+      </div>
+
+      <div class="spin-panel">
+        <button id="spinBtn" class="spin">スピン</button>
+      </div>
+    </section>
+
+    <div class="side-cat left-cat">×ᴗ×</div>
+    <div class="side-cat right-cat">×ᴗ×</div>
+
+    <section class="message panel">
+      <span id="message">ベットを選んで「スピン」を押してね…</span>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

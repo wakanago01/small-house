@@ -1,510 +1,72 @@
-console.log("Dream Roulette adjusted loaded");
-
-const canvas = document.getElementById("rouletteCanvas");
-const ctx = canvas.getContext("2d");
-const catBodyImg = new Image();
-const catTailImg = new Image();
-catBodyImg.src = "img/cat_hontai.png";
-catTailImg.src = "img/cat_sippo.png";
-
-let catBodyReady = false;
-let catTailReady = false;
-let catBodyAsset = null;
-let catTailAsset = null;
-function redrawWhenCatReady() {
-  if (catBodyReady && catTailReady) drawRoulette();
-}
-function makeGreenTransparentAsset(img) {
-  const asset = document.createElement("canvas");
-  const assetCtx = asset.getContext("2d");
-  asset.width = img.naturalWidth || img.width;
-  asset.height = img.naturalHeight || img.height;
-  assetCtx.drawImage(img, 0, 0);
-
-  try {
-    const imageData = assetCtx.getImageData(0, 0, asset.width, asset.height);
-    const data = imageData.data;
-
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
-      const strongestNonGreen = Math.max(r, b);
-
-      if (g > 120 && g > strongestNonGreen + 65) {
-        data[i + 3] = 0;
-      } else if (g > 90 && g > strongestNonGreen + 28) {
-        const alpha = Math.max(0, Math.min(255, 255 - (g - strongestNonGreen - 28) * 6));
-        data[i + 3] = Math.min(data[i + 3], alpha);
-        data[i + 1] = Math.min(g, strongestNonGreen + 10);
-      }
-    }
-
-    assetCtx.putImageData(imageData, 0, 0);
-  } catch (error) {
-    console.warn("Cat image chroma key failed, using original PNG.", error);
-  }
-
-  return asset;
-}
-catBodyImg.onload = () => {
-  catBodyAsset = makeGreenTransparentAsset(catBodyImg);
-  catBodyReady = true;
-  redrawWhenCatReady();
-};
-catTailImg.onload = () => {
-  catTailAsset = makeGreenTransparentAsset(catTailImg);
-  catTailReady = true;
-  redrawWhenCatReady();
-};
-catBodyImg.onerror = () => {
-  catBodyAsset = null;
-  catBodyReady = false;
-  drawRoulette();
-};
-catTailImg.onerror = () => {
-  catTailAsset = null;
-  catTailReady = false;
-  drawRoulette();
-};
-
-const rouletteNumbers = [
-  0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10,
-  5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26,
-];
-const redSet = new Set([
-  1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36,
-]);
-
-let rotation = 0;
-let spinning = false;
-let tailAngle = -Math.PI / 2 + Math.PI / rouletteNumbers.length;
-let bets = {};
-let betHistory = [];
-let balance = 50000;
-let selectedChip = 100;
-
-const catMessages = {
-  idle: [
-    "幸運を祈るにゃ。素敵な時間になるといいにゃ。",
-    "どこに賭けるか、ゆっくり考えるにゃ。",
-    "黒猫は静かに見守っているにゃ。",
-  ],
-  win: [
-    "すごいにゃ！勝ちだにゃ！",
-    "今日はツイてるにゃ。",
-    "金色の星が味方しているにゃ。",
-  ],
-  lose: [
-    "残念だにゃ……でも次があるにゃ。",
-    "まだ終わりじゃないにゃ。",
-    "黒猫はもう一度の挑戦を見守るにゃ。",
-  ],
-  bigBet: [
-    "大胆だにゃ……覚悟はできているにゃ？",
-    "大きな勝負に出たにゃ。",
-    "これは運命の一投かもしれないにゃ。",
-  ],
-  lowBalance: [
-    "Rengaが少なくなってきたにゃ。無理はしないでにゃ。",
-    "少し休むのも作戦だにゃ。",
-    "黒猫は心配しているにゃ。",
-  ],
-};
-
-function setCatMessage(type) {
-  const list = catMessages[type] || catMessages.idle;
-  setCustomMessage(list[Math.floor(Math.random() * list.length)]);
-}
-
-function setCustomMessage(text) {
-  document.getElementById("catMessage").textContent = text;
-}
-
-function updateBalance() {
-  document.getElementById("balance").textContent =
-    `Balance : ${balance.toLocaleString()} Renga`;
-}
-
-function updateResult(text) {
-  document.getElementById("resultDisplay").textContent = text;
-}
-
-document.addEventListener("click", (e) => {
-  if (!e.target.classList.contains("chip")) return;
-  document.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
-  e.target.classList.add("active");
-  selectedChip = Number(e.target.dataset.chip);
-});
-
-function createBetTable() {
-  const table = document.getElementById("betTable");
-  table.innerHTML = "";
-
-  const zeroWrap = document.createElement("div");
-  zeroWrap.id = "zeroAndRows";
-
-  const zero = document.createElement("button");
-  zero.className = "betCell zeroCell";
-  zero.dataset.bet = "0";
-  zero.textContent = "0";
-  zero.style.background = "linear-gradient(180deg,#079243,#005d2a)";
-  zeroWrap.appendChild(zero);
-
-  const grid = document.createElement("div");
-  grid.id = "numberGrid";
-
-  for (let colIndex = 0; colIndex < 12; colIndex++) {
-    const col = document.createElement("div");
-    col.className = "betColumn";
-
-    for (let row = 0; row < 3; row++) {
-      const num = colIndex * 3 + (3 - row);
-      const cell = document.createElement("button");
-      cell.className = "betCell";
-      cell.dataset.bet = num;
-      cell.innerHTML = `<span class="numLabel">${num}</span>`;
-      cell.style.background = redSet.has(num)
-        ? "linear-gradient(180deg,#b52022,#65110f)"
-        : "linear-gradient(180deg,#202020,#050505)";
-      col.appendChild(cell);
-    }
-
-    grid.appendChild(col);
-  }
-
-  zeroWrap.appendChild(grid);
-  table.appendChild(zeroWrap);
-
-  const dozens = document.createElement("div");
-  dozens.id = "dozens";
-
-  [
-    { id: "1st12", label: "1st 12" },
-    { id: "2nd12", label: "2nd 12" },
-    { id: "3rd12", label: "3rd 12" },
-  ].forEach((item) => {
-    const button = document.createElement("button");
-    button.className = "outsideBet";
-    button.dataset.bet = item.id;
-    button.textContent = item.label;
-    dozens.appendChild(button);
-  });
-
-  table.appendChild(dozens);
-
-  const outside = document.createElement("div");
-  outside.id = "outsideBets";
-
-  [
-    { id: "1-18", label: "1-18" },
-    { id: "EVEN", label: "EVEN" },
-    { id: "RED", label: "◆", bg: "linear-gradient(180deg,#b52022,#65110f)" },
-    { id: "BLACK", label: "◆", bg: "linear-gradient(180deg,#202020,#050505)" },
-    { id: "ODD", label: "ODD" },
-    { id: "19-36", label: "19-36" },
-  ].forEach((item) => {
-    const button = document.createElement("button");
-    button.className = "outsideBet";
-    button.dataset.bet = item.id;
-    button.textContent = item.label;
-    if (item.bg) button.style.background = item.bg;
-    outside.appendChild(button);
-  });
-
-  table.appendChild(outside);
-}
-
-function updateBetVisuals(btn, total) {
-  let chip = btn.querySelector(".betChip");
-
-  if (!chip) {
-    chip = document.createElement("div");
-    chip.className = "betChip";
-    btn.appendChild(chip);
-  }
-
-  chip.textContent = total >= 1000 ? `${total / 1000}k` : total;
-}
-
-function redrawAllBetVisuals() {
-  document.querySelectorAll(".betChip").forEach((chip) => chip.remove());
-
-  for (const key in bets) {
-    const button = document.querySelector(`[data-bet="${CSS.escape(key)}"]`);
-    if (button) updateBetVisuals(button, bets[key]);
-  }
-}
-
-function clearBetsVisuals() {
-  document.querySelectorAll(".betChip").forEach((chip) => chip.remove());
-}
-
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-bet]");
-  if (!btn || btn.classList.contains("chip") || spinning) return;
-
-  const bet = btn.dataset.bet;
-  const amount = selectedChip;
-
-  if (balance < amount) {
-    setCatMessage("lowBalance");
-    return;
-  }
-
-  balance -= amount;
-  bets[bet] = (bets[bet] || 0) + amount;
-  betHistory.push({ bet, amount });
-  updateBalance();
-  updateBetVisuals(btn, bets[bet]);
-});
-
-function resizeCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  const size = Math.floor(Math.min(rect.width, rect.height));
-  if (size <= 0) return;
-  canvas.width = size;
-  canvas.height = size;
-  drawRoulette();
-}
-
-function getSlotDisplayAngle(index) {
-  const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-  return index * angleSize - Math.PI / 2 + angleSize / 2 + rotation;
-}
-
-function getSlotDisplayAngleForNumber(num) {
-  const index = rouletteNumbers.indexOf(num);
-  return getSlotDisplayAngle(index < 0 ? 0 : index);
-}
-
-function drawRotatingTail(cx, cy, ringR) {
-  const tailAsset = catTailAsset || catTailImg;
-  if (!catTailReady || !tailAsset) return;
-
-  const pivotX = tailAsset.width * 0.28;
-  const pivotY = tailAsset.height * 0.88;
-  const tipX = tailAsset.width * 0.38;
-  const tipY = tailAsset.height * 0.08;
-  const sourceAngle = Math.atan2(tipY - pivotY, tipX - pivotX);
-  const sourceLength = Math.hypot(tipX - pivotX, tipY - pivotY);
-  const scale = ringR / sourceLength;
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(tailAngle - sourceAngle);
-  ctx.scale(scale, scale);
-  ctx.drawImage(tailAsset, -pivotX, -pivotY);
-  ctx.restore();
-}
-
-function drawCenterCat(cx, cy, r, ringR) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, ringR * 1.08, 0, Math.PI * 2);
-  ctx.clip();
-
-  drawRotatingTail(cx, cy, ringR);
-
-  const bodyAsset = catBodyAsset || catBodyImg;
-
-  if (catBodyReady && bodyAsset) {
-    const bodyH = r * 2;
-    const bodyW = bodyH * (bodyAsset.width / bodyAsset.height);
-    ctx.drawImage(bodyAsset, cx - bodyW * 0.52, cy - bodyH * 0.5, bodyW, bodyH);
-  } else {
-    ctx.fillStyle = "#120d16";
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.72, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.restore();
-}
-
-function drawRoulette() {
-  if (!canvas.width || !canvas.height) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2;
-  const outer = canvas.width * 0.485;
-  const inner = canvas.width * 0.36;
-  const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rotation);
-  ctx.translate(-cx, -cy);
-
-  rouletteNumbers.forEach((num, i) => {
-    const start = i * angleSize - Math.PI / 2;
-    const end = start + angleSize;
-    const color = num === 0 ? "#079243" : redSet.has(num) ? "#b52022" : "#0a0a0a";
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, outer, start, end);
-    ctx.arc(cx, cy, inner, end, start, true);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.strokeStyle = "#d9b147";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    const textAngle = start + angleSize / 2;
-    const textR = (outer + inner) / 2;
-    const x = cx + Math.cos(textAngle) * textR;
-    const y = cy + Math.sin(textAngle) * textR;
-
+const rouletteNumbers=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const redSet=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+const canvas=document.getElementById('wheel');
+const ctx=canvas.getContext('2d');
+const betGrid=document.getElementById('betGrid');
+const balanceEl=document.getElementById('balance');
+const messageEl=document.getElementById('message');
+const historyEl=document.getElementById('history');
+const redRateEl=document.getElementById('redRate');
+const blackRateEl=document.getElementById('blackRate');
+const totalSpinsEl=document.getElementById('totalSpins');
+const totalBetEl=document.getElementById('totalBet');
+const topTotalBetEl=document.getElementById('topTotalBet');
+const resultBadge=document.getElementById('resultBadge');
+const customBet=document.getElementById('customBet');
+let balance=50000, chip=100, rotation=0, spinning=false, bets={}, lastBets=[], history=[], total=0, redHits=0, blackHits=0;
+function money(n){return n.toLocaleString('ja-JP')}
+function compactMoney(n){return n>=10000?Math.round(n/1000)+'K':money(n)}
+function colorOf(n){return n===0?'green':redSet.has(n)?'red':'black'}
+function drawWheel(){
+  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,r=w*.46,inner=w*.18,step=Math.PI*2/rouletteNumbers.length;
+  ctx.clearRect(0,0,w,h);ctx.save();ctx.translate(cx,cy);ctx.rotate(rotation);
+  rouletteNumbers.forEach((num,i)=>{
+    const center=-Math.PI/2+i*step,start=center-step/2,end=center+step/2;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,r,start,end);ctx.closePath();
+    ctx.fillStyle=colorOf(num)==='red'?'#9e3658':colorOf(num)==='black'?'#171522':'#476f67';
+    ctx.fill();ctx.strokeStyle='#d8b8d5';ctx.lineWidth=2;ctx.stroke();
     ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(textAngle + Math.PI / 2);
-    ctx.fillStyle = "white";
-    ctx.font = `bold ${canvas.width * 0.036}px Georgia`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "black";
-    ctx.shadowBlur = 4;
-    ctx.fillText(num, 0, 0);
+    const textRadius=r*.79;
+    ctx.translate(Math.cos(center)*textRadius,Math.sin(center)*textRadius);
+    let textAngle=center+Math.PI/2;
+    const normalized=((textAngle%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+    if(normalized>Math.PI/2&&normalized<Math.PI*1.5)textAngle+=Math.PI;
+    ctx.rotate(textAngle);
+    ctx.font='900 24px Georgia';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.shadowColor='#000';ctx.shadowBlur=5;ctx.shadowOffsetY=2;
+    ctx.lineWidth=4;ctx.strokeStyle='#120915';ctx.strokeText(num,0,0);
+    ctx.fillStyle='#fffaf4';
+    ctx.fillText(num,0,0);
     ctx.restore();
   });
-
-  ctx.restore();
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, inner - 4, 0, Math.PI * 2);
-  ctx.fillStyle = "#2a1737";
-  ctx.fill();
-  ctx.strokeStyle = "#d9b147";
-  ctx.lineWidth = 4;
-  ctx.stroke();
-
-  drawCenterCat(cx, cy, canvas.width * 0.31, (outer + inner) / 2);
+  ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.strokeStyle='#caa2c9';ctx.lineWidth=18;ctx.stroke();ctx.beginPath();ctx.arc(0,0,inner,0,Math.PI*2);ctx.fillStyle='#44315c';ctx.fill();ctx.strokeStyle='#d6b6d7';ctx.lineWidth=6;ctx.stroke();ctx.restore();
 }
-
-function getWinningNumber() {
-  const angleSize = (Math.PI * 2) / rouletteNumbers.length;
-  let normalizedRotation = rotation % (Math.PI * 2);
-  if (normalizedRotation < 0) normalizedRotation += Math.PI * 2;
-  return rouletteNumbers[
-    Math.floor(((Math.PI * 2 - normalizedRotation) % (Math.PI * 2)) / angleSize)
-  ];
+function makeBtn(label,type,value,cls='',style='') {const b=document.createElement('button');b.className='bet '+cls;b.textContent=label;b.dataset.label=label;b.dataset.type=type;b.dataset.value=value;b.style.cssText=style;b.onclick=()=>placeBet(type,value,b);return b;}
+function buildGrid(){
+  betGrid.appendChild(makeBtn('0','number','0','green zero'));
+  const rows=[[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
+  rows.forEach((row,ri)=>row.forEach((n,ci)=>betGrid.appendChild(makeBtn(n,'number',n,colorOf(n),`grid-row:${ri+1};grid-column:${ci+2}`))));
+  for(let r=1;r<=3;r++)betGrid.appendChild(makeBtn('2 to 1','column',4-r,'colbet',`grid-row:${r};grid-column:14`));
+  [['1st 12',1],['2nd 12',2],['3rd 12',3]].forEach(([l,v],i)=>betGrid.appendChild(makeBtn(l,'dozen',v,'dozen',`grid-row:4;grid-column:${2+i*4}/span 4`)));
+  [['1-18','low','low'],['EVEN','even','even'],['RED','color','red'],['BLACK','color','black'],['ODD','odd','odd'],['19-36','high','high']].forEach(([l,t,v],i)=>betGrid.appendChild(makeBtn(l,t,v,'outside '+(v==='red'?'red':v==='black'?'black':''),`grid-row:5;grid-column:${2+i*2}/span 2`)));
 }
-
-function resolveBets(result) {
-  let win = 0;
-
-  for (const key in bets) {
-    const amount = bets[key];
-    let payout = 0;
-
-    if (!isNaN(key)) {
-      if (Number(key) === result) payout = 36;
-    } else if (key === "RED" && redSet.has(result)) payout = 2;
-    else if (key === "BLACK" && result !== 0 && !redSet.has(result)) payout = 2;
-    else if (key === "ODD" && result !== 0 && result % 2 === 1) payout = 2;
-    else if (key === "EVEN" && result !== 0 && result % 2 === 0) payout = 2;
-    else if (key === "1-18" && result >= 1 && result <= 18) payout = 2;
-    else if (key === "19-36" && result >= 19 && result <= 36) payout = 2;
-    else if (key === "1st12" && result >= 1 && result <= 12) payout = 3;
-    else if (key === "2nd12" && result >= 13 && result <= 24) payout = 3;
-    else if (key === "3rd12" && result >= 25 && result <= 36) payout = 3;
-
-    if (payout > 0) win += amount * payout;
-  }
-
-  balance += win;
-  updateBalance();
-  updateResult(`Result : ${result}`);
-
-  if (win > 0) {
-    setCustomMessage(`${result} が当選にゃ！ +${win.toLocaleString()} Renga だにゃ！`);
-  } else if (balance <= 1000) {
-    setCatMessage("lowBalance");
-  } else {
-    setCustomMessage(`${result} が当選にゃ。今回は残念だったにゃ……。`);
-  }
-
-  bets = {};
-  betHistory = [];
-  setTimeout(clearBetsVisuals, 1600);
-}
-
-function spinRoulette() {
-  if (spinning) return;
-
-  let total = 0;
-  for (const key in bets) total += bets[key];
-
-  if (total === 0) {
-    setCustomMessage("まずはBET表にチップを置くにゃ。");
-    return;
-  }
-
-  if (total >= 1000) setCatMessage("bigBet");
-
-  spinning = true;
-  updateResult("Spinning...");
-  clearBetsVisuals();
-
-  let speed = Math.random() * 0.16 + 0.38;
-  const friction = 0.988;
-
-  function animate() {
-    rotation += speed;
-    speed *= friction;
-    tailAngle = getSlotDisplayAngle(0);
-    drawRoulette();
-
-    if (speed > 0.001) {
-      requestAnimationFrame(animate);
-    } else {
-      spinning = false;
-      const result = getWinningNumber();
-      tailAngle = getSlotDisplayAngleForNumber(result);
-      drawRoulette();
-      resolveBets(result);
-    }
-  }
-
-  animate();
-}
-
-function clearBets() {
-  if (spinning) return;
-
-  for (const key in bets) balance += bets[key];
-
-  bets = {};
-  betHistory = [];
-  updateBalance();
-  clearBetsVisuals();
-  updateResult("Result : -");
-  setCatMessage("idle");
-}
-
-function backBet() {
-  if (spinning || betHistory.length === 0) return;
-
-  const last = betHistory.pop();
-  bets[last.bet] -= last.amount;
-  balance += last.amount;
-
-  if (bets[last.bet] <= 0) delete bets[last.bet];
-
-  updateBalance();
-  redrawAllBetVisuals();
-  setCustomMessage("ひとつ前のBETを戻したにゃ。");
-}
-
-document.getElementById("spinButton").addEventListener("click", spinRoulette);
-document.getElementById("clearButton").addEventListener("click", clearBets);
-document.getElementById("backButton").addEventListener("click", backBet);
-
-createBetTable();
-updateBalance();
-setCatMessage("idle");
-window.addEventListener("resize", resizeCanvas);
-requestAnimationFrame(resizeCanvas);
+function betAmount(){return Math.max(1,Number(customBet.value)||chip)}
+function placeBet(type,value,el){if(spinning)return;const amt=betAmount();if(balance<amt){msg('コインが足りません','lose');return}const label=el.dataset.label||el.textContent.trim();balance-=amt;const key=type+':'+value;bets[key]=(bets[key]||0)+amt;lastBets.push({key,amt});updateBalance();renderBetAmounts();updateTotalBet();msg(`${label} に ${money(amt)} ベットしました`)}
+function renderBetAmounts(){document.querySelectorAll('.bet').forEach(b=>{b.classList.remove('active');b.querySelector('.amount')?.remove();const key=b.dataset.type+':'+b.dataset.value;if(bets[key]){b.classList.add('active');const s=document.createElement('span');s.className='amount';s.textContent=compactMoney(bets[key]);b.appendChild(s)}})}
+function updateBalance(){balanceEl.textContent=money(balance)}
+function totalBet(){return Object.values(bets).reduce((a,b)=>a+b,0)}
+function updateTotalBet(){const total=money(totalBet());totalBetEl.textContent=total;if(topTotalBetEl)topTotalBetEl.textContent=total}
+function setLocked(on){document.querySelectorAll('button,input').forEach(el=>{el.disabled=on});}
+function animateBalance(from,to){const t0=performance.now(),duration=650;function step(t){const p=Math.min(1,(t-t0)/duration);const v=Math.round(from+(to-from)*(1-Math.pow(1-p,3)));balanceEl.textContent=money(v);if(p<1)requestAnimationFrame(step);else updateBalance()}requestAnimationFrame(step)}
+function showResult(text,cls){resultBadge.textContent=text;resultBadge.className='result-badge '+cls;setTimeout(()=>resultBadge.classList.add('hidden'),2200)}
+function msg(t,cls='',html=false){if(html)messageEl.innerHTML=t;else messageEl.textContent=t;messageEl.parentElement.className='message panel '+cls}
+function payout(num){let win=0;Object.entries(bets).forEach(([key,amt])=>{const [type,val]=key.split(':');const n=Number(num);if(type==='number'&&Number(val)===n)win+=amt*36;if(type==='color'&&colorOf(n)===val)win+=amt*2;if(type==='even'&&n!==0&&n%2===0)win+=amt*2;if(type==='odd'&&n%2===1)win+=amt*2;if(type==='low'&&n>=1&&n<=18)win+=amt*2;if(type==='high'&&n>=19&&n<=36)win+=amt*2;if(type==='dozen'&&Math.ceil(n/12)===Number(val))win+=amt*3;if(type==='column'&&n!==0&&((n-1)%3)+1===Number(val))win+=amt*3;});return win}
+function spin(){if(spinning)return;if(Object.keys(bets).length===0){msg('先にベットしてください','lose');return}spinning=true;setLocked(true);resultBadge.classList.add('hidden');msg('ルーレット回転中...') ;const result=rouletteNumbers[Math.floor(Math.random()*rouletteNumbers.length)];const idx=rouletteNumbers.indexOf(result);const step=Math.PI*2/rouletteNumbers.length;const target=-(idx*step);const start=rotation;const end=target+Math.PI*2*(6+Math.floor(Math.random()*3));const duration=3600;const t0=performance.now();function anim(t){const p=Math.min(1,(t-t0)/duration);const ease=1-Math.pow(1-p,4);rotation=start+(end-start)*ease;drawWheel();if(p<1)requestAnimationFrame(anim);else finish(result)}requestAnimationFrame(anim)}
+function finish(result){rotation=((rotation%(Math.PI*2))+Math.PI*2)%(Math.PI*2);const win=payout(result);const before=balance;balance+=win;total++;if(colorOf(result)==='red')redHits++;if(colorOf(result)==='black')blackHits++;history.unshift(result);history=history.slice(0,5);bets={};lastBets=[];spinning=false;setLocked(false);animateBalance(before,balance);renderBetAmounts();updateTotalBet();renderHistory();renderStats();showResult(win?`当選 ${result} / +${money(win)} COINS`:`当選 ${result} / 次こそ`,win?'win':'lose');msg(win?`当選番号 <span class="message-number">${result}</span> / ${money(win)} コイン獲得！`:`当選番号 <span class="message-number">${result}</span> / 次こそ当てましょう`,win?'win':'lose',true)}
+function renderHistory(){historyEl.innerHTML='';history.forEach(n=>{const s=document.createElement('span');s.className=colorOf(n);s.textContent=n;historyEl.appendChild(s)})}
+function renderStats(){totalSpinsEl.textContent=total;redRateEl.textContent=total?Math.round(redHits/total*100)+'%':'0%';blackRateEl.textContent=total?Math.round(blackHits/total*100)+'%':'0%'}
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');chip=Number(b.dataset.chip)});
+document.getElementById('clearBtn').onclick=()=>{const refund=Object.values(bets).reduce((a,b)=>a+b,0);balance+=refund;bets={};lastBets=[];updateBalance();renderBetAmounts();updateTotalBet();msg('ベットをクリアしました')};
+document.getElementById('backBtn').onclick=()=>{const last=lastBets.pop();if(!last)return;balance+=last.amt;bets[last.key]-=last.amt;if(bets[last.key]<=0)delete bets[last.key];updateBalance();renderBetAmounts();updateTotalBet();msg('ひとつ戻しました')};
+document.getElementById('spinBtn').onclick=spin;
+buildGrid();drawWheel();updateBalance();updateTotalBet();renderStats();
