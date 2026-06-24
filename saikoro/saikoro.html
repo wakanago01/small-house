@@ -554,35 +554,13 @@
 
     function resetGameEntirely() {
       if (confirm("本当に進行データをすべて初期化して、1日目の最初からやり直しますか？")) {
-        localStorage.removeItem('small_house_game_state');
-        localStorage.removeItem('sh_save_exists');
-        const shKeys = ['sh_coins', 'sh_debt', 'sh_days', 'sh_hunger', 'sh_stress', 'sh_san', 'sh_nightmare', 'sh_sakeLevel', 'sh_smokeLevel', 'sh_todayProfit', 'sh_totalProfit'];
-        shKeys.forEach(k => localStorage.removeItem(k));
-        window.location.href = '../home/index.html';
+        localStorage.clear();
+        location.reload(); // ページをリロードして初期状態へ
       }
     }
 
     function loadGame() {
-      const saved = localStorage.getItem('small_house_game_state');
-      if (saved) {
-        try {
-          const state = JSON.parse(saved);
-          coins = typeof state.coins === 'number' ? state.coins : 50000;
-          debt = typeof state.remainingDebt === 'number' ? state.remainingDebt : (typeof state.debt === 'number' ? state.debt : INITIAL_DEBT);
-          days = typeof state.days === 'number' ? state.days : 12;
-          hunger = typeof state.hunger === 'number' ? state.hunger : 55;
-          stress = typeof state.stress === 'number' ? state.stress : 32;
-          san = typeof state.san === 'number' ? state.san : 18;
-          nightmare = state.nightmare === true;
-          sakeLevel = typeof state.sakeLevel === 'number' ? state.sakeLevel : 0;
-          smokeLevel = typeof state.smokeLevel === 'number' ? state.smokeLevel : 0;
-          todayProfit = typeof state.todayProfit === 'number' ? state.todayProfit : 0;
-          totalProfit = typeof state.totalProfit === 'number' ? state.totalProfit : 0;
-          showSystemMessage("ゲームデータをホーム画面から同期・復元しました。");
-        } catch (e) {
-          console.error("Failed to parse small_house_game_state:", e);
-        }
-      } else if (localStorage.getItem('sh_save_exists')) {
+      if (localStorage.getItem('sh_save_exists')) {
         coins = parseInt(localStorage.getItem('sh_coins')) || 50000;
         debt = parseInt(localStorage.getItem('sh_debt')) || INITIAL_DEBT;
         days = parseInt(localStorage.getItem('sh_days')) || 12;
@@ -594,7 +572,7 @@
         smokeLevel = parseInt(localStorage.getItem('sh_smokeLevel')) || 0;
         todayProfit = parseInt(localStorage.getItem('sh_todayProfit')) || 0;
         totalProfit = parseInt(localStorage.getItem('sh_totalProfit')) || 0;
-        showSystemMessage("セーブデータを復元しました。");
+        showSystemMessage("セーブデータを自動で復元しました。");
       } else {
         addHistoryRow("WIN", "4・4・4", "ゾロ目", 3000);
         addHistoryRow("WIN", "6・6・6", "ゾロ目", 3000);
@@ -606,29 +584,6 @@
     }
 
     function saveGame() {
-      let state = {};
-      const saved = localStorage.getItem('small_house_game_state');
-      if (saved) {
-        try {
-          state = JSON.parse(saved);
-        } catch (e) {
-          console.error("Failed to parse small_house_game_state in saveGame", e);
-        }
-      }
-      state.coins = coins;
-      state.remainingDebt = debt;
-      state.days = days;
-      state.hunger = hunger;
-      state.stress = stress;
-      state.san = san;
-      state.nightmare = nightmare;
-      state.sakeLevel = sakeLevel;
-      state.smokeLevel = smokeLevel;
-      state.todayProfit = todayProfit;
-      state.totalProfit = totalProfit;
-
-      localStorage.setItem('small_house_game_state', JSON.stringify(state));
-
       localStorage.setItem('sh_save_exists', 'true');
       localStorage.setItem('sh_coins', coins);
       localStorage.setItem('sh_debt', debt);
