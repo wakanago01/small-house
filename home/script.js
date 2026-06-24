@@ -49,6 +49,39 @@ const INITIAL_STATE = {
     energy: 100,
     condition: 100
 };
+const ITEMS = {
+    food: {
+        name: "高級弁当",
+        icon: "🍱",
+        price: 100,
+        desc: "満腹度を回復する。",
+        effect: {
+            hunger: 30
+        }
+    },
+
+    alcohol: {
+        name: "ヴィンテージワイン",
+        icon: "🍷",
+        price: 200,
+        desc: "ストレスを少し軽減する。",
+        effect: {
+            stress: -15,
+            alcohol: 20
+        }
+    },
+
+    smoke: {
+        name: "高級タバコ",
+        icon: "🚬",
+        price: 150,
+        desc: "ストレスを軽減する。",
+        effect: {
+            stress: -10,
+            cigarette: 20
+        }
+    }
+};
 
 let gameState = { ...INITIAL_STATE };
 let secondsPassed = 0;
@@ -97,7 +130,8 @@ function updateUI() {
         updateAAAStatusBars();
     }
     
-    // saveGameState(); // Auto-save on UI update
+    saveGameState();
+     // Auto-save on UI update
 }
 
 function updateProgressBar(el, value, isInverse = false) {
@@ -143,6 +177,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
             openModal('settings-modal');
         } else if (label === 'Info') {
             openModal('info-modal');
+        }else if (label === 'Save') {
+            saveAndExit();
         } else if (label === 'Shop') {
             openModal('shop-modal');
         } else if (label === 'Inventory') {
@@ -201,6 +237,7 @@ function confirmRepayment() {
     gameState.coins -= amount;
     gameState.remainingDebt -= amount;
     showToast(`${amount.toLocaleString()} COINS を返済しました。`);
+    saveGameState();
     updateUI();
     closeModal('repay-modal');
 }
@@ -267,7 +304,10 @@ function buyItem(type, qty = 1) {
         for (let i = 0; i < qty; i++) {
             gameState.inventory.push({ ...item });
         }
+        saveGameState();
+
         showToast(`${item.name} を ${qty} 個購入しました！`);
+        updateInventoryUI();
         updateUI();
     }
 }
@@ -290,9 +330,14 @@ function updateInventoryUI() {
 
 function showItemDetail(index) {
     const item = gameState.inventory[index];
+
+    document.getElementById('detail-icon').textContent = item.icon;
+
     uiElements.detailName.textContent = item.name;
     uiElements.detailDesc.textContent = item.desc;
+
     uiElements.itemDetail.classList.remove('hidden');
+
     uiElements.useItemBtn.onclick = () => useItem(index);
 }
 
@@ -306,6 +351,7 @@ function useItem(index) {
 
     showToast(`${item.name}を使用しました。`);
     gameState.inventory.splice(index, 1);
+    saveGameState();
     uiElements.itemDetail.classList.add('hidden');
     updateInventoryUI();
     updateUI();
@@ -440,7 +486,28 @@ function showToast(message) {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
+function saveAndExit() {
 
+    const confirmed = confirm(
+        "ゲームを保存して終了しますか？"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    saveGameState();
+
+    sessionStorage.removeItem(
+        'small_house_started'
+    );
+
+    showToast("ゲームを保存しました");
+
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
 /**
  * Start Screen Logic
  */
@@ -477,9 +544,8 @@ window.onload = () => {
         if(bottomNav){
             bottomNav.style.display = '';
         }
-
-        return;
         setInterval(updateSurvivalClock, 1000);
+        return;
     }
     const startOverlay = document.getElementById('start-screen-overlay');
     const continueBtn = document.getElementById('continue-btn');

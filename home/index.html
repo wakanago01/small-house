@@ -240,12 +240,23 @@
                     <!-- Items will be injected here -->
                 </div>
                 
-                <div id="item-detail-area" class="hidden glass-panel item-detail">
-                    <h3 id="detail-name">ITEM NAME</h3>
-                    <p id="detail-desc">ITEM DESCRIPTION</p>
-                    <button id="use-item-btn" class="glow-btn">USE ITEM</button>
-                </div>
+                <div id="item-detail" class="hidden item-detail-card glass-panel">
 
+                    <div class="item-detail-header">
+                        <div id="detail-icon" class="detail-icon">🍱</div>
+
+                        <div class="detail-text">
+                            <h3 id="detail-name">ITEM NAME</h3>
+                            <p id="detail-desc">ITEM DESCRIPTION</p>
+                        </div>
+                    </div>
+
+                    <button id="use-item-btn"
+                            class="use-item-btn glow-btn">
+                        USE ITEM
+                    </button>
+
+                </div>
                 <button class="close-btn glow-btn" onclick="closeModal('inventory-modal')">CLOSE</button>
             </div>
         </div>
@@ -394,6 +405,10 @@
                 <div class="nav-item">
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label">Settings</span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-icon">💾</span>
+                    <span class="nav-label">Save</span>
                 </div>
             </nav>
         </footer>
