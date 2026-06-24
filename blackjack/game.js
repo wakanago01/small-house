@@ -95,7 +95,10 @@ const particlesContainer = document.getElementById('particles-container');
 const hamburgerMenu = document.getElementById('hamburger-menu');
 const sideMenu = document.getElementById('side-menu');
 const homeBtn = document.getElementById('home-btn');
+const rulesBtn = document.getElementById('rules-btn');
 const closeMenuBtn = document.getElementById('close-menu-btn');
+const rulesOverlay = document.getElementById('rules-overlay');
+const closeRulesBtn = document.getElementById('close-rules-btn');
 
 // 音源の定義
 const sounds = {
@@ -775,6 +778,17 @@ hamburgerMenu.addEventListener('click', () => {
 closeMenuBtn.addEventListener('click', () => {
     playSound('click');
     sideMenu.classList.add('hidden-menu');
+});
+
+rulesBtn.addEventListener('click', () => {
+    playSound('click');
+    sideMenu.classList.add('hidden-menu');
+    rulesOverlay.classList.remove('hidden');
+});
+
+closeRulesBtn.addEventListener('click', () => {
+    playSound('click');
+    rulesOverlay.classList.add('hidden');
 });
 
 homeBtn.addEventListener('click', () => {

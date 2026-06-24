@@ -931,4 +931,119 @@ body {
     100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
 }
 
+/* Rules Overlay Styles */
+#rules-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(20, 0, 30, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2500;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: auto; /* Ensure clicks are captured */
+}
+
+#rules-overlay:not(.hidden) {
+    opacity: 1;
+}
+
+#rules-content {
+    background: rgba(30, 5, 45, 0.95);
+    border: 2px solid rgba(255, 102, 204, 0.6);
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.4), inset 0 0 15px rgba(255, 0, 255, 0.2);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    color: #fff;
+    font-family: 'Cormorant Garamond', serif;
+}
+
+#rules-content h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 32px;
+    margin: 0;
+    color: #ff99cc;
+    text-shadow: 0 0 15px #ff00ff;
+    letter-spacing: 4px;
+}
+
+.rules-scroll-area {
+    width: 100%;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Custom Scrollbar for rules area */
+.rules-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+.rules-scroll-area::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+.rules-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 102, 204, 0.5);
+    border-radius: 3px;
+}
+.rules-scroll-area::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 102, 204, 0.8);
+}
+
+.rules-scroll-area h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    color: #ffb3e6;
+    border-left: 3px solid #ff66cc;
+    padding-left: 10px;
+    margin: 15px 0 5px 0;
+    letter-spacing: 2px;
+}
+
+.rules-scroll-area p, .rules-scroll-area ul {
+    margin: 0;
+    color: #e0d0e6;
+}
+
+.rules-scroll-area ul {
+    padding-left: 20px;
+}
+
+.rules-scroll-area li {
+    margin-bottom: 8px;
+}
+
+.rules-buttons-desc {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rules-buttons-desc p {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 153, 204, 0.15);
+}
+
+.rules-buttons-desc strong {
+    color: #ffb3e6;
+    text-shadow: 0 0 5px rgba(255, 102, 204, 0.5);
+}
+
 .hidden { display: none !important; }

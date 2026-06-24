@@ -72,6 +72,9 @@
                 <button id="home-btn" class="menu-item-btn">
                     <span class="icon">🏠</span> HOME
                 </button>
+                <button id="rules-btn" class="menu-item-btn">
+                    <span class="icon">📜</span> RULES
+                </button>
                 <button id="close-menu-btn" class="menu-item-btn">
                     <span class="icon">×</span> CLOSE
                 </button>
@@ -144,6 +147,44 @@
     <!-- Overlays -->
     <div id="result-overlay" class="hidden">
         <div id="result-content"></div>
+    </div>
+
+    <!-- Rules Explanation Overlay -->
+    <div id="rules-overlay" class="hidden">
+        <div id="rules-content">
+            <h2>📜 RULES</h2>
+            <div class="rules-scroll-area">
+                <h3>ブラックジャックのルール</h3>
+                <p>ディーラー（対戦相手）とカードの合計値が「21」に近い方を競うゲームです。</p>
+                <ul>
+                    <li><strong>カードの数え方:</strong>
+                        <ul>
+                            <li>2〜10: そのままの数字として数えます。</li>
+                            <li>J, Q, K: すべて「10」として数えます。</li>
+                            <li>A (エース): 「1」または「11」の都合の良い方として数えます。</li>
+                        </ul>
+                    </li>
+                    <li><strong>勝敗の条件:</strong>
+                        <ul>
+                            <li>カードの合計が「21」を超えると「バースト」となり、その時点でプレイヤーの負けになります。</li>
+                            <li>ディーラーより21に近く、かつ21を超えなければプレイヤーの勝ちです。</li>
+                            <li>最初の2枚でちょうど「21」になった場合は「ブラックジャック」となり、配当が2.5倍になります。</li>
+                            <li>合計が同じ場合は「プッシュ（引き分け）」となり、賭け金が戻ります。</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3>ボタンのそれぞれの意味</h3>
+                <div class="rules-buttons-desc">
+                    <p><strong>DEAL (ディール)</strong><br>賭け金を決定し、カードを配ってゲームを開始します。</p>
+                    <p><strong>HIT (ヒット)</strong><br>カードをもう1枚引きます。21を超えない限り、何枚でも引くことができます。</p>
+                    <p><strong>STAND (スタンド)</strong><br>カードを引くのをやめて、現在の手札で勝負します。ディーラーは手札が17以上になるまでカードを引き続けます。</p>
+                    <p><strong>DOUBLE (ダブルダウン)</strong><br>賭け金を2倍にし、カードを1枚だけ追加で引いて勝負します（最初のターンのみ選択可能）。</p>
+                    <p><strong>SURRENDER (サレンダー)</strong><br>降参します。賭け金の半分が手元に戻ります（最初のターンのみ選択可能）。</p>
+                </div>
+            </div>
+            <button id="close-rules-btn" class="glow-btn">CLOSE</button>
+        </div>
     </div>
     
     <div id="game-over-overlay" class="hidden">

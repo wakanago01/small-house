@@ -421,10 +421,10 @@ async function handleAction(type) {
     updateUI();
 }
 
-function playGame(gameId) {
+function playGame(gameId, filename = 'index.html') {
     saveGameState();
     document.body.style.opacity = '0';
-    setTimeout(() => { window.location.href = `../${gameId}/index.html`; }, 500);
+    setTimeout(() => { window.location.href = `../${gameId}/${filename}`; }, 500);
 }
 
 function showToast(message) {
