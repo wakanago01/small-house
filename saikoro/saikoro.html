@@ -399,7 +399,7 @@
     <div class="absolute bottom-6 left-6 w-[1485px] h-[90px] flex gap-4 items-end justify-between">
       
       <button onclick="openSystemMenu()" class="w-[220px] h-[64px] bg-[#1e0c26]/90 border border-[#91618c] text-[#ca9ec6] hover:text-white rounded-lg text-xs font-bold transition-all hover:bg-[#341845] flex items-center justify-center gap-1.5 shadow-md">
-        <i class="fa-solid fa-bars"></i> メニューを開く (Esc)
+        <i class="fa-solid fa-bars"></i> メニュー (Esc)
       </button>
 
       <div class="flex gap-4 flex-1 justify-end">
@@ -434,7 +434,24 @@
   <div id="modal-system-menu" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden p-4 animate-fade-in">
     <div class="bg-[#1c0a24] border-2 border-[#ffaae9] rounded-2xl p-6 max-w-sm w-full text-center fancy-panel">
       <h2 class="text-xl font-black text-[#ffaae9] mb-4 neon-text">⚙️ メニュー</h2>
-      <p class="text-xs text-[#cca4ca] mb-6">ゲームの進行状況を管理します。</p>
+      
+      <!-- 音量設定エリアをメニュー内に統合 -->
+      <div class="flex flex-col gap-4 text-left mb-6 text-xs text-[#eddced] bg-[#2a1335]/50 p-4 rounded-xl border border-[#ffaae9]/20">
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between">
+            <span class="font-bold">🎵 BGM 音量</span>
+            <span id="lbl-volume-bgm">50%</span>
+          </div>
+          <input type="range" id="slider-volume-bgm" min="0" max="100" value="50" oninput="changeVolume('bgm', this.value)" class="w-full h-1 bg-purple-950 rounded-lg appearance-none cursor-pointer accent-pink-500">
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between">
+            <span class="font-bold">🎲 効果音 音量</span>
+            <span id="lbl-volume-se">50%</span>
+          </div>
+          <input type="range" id="slider-volume-se" min="0" max="100" value="50" oninput="changeVolume('se', this.value)" class="w-full h-1 bg-purple-950 rounded-lg appearance-none cursor-pointer accent-pink-500">
+        </div>
+      </div>
       
       <div class="flex flex-col gap-3">
         <button onclick="closeSystemMenu()" class="w-full py-2.5 bg-gradient-to-r from-purple-800 to-indigo-900 text-white font-bold rounded-xl border border-purple-500 hover:from-purple-700 transition-all">
@@ -500,7 +517,37 @@
 
   <script>
     const INITIAL_DEBT = 100000000;
-    
+    const rollSound = new Audio('roll-of-dice.mp3');
+    const bgmSound = new Audio('dice-in-the-dark.mp3');
+    bgmSound.loop = true;
+
+    // 音量設定の初期ロード
+    let volumeBgm = parseFloat(localStorage.getItem('sh_vol_bgm') ?? '0.5');
+    let volumeSe = parseFloat(localStorage.getItem('sh_vol_se') ?? '0.5');
+    bgmSound.volume = volumeBgm;
+    rollSound.volume = volumeSe;
+
+    function playBgmSafely() {
+      if (bgmSound.paused) {
+        bgmSound.play().catch(e => console.log("BGM play deferred/blocked:", e));
+      }
+    }
+
+    // ユーザーインタラクションがあったときに再生を開始
+    function startBgm() {
+      playBgmSafely();
+      bgmSound.addEventListener('play', () => {
+        window.removeEventListener('click', startBgm);
+        window.removeEventListener('keydown', startBgm);
+        window.removeEventListener('mousedown', startBgm);
+        window.removeEventListener('touchstart', startBgm);
+      }, { once: true });
+    }
+    window.addEventListener('click', startBgm);
+    window.addEventListener('keydown', startBgm);
+    window.addEventListener('mousedown', startBgm);
+    window.addEventListener('touchstart', startBgm);
+
     let coins = 50000;
     let debt = INITIAL_DEBT;
     let days = 12;
@@ -540,6 +587,12 @@
 
     function openSystemMenu() {
       document.getElementById('modal-system-menu').classList.remove('hidden');
+      // スライダーの初期位置設定
+      document.getElementById('slider-volume-bgm').value = Math.round(volumeBgm * 100);
+      document.getElementById('slider-volume-se').value = Math.round(volumeSe * 100);
+      document.getElementById('lbl-volume-bgm').innerText = `${Math.round(volumeBgm * 100)}%`;
+      document.getElementById('lbl-volume-se').innerText = `${Math.round(volumeSe * 100)}%`;
+      playBgmSafely(); // メニューを開いたタイミングでもBGM再生を試みる
     }
 
     function closeSystemMenu() {
@@ -554,13 +607,37 @@
 
     function resetGameEntirely() {
       if (confirm("本当に進行データをすべて初期化して、1日目の最初からやり直しますか？")) {
-        localStorage.clear();
-        location.reload(); // ページをリロードして初期状態へ
+        localStorage.removeItem('small_house_game_state');
+        localStorage.removeItem('sh_save_exists');
+        const shKeys = ['sh_coins', 'sh_debt', 'sh_days', 'sh_hunger', 'sh_stress', 'sh_san', 'sh_nightmare', 'sh_sakeLevel', 'sh_smokeLevel', 'sh_todayProfit', 'sh_totalProfit'];
+        shKeys.forEach(k => localStorage.removeItem(k));
+        window.location.href = '../home/index.html';
       }
     }
 
     function loadGame() {
-      if (localStorage.getItem('sh_save_exists')) {
+      const saved = localStorage.getItem('small_house_game_state');
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          coins = typeof state.coins === 'number' ? state.coins : 50000;
+          debt = typeof state.remainingDebt === 'number' ? state.remainingDebt : (typeof state.debt === 'number' ? state.debt : INITIAL_DEBT);
+          days = typeof state.days === 'number' ? state.days : 12;
+          hunger = typeof state.hunger === 'number' ? state.hunger : 55;
+          stress = typeof state.stress === 'number' ? state.stress : 32;
+          san = typeof state.san === 'number' ? state.san : 18;
+          nightmare = state.nightmare === true;
+          sakeLevel = typeof state.sakeLevel === 'number' ? state.sakeLevel : 0;
+          smokeLevel = typeof state.smokeLevel === 'number' ? state.smokeLevel : 0;
+          todayProfit = typeof state.todayProfit === 'number' ? state.todayProfit : 0;
+          totalProfit = typeof state.totalProfit === 'number' ? state.totalProfit : 0;
+          
+          // ポップアップを出さず、キャラクターのセリフ吹き出しに同期完了を表示
+          document.getElementById('rabbit-bubble-text').innerText = "「ホーム画面からデータを同期したよ。さあ、勝負しよう。」";
+        } catch (e) {
+          console.error("Failed to parse small_house_game_state:", e);
+        }
+      } else if (localStorage.getItem('sh_save_exists')) {
         coins = parseInt(localStorage.getItem('sh_coins')) || 50000;
         debt = parseInt(localStorage.getItem('sh_debt')) || INITIAL_DEBT;
         days = parseInt(localStorage.getItem('sh_days')) || 12;
@@ -572,7 +649,7 @@
         smokeLevel = parseInt(localStorage.getItem('sh_smokeLevel')) || 0;
         todayProfit = parseInt(localStorage.getItem('sh_todayProfit')) || 0;
         totalProfit = parseInt(localStorage.getItem('sh_totalProfit')) || 0;
-        showSystemMessage("セーブデータを自動で復元しました。");
+        document.getElementById('rabbit-bubble-text').innerText = "「ローカルのセーブデータを復元したよ。さあ、勝負しよう。」";
       } else {
         addHistoryRow("WIN", "4・4・4", "ゾロ目", 3000);
         addHistoryRow("WIN", "6・6・6", "ゾロ目", 3000);
@@ -584,6 +661,29 @@
     }
 
     function saveGame() {
+      let state = {};
+      const saved = localStorage.getItem('small_house_game_state');
+      if (saved) {
+        try {
+          state = JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse small_house_game_state in saveGame", e);
+        }
+      }
+      state.coins = coins;
+      state.remainingDebt = debt;
+      state.days = days;
+      state.hunger = hunger;
+      state.stress = stress;
+      state.san = san;
+      state.nightmare = nightmare;
+      state.sakeLevel = sakeLevel;
+      state.smokeLevel = smokeLevel;
+      state.todayProfit = todayProfit;
+      state.totalProfit = totalProfit;
+
+      localStorage.setItem('small_house_game_state', JSON.stringify(state));
+
       localStorage.setItem('sh_save_exists', 'true');
       localStorage.setItem('sh_coins', coins);
       localStorage.setItem('sh_debt', debt);
@@ -733,6 +833,13 @@
         showSystemMessage("コインが足りません！賭け金を下げるか、天秤チャンス等で調達してください。");
         return;
       }
+
+      // BGM再生の試行
+      playBgmSafely();
+
+      // サイコロを振る音を再生
+      rollSound.currentTime = 0;
+      rollSound.play().catch(e => console.log("Audio play deferred or blocked by browser policy:", e));
 
       isRolling = true;
       document.getElementById('btn-roll').disabled = true;
@@ -1061,6 +1168,22 @@
       document.getElementById('modal-alert').classList.add('hidden');
       if (pendingRedirect) {
         window.location.href = pendingRedirect;
+      }
+    }
+
+    function changeVolume(type, value) {
+      const vol = parseFloat(value) / 100;
+      if (type === 'bgm') {
+        volumeBgm = vol;
+        bgmSound.volume = vol;
+        document.getElementById('lbl-volume-bgm').innerText = `${value}%`;
+        localStorage.setItem('sh_vol_bgm', vol);
+        playBgmSafely();
+      } else if (type === 'se') {
+        volumeSe = vol;
+        rollSound.volume = vol;
+        document.getElementById('lbl-volume-se').innerText = `${value}%`;
+        localStorage.setItem('sh_vol_se', vol);
       }
     }
 
