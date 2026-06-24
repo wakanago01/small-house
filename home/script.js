@@ -75,6 +75,7 @@ function loadGameState() {
     } else {
         gameState = { ...INITIAL_STATE };
     }
+    console.log("Loaded State:", gameState);
 }
 
 /**
@@ -96,7 +97,7 @@ function updateUI() {
         updateAAAStatusBars();
     }
     
-    saveGameState(); // Auto-save on UI update
+    // saveGameState(); // Auto-save on UI update
 }
 
 function updateProgressBar(el, value, isInverse = false) {
@@ -385,8 +386,6 @@ function triggerGameOver() {
     updateUI();
 }
 
-setInterval(updateSurvivalClock, 1000);
-
 /**
  * Actions
  */
@@ -452,6 +451,10 @@ window.onload = () => {
     if (alreadyStarted) {
 
         loadGameState();
+            console.log(
+            "HOME RETURN",
+            gameState
+        );
         updateUI();
 
         const startOverlay =
@@ -476,6 +479,7 @@ window.onload = () => {
         }
 
         return;
+        setInterval(updateSurvivalClock, 1000);
     }
     const startOverlay = document.getElementById('start-screen-overlay');
     const continueBtn = document.getElementById('continue-btn');
