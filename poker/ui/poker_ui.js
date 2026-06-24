@@ -106,23 +106,16 @@ class PokerUI {
             if (el) el.innerText = formatted;
         });
 
-        // 動的なフォントサイズ調整 (右下の常設表示のみ)
+        // 動的なフォントサイズ調整を一時停止（CSSの5remを優先させるため）
+        // 大きすぎる場合に備えて、極端な桁数の時だけ微調整する程度に留める
         const permDisplay = document.getElementById('permanent-renga-display');
         if (permDisplay) {
             const digitCount = val.toString().length;
-            const commaCount = (formatted.match(/,/g) || []).length;
-            
-            // 基本サイズ 1.95rem (約31px)
-            // 1. 桁数が5桁を超えたら1桁につき 1pt (0.0625rem) 小さくする
-            // 2. カンマがある場合は1つにつき 2pt (0.125rem) さらに小さくする
-            const baseSize = 1.95;
-            const ptInRem = 0.0625;
-            
-            let reductionPt = Math.max(0, digitCount - 5);
-            reductionPt += (commaCount * 2);
-            
-            const newSize = Math.max(0.8, baseSize - (reductionPt * ptInRem));
-            permDisplay.style.fontSize = `${newSize}rem`;
+            if (digitCount > 9) {
+                permDisplay.style.fontSize = '3rem'; // 億を超えたら少し抑える
+            } else {
+                permDisplay.style.fontSize = ''; // CSSの5remを適用
+            }
         }
 
         this.updateStress(stress);
