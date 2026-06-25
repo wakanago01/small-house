@@ -117,6 +117,18 @@
       <div class="side-menu-inner">
         <h2>MENU</h2>
         <div class="side-menu-line"></div>
+        <section class="audio-settings" aria-label="音量設定">
+          <label class="audio-row" for="bgmVolume">
+            <span class="audio-label"><span class="audio-icon">♪</span>BGM 音量</span>
+            <span class="audio-value" id="bgmVolumeValue">50%</span>
+            <input id="bgmVolume" class="audio-range" type="range" min="0" max="100" value="50" />
+          </label>
+          <label class="audio-row" for="sfxVolume">
+            <span class="audio-label"><span class="audio-icon">🎲</span>効果音 音量</span>
+            <span class="audio-value" id="sfxVolumeValue">50%</span>
+            <input id="sfxVolume" class="audio-range" type="range" min="0" max="100" value="50" />
+          </label>
+        </section>
         <nav class="side-menu-actions">
           <a class="side-menu-item" href="../home/index.html">
             <span class="side-menu-icon">🏠</span>
