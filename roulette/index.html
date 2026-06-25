@@ -70,6 +70,13 @@
       </div>
 
       <div class="bet-panel">
+        <div id="specialBetDrawer" class="special-bet-drawer" aria-label="特殊ベット">
+          <button id="specialBetHandle" class="special-bet-handle" type="button" aria-label="特殊ベットを開く" aria-expanded="false" aria-controls="specialBetPanel">&gt;</button>
+          <div id="specialBetPanel" class="special-bet-panel">
+            <div id="specialBetTabs" class="special-bet-tabs" role="tablist"></div>
+            <div id="specialBetOptions" class="special-bet-options"></div>
+          </div>
+        </div>
         <div class="bet-grid" id="betGrid"></div>
       </div>
     </section>
@@ -150,16 +157,20 @@
         <h3><span>📜</span> RULES</h3>
         <div class="rules-scroll">
           <h4>ルーレットのルール</h4>
-          <p>チップ、または任意入力でベット額を選び、数字・色・範囲・列・ダースに賭けます。スピン後、当選番号と賭け内容が一致すると配当を受け取れます。外れた場合、ベット分は戻りません。</p>
+          <p>チップ、または任意入力でベット額を選び、数字・色・範囲・ダズン・カラム・特殊ベットに賭けます。スピン後、当選番号と賭け内容が一致すると配当を受け取れます。外れた場合、ベット分は戻りません。</p>
           <div class="rules-grid">
             <span>数字</span><strong>36倍</strong>
+            <span>スプリット</span><strong>18倍</strong>
+            <span>ストリート</span><strong>12倍</strong>
+            <span>コーナー</span><strong>9倍</strong>
+            <span>シックスライン</span><strong>6倍</strong>
             <span>赤 / 黒</span><strong>2倍</strong>
             <span>EVEN / ODD</span><strong>2倍</strong>
             <span>1-18 / 19-36</span><strong>2倍</strong>
-            <span>1st / 2nd / 3rd 12</span><strong>3倍</strong>
-            <span>2 to 1</span><strong>3倍</strong>
+            <span>ダズン</span><strong>3倍</strong>
+            <span>カラム</span><strong>3倍</strong>
           </div>
-          <p>0は緑です。数字0へ直接ベットした場合だけ当たり、それ以外の色・範囲・偶数奇数などは外れになります。</p>
+          <p>スプリットは隣り合う2数字、ストリートは横1列の3数字、コーナーは四角の4数字、シックスラインは隣り合う2列の6数字です。0は緑です。数字0へ直接ベットした場合と、0を含むスプリットに賭けた場合だけ当たり、それ以外の色・範囲・偶数奇数などは外れになります。</p>
         </div>
         <button class="rules-close-btn" id="rulesCloseBtn" type="button">CLOSE</button>
       </div>
