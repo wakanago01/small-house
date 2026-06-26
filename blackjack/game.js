@@ -95,7 +95,7 @@ const particlesContainer = document.getElementById('particles-container');
 const hamburgerMenu = document.getElementById('hamburger-menu');
 const sideMenu = document.getElementById('side-menu');
 const homeBtn = document.getElementById('home-btn');
-const rulesBtn = document.getElementById('rules-btn');
+const ruleBtn = document.getElementById('rule-btn');
 const closeMenuBtn = document.getElementById('close-menu-btn');
 const rulesOverlay = document.getElementById('rules-overlay');
 const closeRulesBtn = document.getElementById('close-rules-btn');
@@ -388,8 +388,6 @@ function renderGame(showFullDealerHand) {
 async function startGame() {
     playSound('click');
     rabbitSpeak('start');
-    
-    loadGameState();
     
     if (currentBet > gameState.coins) {
         currentBet = gameState.coins;
@@ -780,9 +778,8 @@ closeMenuBtn.addEventListener('click', () => {
     sideMenu.classList.add('hidden-menu');
 });
 
-rulesBtn.addEventListener('click', () => {
+ruleBtn.addEventListener('click', () => {
     playSound('click');
-    sideMenu.classList.add('hidden-menu');
     rulesOverlay.classList.remove('hidden');
 });
 
@@ -863,6 +860,7 @@ function triggerGameOver() {
 // Start survival loop in blackjack
 setInterval(updateSurvivalClock, 1000);
 
-// Initialize
-loadGameState();
-updateUI();
+window.addEventListener('load', () => {
+    loadGameState();
+    updateUI();
+});
