@@ -981,9 +981,13 @@ body {
     80% { opacity: 0.8; }
     100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
 }
-
+#rules-overlay:not(.hidden),
+#guide-overlay:not(.hidden) {
+    opacity: 1;
+}
 /* Rules Overlay Styles */
-#rules-overlay {
+#rules-overlay,
+#guide-overlay {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(20, 0, 30, 0.85);

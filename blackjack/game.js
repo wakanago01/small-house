@@ -99,7 +99,9 @@ const ruleBtn = document.getElementById('rule-btn');
 const closeMenuBtn = document.getElementById('close-menu-btn');
 const rulesOverlay = document.getElementById('rules-overlay');
 const closeRulesBtn = document.getElementById('close-rules-btn');
-
+const guideBtn = document.getElementById('guide-btn');
+const guideOverlay = document.getElementById('guide-overlay');
+const closeGuideBtn = document.getElementById('close-guide-btn');
 // 音源の定義
 const sounds = {
     click: new Audio('音源/カーソル移動6.mp3'),
@@ -781,6 +783,14 @@ closeMenuBtn.addEventListener('click', () => {
 ruleBtn.addEventListener('click', () => {
     playSound('click');
     rulesOverlay.classList.remove('hidden');
+});
+guideBtn.addEventListener('click', () => {
+    playSound('click');
+    guideOverlay.classList.remove('hidden');
+});
+closeGuideBtn.addEventListener('click', () => {
+    playSound('click');
+    guideOverlay.classList.add('hidden');
 });
 
 closeRulesBtn.addEventListener('click', () => {
