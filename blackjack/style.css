@@ -261,8 +261,6 @@ body {
         inset 0 0 10px rgba(255,255,255,.3);
 
 }
-
-
 /* Play Area */
 #play-area {
     flex-grow: 1;
@@ -276,7 +274,21 @@ body {
     max-height: 85vh;
     transform: translateY(120px); /* Move dealer and player cards down */
 }
+#home-btn {
+    background: linear-gradient(135deg, #5d336df9, #582666);
+    color: white;
+    font-weight: bold;
+    box-shadow:
+        0 0 15px rgba(77, 36, 87, 0.6),
+        0 0 30px rgba(133, 66, 128, 0.3);
+}
 
+#home-btn:hover{
+    transform: translateY(-3px);
+    box-shadow:
+        0 0 20px rgba(90, 36, 92, 0.796),
+        0 0 40px rgba(74, 34, 95, 0.5);
+}
 /* Dealer & Player Sections */
 #dealer-section {
     display: flex;
