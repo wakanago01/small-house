@@ -47,7 +47,8 @@ const INITIAL_STATE = {
     fatigue: 10,
     motivation: 70,
     energy: 100,
-    condition: 100
+    condition: 100,
+    clockSeconds:0
 };
 const ITEMS = {
     food: {
@@ -66,7 +67,7 @@ const ITEMS = {
         price: 200,
         desc: "ストレスを少し軽減する。",
         effect: {
-            stress: -15,
+            stress: -20,
             alcohol: 20
         }
     },
@@ -77,7 +78,7 @@ const ITEMS = {
         price: 150,
         desc: "ストレスを軽減する。",
         effect: {
-            stress: -10,
+            stress: -30,
             cigarette: 20
         }
     }
@@ -92,23 +93,37 @@ let secondsPassed = 0;
 const STORAGE_KEY = 'small_house_game_state';
 
 function saveGameState() {
+    gameState.clockSeconds = secondsPassed;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
 }
 
 function loadGameState() {
+
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        try {
+
+    if(saved){
+
+        try{
+
             const parsed = JSON.parse(saved);
-            gameState = { ...INITIAL_STATE, ...parsed };
-        } catch (e) {
-            console.error("Failed to parse saved state:", e);
-            gameState = { ...INITIAL_STATE };
+
+            gameState = {
+                ...INITIAL_STATE,
+                ...parsed
+            };
+
+            secondsPassed = gameState.clockSeconds || 0;
+
+        }catch(e){
+            console.error(e);
+            gameState={...INITIAL_STATE};
         }
-    } else {
-        gameState = { ...INITIAL_STATE };
+
+    }else{
+
+        gameState={...INITIAL_STATE};
+
     }
-    console.log("Loaded State:", gameState);
 }
 
 /**
@@ -129,7 +144,8 @@ function updateUI() {
     if (!document.getElementById('status-modal').classList.contains('hidden')) {
         updateAAAStatusBars();
     }
-    
+    gameState.clockSeconds = secondsPassed;
+
     saveGameState();
      // Auto-save on UI update
 }
@@ -382,6 +398,7 @@ function updateSurvivalClock() {
     }
 
     secondsPassed++;
+    gameState.clockSeconds = secondsPassed;
     const progress = secondsPassed / DAY_DURATION_SEC;
     const offset = 283 * (1 - progress);
     if (uiElements.clockProgress) uiElements.clockProgress.style.strokeDashoffset = offset;
@@ -394,6 +411,7 @@ function updateSurvivalClock() {
 
 function advanceDay(isAllNighter = false) {
     secondsPassed = 0;
+    gameState.clockSeconds = 0;
     gameState.days += 1;
     
     let message = "新しい朝を迎えました。";
@@ -429,6 +447,7 @@ function triggerGameOver() {
     alert("【GAME OVER】\n生存の糸が切れてしまいました...\n全ての記録がリセットされます。");
     gameState = { ...INITIAL_STATE };
     secondsPassed = 0;
+    gameState.clockSeconds = 0;
     updateUI();
 }
 
@@ -523,6 +542,12 @@ window.onload = () => {
             gameState
         );
         updateUI();
+        const progress = secondsPassed / DAY_DURATION_SEC;
+        const offset = 283 * (1 - progress);
+
+        if(uiElements.clockProgress){
+            uiElements.clockProgress.style.strokeDashoffset = offset;
+        }
 
         const startOverlay =
             document.getElementById('start-screen-overlay');
@@ -617,6 +642,7 @@ window.onload = () => {
             if (appContainer) appContainer.style.display = '';
             if (bottomNav) bottomNav.style.display = '';
         }, 600);
+        setInterval(updateSurvivalClock,1000);
     }
 
     continueBtn.addEventListener('click', () => startGame(false));

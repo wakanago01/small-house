@@ -28,23 +28,34 @@ const INITIAL_STATE = {
     fatigue: 10,
     motivation: 70,
     energy: 100,
-    condition: 100
+    condition: 100,
+    clockSeconds:0
 };
 
 let gameState = { ...INITIAL_STATE };
 
 function loadGameState() {
     const saved = localStorage.getItem(STORAGE_KEY);
+
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
-            gameState = { ...INITIAL_STATE, ...parsed };
+
+            gameState = {
+                ...INITIAL_STATE,
+                ...parsed
+            };
+
+            secondsPassed = gameState.clockSeconds || 0;
+
         } catch (e) {
-            console.error("Failed to parse saved state:", e);
+            console.error(e);
+            gameState = { ...INITIAL_STATE };
         }
+    } else {
+        gameState = { ...INITIAL_STATE };
     }
 }
-
 function saveGameState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
 }
@@ -826,6 +837,7 @@ function updateSurvivalClock() {
     }
 
     secondsPassed++;
+    gameState.clockSeconds = secondsPassed;
     const progress = secondsPassed / DAY_DURATION_SEC;
     const offset = 283 * (1 - progress);
     const clockProgress = document.getElementById('clock-progress');
