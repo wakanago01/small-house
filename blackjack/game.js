@@ -92,11 +92,8 @@ const resetBtn = document.getElementById('reset-btn');
 const particlesContainer = document.getElementById('particles-container');
 
 // メニュー要素
-const hamburgerMenu = document.getElementById('hamburger-menu');
-const sideMenu = document.getElementById('side-menu');
 const homeBtn = document.getElementById('home-btn');
 const ruleBtn = document.getElementById('rule-btn');
-const closeMenuBtn = document.getElementById('close-menu-btn');
 const rulesOverlay = document.getElementById('rules-overlay');
 const closeRulesBtn = document.getElementById('close-rules-btn');
 const guideBtn = document.getElementById('guide-btn');
@@ -391,6 +388,8 @@ async function startGame() {
     playSound('click');
     rabbitSpeak('start');
     
+    initialBet = currentBet;
+
     if (currentBet > gameState.coins) {
         currentBet = gameState.coins;
     }
@@ -770,15 +769,6 @@ betClear.addEventListener('click', () => {
 });
 
 // メニュー操作のロジック
-hamburgerMenu.addEventListener('click', () => {
-    playSound('click');
-    sideMenu.classList.remove('hidden-menu');
-});
-
-closeMenuBtn.addEventListener('click', () => {
-    playSound('click');
-    sideMenu.classList.add('hidden-menu');
-});
 
 ruleBtn.addEventListener('click', () => {
     playSound('click');

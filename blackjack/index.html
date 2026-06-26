@@ -64,8 +64,11 @@
             </div>
         </header>
 
-        <div id="hamburger-menu">☰</div>
         <div id="help-buttons">
+
+            <button id="home-btn" class="help-btn">
+                HOME
+            </button>
 
             <button id="guide-btn" class="help-btn">
                 how to play
@@ -75,18 +78,6 @@
                 brackjack rule
             </button>
 
-        </div>
-        <div id="side-menu" class="hidden-menu">
-            <div id="menu-content">
-                <div class="menu-header">MENU</div>
-                <button id="home-btn" class="menu-item-btn">
-                    <span class="icon">🏠</span> HOME
-                </button>
-
-                <button id="close-menu-btn" class="menu-item-btn">
-                    <span class="icon">×</span> CLOSE
-                </button>
-            </div>
         </div>
 
         <div id="play-area">
@@ -113,6 +104,35 @@
         </div>
 
         <div id="bottom-left-controls">
+            <div id="payout-table" class="glass-panel">
+                <div class="payout-title">PAYOUT</div>
+
+                <div class="payout-row">
+                    <span>BLACKJACK</span>
+                    <span class="value">2.5×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>WIN</span>
+                    <span class="value">2×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>PUSH</span>
+                    <span class="value">1×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>SURRENDER</span>
+                    <span class="value">0.5×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>LOSE</span>
+                    <span class="value">0×</span>
+                </div>
+            </div>
+
             <div id="bet-setup-area">
                 <div class="bet-row">
                     <button id="bet-m10" class="bet-btn">-10</button>
