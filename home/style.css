@@ -965,47 +965,44 @@ body {
     position:absolute;
 
     left:50%;
-    bottom:12%;
+    bottom:35%;
     transform:translateX(-50%);
 
     display:flex;
     flex-direction:row;      /* 横並び */
     justify-content:center;
     align-items:center;
-    gap:50px;                /* ボタン同士の間隔 */
-
+    gap:30px;                /* ボタン同士の間隔 */
     width:auto;
 }
 
 .start-btn{
+    width:420px;
+    height:120px;
 
-    width:400px;
-    height:200px;
+    padding:28px 28px;
 
-    border-radius:22px;
-
-    justify-content:center;
+    display:flex;
     align-items:center;
+    gap:18px;
 
-    font-size:24px;
-    font-weight:bold;
-    letter-spacing:2px;
+    border-radius:24px;
 
-    color:white;
+    background:rgba(255,255,255,.12);
+    border:2px solid rgba(255,255,255,.25);
 
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,220,245,.35),
-            rgba(150,90,210,.30)
-        );
+    backdrop-filter:blur(8px);
 
-    border:2px solid rgba(255,255,255,.45);
-
-    box-shadow:
-        0 0 20px rgba(255, 156, 209, 0.25);
-
+    cursor:pointer;
     transition:.3s;
+}
+.start-btn-icon{
+    font-size:36px;
+    width:50px;
+    text-align:center;
+    flex-shrink:0;
+
+    filter:drop-shadow(0 0 8px rgba(255,255,255,.5));
 }
 .start-btn:hover{
     transform:
@@ -1018,6 +1015,22 @@ body {
 }
 #continue-btn{
     border:2px solid rgba(255,220,120,.3);
+}
+.start-btn-content{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+}
+.start-btn-text{
+    font-size:26px;
+    font-family:'Cinzel', serif;
+    letter-spacing:3px;
+    color:white;
+}
+.start-btn-desc{
+    margin-top:5px;
+    font-size:14px;
+    color:#f6dff9;
 }
 
 .item-detail-card{
