@@ -490,7 +490,14 @@ async function handleAction(type) {
 function playGame(gameId, filename = 'index.html') {
     saveGameState();
     document.body.style.opacity = '0';
-    setTimeout(() => { window.location.href = `../${gameId}/${filename}`; }, 500);
+
+    setTimeout(() => {
+        if (gameId === 'slot') {
+            window.location.href = `../slot/public/index.html`;
+        } else {
+            window.location.href = `../${gameId}/${filename}`;
+        }
+    }, 500);
 }
 
 function showToast(message) {
