@@ -523,33 +523,20 @@ function playDreamTransition(callback){
 
     const layer = document.getElementById("dream-transition");
 
-    layer.innerHTML = "";
-
-    for(let i=0;i<12;i++){
-
-        const smoke=document.createElement("div");
-        smoke.className="smoke";
-
-        smoke.style.left=Math.random()*100+"%";
-        smoke.style.top=Math.random()*100+"%";
-
-        smoke.style.animationDelay=(Math.random()*0.4)+"s";
-
-        layer.appendChild(smoke);
-    }
-
+    // 表示する
+    layer.classList.remove("hidden");
     layer.classList.add("active");
 
-    setTimeout(()=>{
-
+    // 雲が画面を覆ったタイミングでゲーム開始
+    setTimeout(() => {
         callback();
+    },1200);
 
-    },800);
-
-    setTimeout(()=>{
+    // アニメーション終了
+    setTimeout(() => {
 
         layer.classList.remove("active");
-        layer.innerHTML="";
+        layer.classList.add("hidden");
 
     },1800);
 
