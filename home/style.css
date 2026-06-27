@@ -1078,3 +1078,82 @@ body {
     height:50px;
     font-size:16px;
 }
+/* ==========================
+   DREAM TRANSITION
+========================== */
+
+#dream-transition{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    pointer-events:none;
+    overflow:hidden;
+}
+
+.dream-cloud{
+    position:absolute;
+
+    width:60vmax;
+    height:60vmax;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,255,255,.95) 0%,
+            rgba(255,255,255,.65) 35%,
+            rgba(255,255,255,.15) 70%,
+            transparent 100%
+        );
+
+    filter:blur(40px);
+
+    transform:scale(.2);
+
+    opacity:0;
+}
+
+.cloud1{top:-25%;left:-20%;}
+.cloud2{top:-20%;right:-20%;}
+.cloud3{bottom:-30%;left:-15%;}
+.cloud4{bottom:-25%;right:-20%;}
+.cloud5{top:20%;left:25%;}
+
+#dream-transition.active .cloud1{
+    animation:cloudExpand 1.5s forwards;
+}
+
+#dream-transition.active .cloud2{
+    animation:cloudExpand 1.5s .1s forwards;
+}
+
+#dream-transition.active .cloud3{
+    animation:cloudExpand 1.5s .2s forwards;
+}
+
+#dream-transition.active .cloud4{
+    animation:cloudExpand 1.5s .3s forwards;
+}
+
+#dream-transition.active .cloud5{
+    animation:cloudExpand 1.5s .15s forwards;
+}
+
+@keyframes cloudExpand{
+
+    0%{
+        transform:scale(.2);
+        opacity:0;
+    }
+
+    30%{
+        opacity:.8;
+    }
+
+    100%{
+        transform:scale(2.4);
+        opacity:1;
+    }
+
+}

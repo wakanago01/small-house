@@ -444,13 +444,20 @@ function showDayStartOverlay(day, message) {
 }
 
 function triggerGameOver() {
-    alert("【GAME OVER】\n生存の糸が切れてしまいました...\n全ての記録がリセットされます。");
+
+    alert("【GAME OVER】\n生存の糸が切れてしまいました...");
+
+    localStorage.removeItem(STORAGE_KEY);
+
     gameState = { ...INITIAL_STATE };
     secondsPassed = 0;
-    gameState.clockSeconds = 0;
-    updateUI();
-}
 
+    updateUI();
+
+    sessionStorage.removeItem("small_house_started");
+
+    location.reload();
+}
 /**
  * Actions
  */
@@ -511,6 +518,41 @@ function showToast(message) {
     });
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
+}
+function playDreamTransition(callback){
+
+    const layer = document.getElementById("dream-transition");
+
+    layer.innerHTML = "";
+
+    for(let i=0;i<12;i++){
+
+        const smoke=document.createElement("div");
+        smoke.className="smoke";
+
+        smoke.style.left=Math.random()*100+"%";
+        smoke.style.top=Math.random()*100+"%";
+
+        smoke.style.animationDelay=(Math.random()*0.4)+"s";
+
+        layer.appendChild(smoke);
+    }
+
+    layer.classList.add("active");
+
+    setTimeout(()=>{
+
+        callback();
+
+    },800);
+
+    setTimeout(()=>{
+
+        layer.classList.remove("active");
+        layer.innerHTML="";
+
+    },1800);
+
 }
 function saveAndExit() {
 
@@ -620,19 +662,28 @@ window.onload = () => {
         );
 
         // Fade out start screen
-        startOverlay.style.opacity = '0';
-        setTimeout(() => {
-            startOverlay.style.display = 'none';
-            if (appContainer) appContainer.style.display = '';
-            if (bottomNav) bottomNav.style.display = '';
-        }, 600);
-        setInterval(updateSurvivalClock,1000);
+        playDreamTransition(() => {
+
+            startOverlay.style.display = "none";
+
+            appContainer.style.display = "";
+            bottomNav.style.display = "";
+
+            updateUI();
+
+            setInterval(updateSurvivalClock,1000);
+
+        });
     }
+        
 
     continueBtn.addEventListener('click', () => startGame(false));
     newgameBtn.addEventListener('click', () => {
+
+        const saved = localStorage.getItem(STORAGE_KEY);
+
         if (saved) {
-            if (confirm('セーブデータが存在します。最初から始めると現在のデータは消去されます。よろしいですか？')) {
+            if (confirm("セーブデータが存在します。最初から始めると現在のデータは消去されます。よろしいですか？")) {
                 startGame(true);
             }
         } else {
