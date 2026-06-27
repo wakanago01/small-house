@@ -582,7 +582,6 @@ window.onload = () => {
     const startOverlay = document.getElementById('start-screen-overlay');
     const continueBtn = document.getElementById('continue-btn');
     const newgameBtn = document.getElementById('newgame-btn');
-    const saveInfo = document.getElementById('save-info');
     const appContainer = document.getElementById('app-container');
     const bottomNav = document.getElementById('bottom-nav');
 
@@ -597,32 +596,10 @@ window.onload = () => {
             const parsed = JSON.parse(saved);
             continueBtn.style.display = 'flex';
             // Show save summary
-            saveInfo.style.display = 'block';
             const savedCoins = (parsed.coins || 0).toLocaleString();
             const savedDays = parsed.days || 1;
             const savedHunger = Math.round(parsed.hunger || 0);
             const savedStress = Math.round(parsed.stress || 0);
-            saveInfo.innerHTML = saveInfo.innerHTML = `
-            <div class="dream-record-title">
-            ✦ Dream Record ✦
-            </div>
-
-            <div class="dream-record-row">
-            DAY ${savedDays}
-            </div>
-
-            <div class="dream-record-row">
-            🍱 Hunger ${savedHunger}%
-            </div>
-
-            <div class="dream-record-row">
-            🧠 Stress ${savedStress}%
-            </div>
-
-            <div class="dream-record-coins">
-            ${savedCoins} Coins
-            </div>
-            `;
         } catch (e) {
             continueBtn.style.display = 'none';
         }

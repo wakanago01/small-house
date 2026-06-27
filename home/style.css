@@ -931,76 +931,81 @@ body {
     font-size: 12px;
 }
 /* ===== START SCREEN ===== */
-#start-screen-overlay {
-    overflow:hidden;
+#start-screen-overlay{
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    z-index: 9999;
-
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(10px);
-}
-
-.start-screen-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    width: min(90vw, 700px);
-
-    text-align: center;
-    gap: 30px;
-}
-
-.start-title-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.start-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 100%;
-    align-items: center;
-}
-
-.start-btn{
-    width:100%;
-    max-width:520px;
-
-    padding:28px;
-
-    border-radius:24px;
 
     background:
-        linear-gradient(
-            135deg,
-            rgba(255,210,240,.55),
-            rgba(200,180,255,.45)
-        );
+        url("画像/logo.png");
 
-    border:2px solid rgba(255,255,255,.4);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
-    backdrop-filter:blur(15px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.start-screen-inner{
+    width:100%;
+    height:100%;
 
     display:flex;
     flex-direction:column;
-    align-items:flex-start;
+    justify-content:flex-end;   /* 下寄せ */
+    align-items:center;
+
+    padding-bottom:120px;        /* 下から120px */
+}
+.start-title-area {
+    display: none;
+}
+
+.start-buttons{
+    position:absolute;
+
+    left:50%;
+    bottom:12%;
+    transform:translateX(-50%);
+
+    display:flex;
+    flex-direction:row;      /* 横並び */
+    justify-content:center;
+    align-items:center;
+    gap:50px;                /* ボタン同士の間隔 */
+
+    width:auto;
+}
+
+.start-btn{
+
+    width:400px;
+    height:200px;
+
+    border-radius:22px;
+
+    justify-content:center;
+    align-items:center;
+
+    font-size:24px;
+    font-weight:bold;
+    letter-spacing:2px;
+
+    color:white;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,220,245,.35),
+            rgba(150,90,210,.30)
+        );
+
+    border:2px solid rgba(255,255,255,.45);
 
     box-shadow:
-        0 0 20px rgba(255,180,220,.25);
+        0 0 20px rgba(255, 156, 209, 0.25);
 
-    transition:.35s;
+    transition:.3s;
 }
 .start-btn:hover{
     transform:
@@ -1014,65 +1019,7 @@ body {
 #continue-btn{
     border:2px solid rgba(255,220,120,.3);
 }
-.start-save-info{
-    width:100%;
-    max-width:520px;
 
-    padding:20px;
-
-    border-radius:20px;
-
-    background:rgba(255,255,255,.06);
-
-    border:1px solid rgba(255,255,255,.15);
-
-    backdrop-filter:blur(12px);
-
-    text-align:center;
-}
-
-.dream-record-title{
-    font-family:'Cinzel',serif;
-    font-size:18px;
-    letter-spacing:4px;
-    color:#ffd6ef;
-    margin-bottom:15px;
-}
-
-.dream-record-row{
-    margin:8px 0;
-    color:#f3e6ff;
-}
-
-.dream-record-coins{
-    margin-top:15px;
-    color:#ffd88a;
-    font-size:20px;
-    font-weight:bold;
-    text-shadow:0 0 10px #ffd88a;
-}
-.floating-stars{
-    font-size:20px;
-    color:#ffb6df;
-
-    letter-spacing:12px;
-
-    text-shadow:
-        0 0 10px #ffb6df,
-        0 0 20px #d4b5e8;
-
-    animation:dreamFloat 4s ease-in-out infinite;
-}
-
-@keyframes dreamFloat{
-    0%,100%{
-        transform:translateY(0);
-    }
-
-    50%{
-        transform:translateY(-10px);
-    }
-}
 .item-detail-card{
     margin-top:20px;
     padding:20px;
