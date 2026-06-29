@@ -24,6 +24,9 @@ const uiElements = {
     detailName: document.getElementById('detail-name'),
     detailDesc: document.getElementById('detail-desc'),
     useItemBtn: document.getElementById('use-item-btn'),
+    homeBgm: document.getElementById('home-bgm'),
+    volumeControl: document.getElementById('volume-control'),
+    volumeValue: document.getElementById('volume-value'),
     
     // Clock
     clockProgress: document.getElementById('clock-progress')
@@ -91,6 +94,82 @@ let secondsPassed = 0;
  * State Persistence
  */
 const STORAGE_KEY = 'small_house_game_state';
+const BGM_VOLUME_KEY = 'small_house_bgm_volume';
+let bgmResumeHandler = null;
+
+function getSavedBgmVolume() {
+    const saved = localStorage.getItem(BGM_VOLUME_KEY);
+    const savedVolume = Number(saved);
+    if (saved !== null && Number.isFinite(savedVolume)) {
+        return Math.min(100, Math.max(0, savedVolume));
+    }
+    return 50;
+}
+
+function applyBgmVolume(volume) {
+    const nextVolume = Math.min(100, Math.max(0, Number(volume) || 0));
+
+    if (uiElements.homeBgm) {
+        uiElements.homeBgm.volume = nextVolume / 100;
+    }
+
+    if (uiElements.volumeControl) {
+        uiElements.volumeControl.value = String(nextVolume);
+    }
+
+    if (uiElements.volumeValue) {
+        uiElements.volumeValue.textContent = `${nextVolume}%`;
+    }
+}
+
+function setupBgmControls() {
+    const savedVolume = getSavedBgmVolume();
+    applyBgmVolume(savedVolume);
+
+    if (!uiElements.volumeControl || uiElements.volumeControl.dataset.bgmBound) {
+        return;
+    }
+
+    uiElements.volumeControl.dataset.bgmBound = 'true';
+    uiElements.volumeControl.addEventListener('input', () => {
+        const volume = Number(uiElements.volumeControl.value);
+        localStorage.setItem(BGM_VOLUME_KEY, String(volume));
+        applyBgmVolume(volume);
+    });
+}
+
+function queueBgmResumeOnInteraction() {
+    if (bgmResumeHandler) {
+        return;
+    }
+
+    bgmResumeHandler = () => {
+        document.removeEventListener('click', bgmResumeHandler, true);
+        document.removeEventListener('keydown', bgmResumeHandler, true);
+        bgmResumeHandler = null;
+        playHomeBgm(false);
+    };
+
+    document.addEventListener('click', bgmResumeHandler, true);
+    document.addEventListener('keydown', bgmResumeHandler, true);
+}
+
+function playHomeBgm(allowRetry = true) {
+    if (!uiElements.homeBgm) {
+        return;
+    }
+
+    uiElements.homeBgm.loop = true;
+
+    const playAttempt = uiElements.homeBgm.play();
+    if (playAttempt && typeof playAttempt.catch === 'function') {
+        playAttempt.catch(() => {
+            if (allowRetry) {
+                queueBgmResumeOnInteraction();
+            }
+        });
+    }
+}
 
 function saveGameState() {
     gameState.clockSeconds = secondsPassed;
@@ -567,6 +646,8 @@ function saveAndExit() {
  * Start Screen Logic
  */
 window.onload = () => {
+    setupBgmControls();
+
     const alreadyStarted =
         sessionStorage.getItem('small_house_started');
 
@@ -605,6 +686,7 @@ window.onload = () => {
         if(bottomNav){
             bottomNav.style.display = '';
         }
+        playHomeBgm();
         setInterval(updateSurvivalClock, 1000);
         return;
     }
@@ -647,6 +729,8 @@ window.onload = () => {
             'small_house_started',
             'true'
         );
+
+        playHomeBgm();
 
         // Fade out start screen
         playDreamTransition(() => {
