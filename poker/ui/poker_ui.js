@@ -38,6 +38,12 @@ class PokerUI {
 
         // 役のハイライトON/OFF
         this.highlightEnabled = localStorage.getItem("pokerHighlight") !== "false";
+
+        window.addEventListener("storage", (e) => {
+            if (e.key === "pokerHighlight") {
+                this.highlightEnabled = e.newValue !== "false";
+            }
+        });
     }
 
     setVolume() {
@@ -157,14 +163,18 @@ class PokerUI {
             rankLabel.className = 'player-rank-label';
             document.getElementById('play-screen').appendChild(rankLabel);
         }
-        rankLabel.innerText = currentRankName || "";
-        rankLabel.style.display = currentRankName ? "block" : "none";
+        const showRank = this.highlightEnabled && currentRankName;
+        
+        rankLabel.innerText = showRank ? currentRankName : "";
+        rankLabel.style.display = showRank ? "block" : "none";
 
         hand.forEach((card, i) => {
             const cardEl = document.createElement('div');
             const color = (card.suit === 'H' || card.suit === 'D') ? 'red' : 'black';
             cardEl.className = `card ${color}`;
-            if (highlightIndices.includes(i)) cardEl.classList.add('highlight');
+            if (this.highlightEnabled && highlightIndices.includes(i)) {
+                cardEl.classList.add('highlight');
+            }
             
             cardEl.innerHTML = `
                 <div class="rank">${card.rank}</div>

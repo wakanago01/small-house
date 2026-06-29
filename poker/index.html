@@ -171,7 +171,7 @@
                 <h2 id="result-title" style="font-size:5rem; text-shadow:0 0 20px #000; margin-bottom:20px;">RESULT</h2>
                 <div id="result-details" style="font-size:2rem; margin-bottom:40px; text-shadow:2px 2px 4px #000;"></div>
                 <div class="menu-buttons" style="flex-direction:row; gap:20px;">
-                    <button onclick="pokerApp.ui.showScreen('difficulty-select')" style="min-width:200px;">もう一度遊ぶ</button>
+                    <button onclick="pokerApp.restartGame()" style="min-width:200px;">もう一度遊ぶ</button>
                     <button onclick="pokerApp.ui.showScreen('main-menu')" style="min-width:200px;">戻る</button>
                 </div>
             </div>
@@ -247,6 +247,21 @@
             startSetDifficulty(diff) {
                 this.difficulty = diff;
                 this.ui.updateRenga(this.player.renga, this.player.stress);
+                this.ui.showScreen('bet-screen');
+            }
+
+            restartGame() {
+                // 現在の難易度をそのまま使用
+                this.bet = 10;
+                this.yourTotalBet = 0;
+                this.currentPot = 0;
+                this.phase = 'start';
+                this.isFolded = false;
+                this.selected.clear();
+                
+                this.ui.updateRenga(this.player.renga, this.player.stress);
+                
+                // そのままベット画面へ
                 this.ui.showScreen('bet-screen');
             }
 
@@ -610,6 +625,15 @@
         // ON/OFF切り替え
         document.getElementById("highlight-toggle").addEventListener("change", function () {
             pokerApp.highlightEnabled = this.checked;
+            pokerApp.ui.highlightEnabled = this.checked;
+            localStorage.setItem("pokerHighlight", this.checked);
+
+                pokerApp.ui.renderPlayerHand(
+                pokerApp.playerHand,
+                true,
+                [],
+                ""
+            );
         });
 
         // ---- TOP STATUS BAR: homeのデータを読み込んで表示 ----
