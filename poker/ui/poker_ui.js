@@ -3,6 +3,7 @@
  */
 class PokerUI {
     constructor(gameInstance) {
+        this.masterVolume = 1;
         this.game = gameInstance;
         this.suitMap = { 'S': '♠', 'H': '♥', 'D': '♦', 'C': '♣' };
         
@@ -34,15 +35,20 @@ class PokerUI {
         window.addEventListener('resize', handleResize);
         document.addEventListener('fullscreenchange', handleResize);
         handleResize(); // 初期チェック
+
+        // 役のハイライトON/OFF
+        this.highlightEnabled = localStorage.getItem("pokerHighlight") !== "false";
     }
 
     setVolume() {
-        const bgmVol = this.isMuted ? 0 : 0.07;
-        const seVol = this.isMuted ? 0 : 0.13;
-
-        this.sounds.bgm.volume = bgmVol;
-        Object.keys(this.sounds).forEach(k => {
-            if (k !== 'bgm') this.sounds[k].volume = seVol;
+        const base = this.isMuted ? 0 : this.masterVolume;
+        
+        this.sounds.bgm.volume = base * 0.07;
+        
+        Object.keys(this.sounds).forEach(key => {
+            if (key !== "bgm") {
+                this.sounds[key].volume = base * 0.13;
+            }
         });
     }
 
