@@ -82,7 +82,7 @@
         <!-- あなたの賭け金表示 -->
          <div id="permanent-bet-display" style="
          position:absolute;
-         bottom:220px;
+         bottom:250px;
          right:0px;
          width:350px;
          color:var(--star-gold);
@@ -203,7 +203,7 @@
     <script>
         class PokerApp {
             constructor() {
-                this.player = new PlayerManager({ renga: 50000, hunger: 100, stress: 0, items: [] });
+                this.player = new PlayerManager({ coins: 1000, hunger: 100, stress: 20, items: [] });
                 // 強制的に50000にリセット（必要な時にコメントアウトを外してください）
                 // this.player.renga = 50000;
                 
@@ -253,6 +253,31 @@
             async confirmBet() {
                 this.syncBetInput(); // 最終確認
                 this.deck = new Deck();
+
+                // 🍷 アルコールボーナス: homeでalcohol 80%以上のとき良カードが出やすくなる
+                try {
+                    const homeRaw = localStorage.getItem('small_house_game_state');
+                    if (homeRaw) {
+                        const homeState = JSON.parse(homeRaw);
+                        const alcohol = homeState.alcohol || 0;
+                        if (alcohol >= 80) {
+                            // デッキ末尾（drawされる側）に高valueカード(8以上)を優先配置
+                            const high = this.deck.cards.filter(c => c.value >= 8);
+                            const low  = this.deck.cards.filter(c => c.value < 8);
+                            // 高カードをランダムに並べてから低カードを下に
+                            const shuffle = arr => {
+                                for (let i = arr.length - 1; i > 0; i--) {
+                                    const j = Math.floor(Math.random() * (i + 1));
+                                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                                }
+                                return arr;
+                            };
+                            // 末尾から引くので: 低カード → 高カードの順に積む
+                            this.deck.cards = [...shuffle(low), ...shuffle(high)];
+                        }
+                    }
+                } catch(e) {}
+
                 this.playerHand = Array.from({length:5}, () => this.deck.draw());
                 this.cpuHands = Array.from({length: this.difficulty === 'Easy' ? 1 : 3}, () => 
                     Array.from({length:5}, () => this.deck.draw())
@@ -586,8 +611,10 @@
             // 初回ロード
             updateStatusBar();
 
-            // ゲーム結果が確定するたびに更新（storage イベントは同一タブでは発火しないので定期的に更新）
-            setInterval(updateStatusBar, 3000);
+            // ゲーム結果が確定するたびに更新（1秒ごとにhomeのlocalStorageから同期）
+            setInterval(updateStatusBar, 1000);
+            // updateRengaから即時呼び出せるようグローバルに公開
+            window.refreshPokerStatusBar = updateStatusBar;
         })();
     </script>
 </body>

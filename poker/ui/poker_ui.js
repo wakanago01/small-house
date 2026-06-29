@@ -119,6 +119,11 @@ class PokerUI {
         }
 
         this.updateStress(stress);
+
+        // 上部ステータスバーを即時更新（homeのlocalStorageと同期）
+        if (typeof window.refreshPokerStatusBar === 'function') {
+            window.refreshPokerStatusBar();
+        }
     }
 
     updateStress(val) {
