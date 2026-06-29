@@ -313,6 +313,24 @@ body.fullscreen-active #game-container {
     transition: font-size 0.3s ease, bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), top 0.4s ease, right 0.3s ease;
 }
 
+/* 常設BET表示 */
+#permanent-bet-display {
+    position: absolute;
+    bottom: 250px;
+    right: 0px;
+    width: 350px;
+
+    color: var(--star-gold);
+    font-size: 1.2rem;
+    text-shadow: 2px 2px 4px #000;
+
+    display: block;
+    z-index: 100;
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap;
+}
+
 /* 全画面表示（F11や大画面）時の調整 */
 .fullscreen-active #permanent-renga-display {
         bottom: 120px;
@@ -320,9 +338,11 @@ body.fullscreen-active #game-container {
         height: 150px;
     }
 
-.fullscreen-active #permanent-bet-display {
-    bottom: 300px;
-    right: 260px;
+@media screen and (min-height: 950px) {
+    #permanent-bet-display {
+        bottom: 310px;
+        right:  0px;
+    }
 }
 
 #game-container:fullscreen #permanent-renga-display,
