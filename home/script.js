@@ -89,6 +89,7 @@ const ITEMS = {
 
 let gameState = { ...INITIAL_STATE };
 let secondsPassed = 0;
+let selectedInventoryItemName = null;
 
 /**
  * State Persistence
@@ -412,31 +413,88 @@ function updateInventoryUI() {
     if (gameState.inventory.length === 0) {
         uiElements.inventoryList.innerHTML = '<div class="empty-inventory-msg">持ち物はありません...</div>';
         uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
         return;
     }
-    gameState.inventory.forEach((item, index) => {
+
+    const groupedItems = getGroupedInventoryItems();
+
+    groupedItems.forEach(({ item, count }) => {
         const itemEl = document.createElement('div');
         itemEl.className = 'inventory-item glass-panel';
-        itemEl.textContent = item.icon;
-        itemEl.onclick = () => showItemDetail(index);
+        itemEl.setAttribute('aria-label', `${item.name} ${count}個`);
+
+        const iconEl = document.createElement('span');
+        iconEl.className = 'inventory-item-icon';
+        iconEl.textContent = item.icon;
+
+        const countEl = document.createElement('span');
+        countEl.className = 'inventory-count-badge';
+        countEl.textContent = `×${count}`;
+
+        itemEl.appendChild(iconEl);
+        itemEl.appendChild(countEl);
+        itemEl.onclick = () => showItemDetail(item.name);
         uiElements.inventoryList.appendChild(itemEl);
     });
+
+    if (
+        selectedInventoryItemName &&
+        !groupedItems.some(({ item }) => item.name === selectedInventoryItemName)
+    ) {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+    }
 }
 
-function showItemDetail(index) {
-    const item = gameState.inventory[index];
+function getGroupedInventoryItems() {
+    const groups = new Map();
+
+    gameState.inventory.forEach((item) => {
+        const key = item.name;
+        if (!groups.has(key)) {
+            groups.set(key, {
+                item,
+                count: 0
+            });
+        }
+
+        groups.get(key).count += 1;
+    });
+
+    return Array.from(groups.values());
+}
+
+function showItemDetail(itemName) {
+    const group = getGroupedInventoryItems().find(({ item }) => item.name === itemName);
+    if (!group) {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+        return;
+    }
+
+    const { item, count } = group;
+    selectedInventoryItemName = item.name;
 
     document.getElementById('detail-icon').textContent = item.icon;
 
     uiElements.detailName.textContent = item.name;
-    uiElements.detailDesc.textContent = item.desc;
+    uiElements.detailDesc.textContent = `${item.desc} 所持数：${count}`;
 
     uiElements.itemDetail.classList.remove('hidden');
 
-    uiElements.useItemBtn.onclick = () => useItem(index);
+    uiElements.useItemBtn.onclick = () => useItem(item.name);
 }
 
-function useItem(index) {
+function useItem(itemName) {
+    const index = gameState.inventory.findIndex((item) => item.name === itemName);
+    if (index === -1) {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+        updateInventoryUI();
+        return;
+    }
+
     const item = gameState.inventory[index];
     if (item.effect.hunger) gameState.hunger = Math.min(100, gameState.hunger + item.effect.hunger);
     if (item.effect.stress) gameState.stress = Math.max(0, gameState.stress + item.effect.stress);
@@ -447,8 +505,13 @@ function useItem(index) {
     showToast(`${item.name}を使用しました。`);
     gameState.inventory.splice(index, 1);
     saveGameState();
-    uiElements.itemDetail.classList.add('hidden');
     updateInventoryUI();
+    if (gameState.inventory.some((inventoryItem) => inventoryItem.name === itemName)) {
+        showItemDetail(itemName);
+    } else {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+    }
     updateUI();
 }
 
