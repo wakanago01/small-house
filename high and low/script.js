@@ -38,7 +38,6 @@ const sparkleContainer = document.getElementById('sparkle-container');
 const btnStart = document.getElementById('btn-start');
 const btnHowTo = document.getElementById('btn-how-to');
 const btnRules = document.getElementById('btn-rules');
-const btnCasino = document.getElementById('btn-casino');
 const modalHowTo = document.getElementById('modal-how-to');
 const modalRules = document.getElementById('modal-rules');
 const closeButtons = document.querySelectorAll('.close-btn');
@@ -291,12 +290,6 @@ if (btnStart) {
         if (homeScreen) homeScreen.style.display = 'none'; 
         if (mainGameScreen) mainGameScreen.classList.remove('hidden'); 
         initGame(); 
-    });
-}
-
-if (btnCasino) {
-    btnCasino.addEventListener('click', () => {
-        alert('カジノに戻ります。');
     });
 }
 
