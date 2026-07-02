@@ -46,6 +46,7 @@ const seFlip = document.getElementById('se-flip');
 
 const homeScreen = document.getElementById('home-screen');
 const mainGameScreen = document.getElementById('main-game-screen');
+const btnBackHome = document.getElementById('btn-back-home');
 
 // ==========================================
 // 初期化・更新処理
@@ -129,7 +130,7 @@ if (btnMax) {
     });
 }
 
-// 効果音を鳴らす関数
+// 効果音を鳴らす共通関数
 function playFlipSound() {
     if (seFlip) {
         seFlip.currentTime = 0; 
@@ -157,7 +158,7 @@ function play(choice) {
     
     if (nextCardEl) {
         nextCardEl.classList.add('flip-animation');
-        // カードが裏返る瞬間にSEを再生
+        // カードが裏返るアニメーション開始の「この瞬間」にSEを再生
         playFlipSound();
     }
     
@@ -284,18 +285,28 @@ function closeModal() {
     if (modalRules) modalRules.classList.remove('is-open');
 }
 
-// 【重要】ゲーム開始ボタンが押された時の画面切り替え処理
+// ゲーム開始ボタンの処理
 if (btnStart) {
     btnStart.addEventListener('click', () => {
-        if (homeScreen) homeScreen.style.display = 'none'; // ホーム画面を隠す
-        if (mainGameScreen) mainGameScreen.classList.remove('hidden'); // ゲーム本編を表示
-        initGame(); // 元のゲーム初期化処理を走らせる
+        if (homeScreen) homeScreen.style.display = 'none'; 
+        if (mainGameScreen) mainGameScreen.classList.remove('hidden'); 
+        initGame(); 
     });
 }
 
 if (btnCasino) {
     btnCasino.addEventListener('click', () => {
         alert('カジノに戻ります。');
+    });
+}
+
+// 「ホームに戻る」ボタンの処理（ゆめかわ不穏セリフ版）
+if (btnBackHome) {
+    btnBackHome.addEventListener('click', () => {
+        if (confirm('ここから逃げ出すの……？')) {
+            if (mainGameScreen) mainGameScreen.classList.add('hidden'); 
+            if (homeScreen) homeScreen.style.display = 'flex';         
+        }
     });
 }
 
@@ -306,6 +317,3 @@ if (btnHigh) btnHigh.addEventListener('click', () => play('HIGH'));
 if (btnLow) btnLow.addEventListener('click', () => play('LOW'));
 if (btnNextRound) btnNextRound.addEventListener('click', startNewRound);
 if (btnRestart) btnRestart.addEventListener('click', initGame);
-
-// 初回読み込み時はゲーム画面を非表示状態のまま待機（開始ボタンを押すまで始めない）
-// window.onload = initGame; は削除し、開始ボタンに委ねます

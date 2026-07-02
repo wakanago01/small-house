@@ -7,8 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 
+      【背景画像について】
+      CSS側（style.cssの.game-container）で background.png を読み込むように設定しています。
+    -->
     <div class="game-container">
 
+        <!-- 左上：ステータス表示（HUNGER / STRESS） -->
         <div class="status-container">
             <div class="status-bar-group">
                 <label>HUNGER</label>
@@ -20,6 +25,7 @@
             </div>
         </div>
 
+        <!-- 上中央：ガラス風情報パネル -->
         <div class="info-panel">
             <div class="info-item"><span class="info-label">COINS:</span> <span id="info-coins">50,000</span></div>
             <div class="info-item"><span class="info-label">DEBT:</span> <span id="info-debt">100,000,000</span></div>
@@ -27,6 +33,7 @@
             <div class="info-item"><span class="info-label">DAY:</span> <span id="info-day">1</span></div>
         </div>
 
+        <!-- ==================== ホーム画面エリア ==================== -->
         <div class="home-screen" id="home-screen">
             <h1 class="game-title">HIGH & LOW</h1>
             <div class="menu-buttons">
@@ -37,57 +44,70 @@
             </div>
         </div>
 
+        <!-- ==================== メインゲーム画面エリア ==================== -->
+        <!-- 初期状態はhiddenクラスで隠しておき、開始ボタンで表示させます -->
         <main class="main-game-screen hidden" id="main-game-screen" style="text-align: center; margin-top: 100px;">
             <div id="sparkle-container"></div>
             <div id="stress-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; opacity:0; pointer-events:none; z-index:5;"></div>
             <div id="flash-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; opacity:0; pointer-events:none; z-index:6;"></div>
 
+            <!-- 不気味なタイピングメッセージ・ステータス表示 -->
             <p id="message-text" style="font-size: 18px; min-height: 27px; color: #ffb7dd; text-shadow: 0 0 5px #23123a;">カードが配られたよ。さあ、次を予想して……ウフフ。</p>
-            <div style="margin: 15px 0;">
+            <div style="margin: 15px 0; font-size: 14px;">
                 所持金: <span id="money-display">50,000</span> renga | 
                 ストレス: <span id="stress-display">0</span> | 
                 連勝: <span id="streak-display">0</span>
             </div>
 
+            <!-- カードエリア -->
             <div style="display:flex; justify-content:center; gap:40px; margin: 30px 0;">
                 <div>
-                    <div>現在のカード</div>
-                    <div id="current-card" class="card" style="font-size:48px; background:rgba(255,255,255,0.1); width:100px; height:140px; line-height:140px; border-radius:10px; border:1px solid #fff;">-</div>
+                    <div style="font-size: 12px; margin-bottom: 5px; color: #ffb7dd;">現在のカード</div>
+                    <div id="current-card" class="card" style="font-size:48px; background:rgba(255,255,255,0.1); backdrop-filter:blur(5px); width:100px; height:140px; line-height:140px; border-radius:10px; border:1px solid #fff;">-</div>
                 </div>
                 <div>
-                    <div>次のカード</div>
-                    <div id="next-card" class="card card-back" style="font-size:48px; background:rgba(255,255,255,0.1); width:100px; height:140px; line-height:140px; border-radius:10px; border:1px solid #fff;">?</div>
+                    <div style="font-size: 12px; margin-bottom: 5px; color: #ffb7dd;">次のカード</div>
+                    <div id="next-card" class="card card-back" style="font-size:48px; background:rgba(255,255,255,0.1); backdrop-filter:blur(5px); width:100px; height:140px; line-height:140px; border-radius:10px; border:1px solid #fff;">?</div>
                 </div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                賭け金: <input type="number" id="bet-input" value="1000" style="padding: 5px; width: 80px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--color-pink);">
-                <button id="btn-max" style="padding: 5px 10px; background:rgba(255,255,255,0.2); color:white; border:none; cursor:pointer;">MAX</button>
+            <!-- ベット入力 & 操作ボタン -->
+            <div style="margin-bottom: 20px; font-size: 14px;">
+                賭け金: <input type="number" id="bet-input" value="1000" style="padding: 6px; width: 90px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--color-pink); border-radius: 5px; text-align: center;">
+                <button id="btn-max" style="padding: 5px 12px; background:rgba(255,255,255,0.15); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:5px; cursor:pointer; font-weight:bold;">MAX</button>
             </div>
 
+            <!-- HIGH / LOW ボタン -->
             <div style="display:flex; justify-content:center; gap:20px;">
-                <button id="btn-high" class="btn-glass" style="width:120px; padding:10px;">HIGH</button>
-                <button id="btn-low" class="btn-glass" style="width:120px; padding:10px;">LOW</button>
+                <button id="btn-high" class="btn-glass" style="width:130px; padding:10px 0;">HIGH</button>
+                <button id="btn-low" class="btn-glass" style="width:130px; padding:10px 0;">LOW</button>
             </div>
 
-            <div style="margin-top: 20px;">
-                <button id="btn-next-round" class="btn-glass hidden" style="width:180px; padding:10px; background:rgba(255,215,0,0.2);">次のラウンドへ</button>
+            <!-- 次のラウンド ＆ ホームへ戻るナビゲーション -->
+            <div style="margin-top: 25px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                <button id="btn-next-round" class="btn-glass hidden" style="width:190px; padding:10px 0; background:rgba(255,215,0,0.15); border-color: var(--color-gold);">次のラウンドへ</button>
+                <button id="btn-back-home" class="btn-glass" style="width:190px; padding:8px 0; font-size:13px; background:rgba(255,255,255,0.03); border-color:rgba(255,183,221,0.2);">ホームに戻る</button>
             </div>
 
-            <div id="history-log" style="margin-top:20px; max-height:100px; overflow-y:auto; font-size:12px; opacity:0.7;"></div>
+            <!-- 履歴ログ -->
+            <div id="history-log" style="margin-top:25px; max-height:80px; overflow-y:auto; font-size:12px; opacity:0.6; padding: 0 20px;"></div>
 
-            <div id="game-over-screen" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                <h2 style="color:#ff6b6b; font-size:40px;">GAME OVER</h2>
-                <p>すべての資金を失ってしまったね……あはは。</p>
-                <button id="btn-restart" class="btn-glass" style="width:160px; margin-top:20px;">もう一度やり直す</button>
+            <!-- ゲームオーバー画面 -->
+            <div id="game-over-screen" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(17, 9, 28, 0.95); backdrop-filter: blur(10px); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <h2 style="color:#ff6b6b; font-size:40px; text-shadow: 0 0 10px #ff6b6b; margin-bottom: 10px;">GAME OVER</h2>
+                <p style="color: #e0d5ea;">すべての資金を失ってしまったね……あはは。</p>
+                <button id="btn-restart" class="btn-glass" style="width:180px; margin-top:25px;">もう一度やり直す</button>
             </div>
         </main>
 
+        <!-- 右下：Rengaカード -->
         <div class="renga-card">
             <div class="renga-title">Renga</div>
             <div class="renga-money">¥ <span id="renga-coins">50,000</span></div>
         </div>
 
+        <!-- ==================== ポップアップ（隠し要素） ==================== -->
+        <!-- 遊び方ポップアップ -->
         <div class="modal-overlay" id="modal-how-to">
             <div class="modal-content">
                 <h2>♥ 遊び方 ♠</h2>
@@ -102,6 +122,7 @@
             </div>
         </div>
 
+        <!-- ルール説明ポップアップ -->
         <div class="modal-overlay" id="modal-rules">
             <div class="modal-content">
                 <h2>♦ ルール説明 ♣</h2>
@@ -123,6 +144,7 @@
 
     </div>
 
+    <!-- 【追加】効果音（SE）用のオーディオ要素 -->
     <audio id="se-flip" src="カードをめくる.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
