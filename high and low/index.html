@@ -16,31 +16,76 @@
             </div>
             <div class="status-bar-group">
                 <label>STRESS</label>
-                <div class="bar-bg"><div class="bar-fill stress-fill" style="width: 40%;"></div></div>
+                <div class="bar-bg"><div class="bar-fill stress-fill" id="stress-bar-fill" style="width: 0%;"></div></div>
             </div>
         </div>
 
         <div class="info-panel">
-            <div class="info-item"><span class="info-label">COINS:</span> <span id="info-coins">1,000</span></div>
-            <div class="info-item"><span class="info-label">DEBT:</span> <span id="info-debt">50,000</span></div>
-            <div class="info-item"><span class="info-label">REMAINING:</span> <span id="info-remaining">50,000</span></div>
+            <div class="info-item"><span class="info-label">COINS:</span> <span id="info-coins">50,000</span></div>
+            <div class="info-item"><span class="info-label">DEBT:</span> <span id="info-debt">100,000,000</span></div>
+            <div class="info-item"><span class="info-label">REMAINING:</span> <span id="info-remaining">100,000,000</span></div>
             <div class="info-item"><span class="info-label">DAY:</span> <span id="info-day">1</span></div>
         </div>
 
-        <main class="home-screen">
+        <div class="home-screen" id="home-screen">
             <h1 class="game-title">HIGH & LOW</h1>
-            
             <div class="menu-buttons">
                 <button class="btn-glass" id="btn-start">ゲーム開始</button>
                 <button class="btn-glass" id="btn-how-to">遊び方</button>
                 <button class="btn-glass" id="btn-rules">ルール説明</button>
                 <button class="btn-glass" id="btn-casino">カジノに戻る</button>
             </div>
+        </div>
+
+        <main class="main-game-screen hidden" id="main-game-screen" style="text-align: center; margin-top: 100px;">
+            <div id="sparkle-container"></div>
+            <div id="stress-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; opacity:0; pointer-events:none; z-index:5;"></div>
+            <div id="flash-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; opacity:0; pointer-events:none; z-index:6;"></div>
+
+            <p id="message-text" style="font-size: 18px; min-height: 27px; color: #ffb7dd; text-shadow: 0 0 5px #23123a;">カードが配られたよ。さあ、次を予想して……ウフフ。</p>
+            <div style="margin: 15px 0;">
+                所持金: <span id="money-display">50,000</span> renga | 
+                ストレス: <span id="stress-display">0</span> | 
+                連勝: <span id="streak-display">0</span>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:40px; margin: 30px 0;">
+                <div>
+                    <div>現在のカード</div>
+                    <div id="current-card" class="card" style="font-size:48px; background:rgba(255,255,255,0.1); width:100px; height:140px; line-height:140px; border-radius:10px; border:1px solid #fff;">-</div>
+                </div>
+                <div>
+                    <div>次のカード</div>
+                    <div id="next-card" class="card card-back" style="font-size:48px; background:rgba(255,255,255,0.1); width:100px; height:140px; line-height:140px; border-radius:10px; border:1px solid #fff;">?</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                賭け金: <input type="number" id="bet-input" value="1000" style="padding: 5px; width: 80px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--color-pink);">
+                <button id="btn-max" style="padding: 5px 10px; background:rgba(255,255,255,0.2); color:white; border:none; cursor:pointer;">MAX</button>
+            </div>
+
+            <div style="display:flex; justify-content:center; gap:20px;">
+                <button id="btn-high" class="btn-glass" style="width:120px; padding:10px;">HIGH</button>
+                <button id="btn-low" class="btn-glass" style="width:120px; padding:10px;">LOW</button>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button id="btn-next-round" class="btn-glass hidden" style="width:180px; padding:10px; background:rgba(255,215,0,0.2);">次のラウンドへ</button>
+            </div>
+
+            <div id="history-log" style="margin-top:20px; max-height:100px; overflow-y:auto; font-size:12px; opacity:0.7;"></div>
+
+            <div id="game-over-screen" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <h2 style="color:#ff6b6b; font-size:40px;">GAME OVER</h2>
+                <p>すべての資金を失ってしまったね……あはは。</p>
+                <button id="btn-restart" class="btn-glass" style="width:160px; margin-top:20px;">もう一度やり直す</button>
+            </div>
         </main>
 
         <div class="renga-card">
             <div class="renga-title">Renga</div>
-            <div class="renga-money">¥ <span id="renga-coins">1,000</span></div>
+            <div class="renga-money">¥ <span id="renga-coins">50,000</span></div>
         </div>
 
         <div class="modal-overlay" id="modal-how-to">
@@ -60,23 +105,18 @@
         <div class="modal-overlay" id="modal-rules">
             <div class="modal-content">
                 <h2>♦ ルール説明 ♣</h2>
-                
                 <h3>【カードの強さ】</h3>
                 <p>A = 1 &nbsp;|&nbsp; 2〜10 = 数字通り &nbsp;|&nbsp; J = 11 &nbsp;|&nbsp; Q = 12 &nbsp;|&nbsp; K = 13</p>
-                
                 <h3>【勝敗】</h3>
                 <p>次のカードが大きいと思ったら <strong>HIGH</strong>、小さいと思ったら <strong>LOW</strong> を選択します。</p>
-                
                 <h3>【配当】</h3>
                 <table class="rule-table">
                     <tr><th>勝利</th><td>賭け金 ×2</td></tr>
                     <tr><th>引き分け</th><td>賭け金返却</td></tr>
                     <tr><th>敗北</th><td>賭け金没収</td></tr>
                 </table>
-
                 <h3>【ゲームオーバー】</h3>
                 <p class="warning-text">所持金が0になるとゲームオーバーです。<br>借金を返済するために勝ち続けましょう...</p>
-                
                 <button class="btn-glass close-btn">閉じる</button>
             </div>
         </div>

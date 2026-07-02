@@ -363,3 +363,6 @@ body {
         width: 220px;
     }
 }
+.hidden {
+    display: none !important;
+}

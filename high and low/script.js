@@ -34,7 +34,7 @@ const flashOverlay = document.getElementById('flash-overlay');
 const gameOverScreen = document.getElementById('game-over-screen');
 const sparkleContainer = document.getElementById('sparkle-container');
 
-// 【追加】ホーム画面用・ポップアップ用の要素取得
+// ホーム画面用・ポップアップ用の要素取得
 const btnStart = document.getElementById('btn-start');
 const btnHowTo = document.getElementById('btn-how-to');
 const btnRules = document.getElementById('btn-rules');
@@ -42,7 +42,10 @@ const btnCasino = document.getElementById('btn-casino');
 const modalHowTo = document.getElementById('modal-how-to');
 const modalRules = document.getElementById('modal-rules');
 const closeButtons = document.querySelectorAll('.close-btn');
-const seFlip = document.getElementById('se-flip'); // オーディオ要素
+const seFlip = document.getElementById('se-flip'); 
+
+const homeScreen = document.getElementById('home-screen');
+const mainGameScreen = document.getElementById('main-game-screen');
 
 // ==========================================
 // 初期化・更新処理
@@ -59,28 +62,25 @@ function initGame() {
 }
 
 function updateDisplay() {
-    // 既存のエラー防止用if文を追加しつつUI更新
     if (moneyDisplay) moneyDisplay.textContent = money.toLocaleString();
     if (stressDisplay) stressDisplay.textContent = stress;
     if (streakDisplay) streakDisplay.textContent = winStreak;
     
-    // 【追加】上中央パネルと右下Renga表示への連動（HTMLに存在するIDのみ更新）
+    // パネルやゲージ類の同期
     const infoCoins = document.getElementById('info-coins');
     const rengaCoins = document.getElementById('renga-coins');
-    const infoStress = document.querySelector('.stress-fill');
+    const infoStress = document.getElementById('stress-bar-fill');
     
     if (infoCoins) infoCoins.textContent = money.toLocaleString();
     if (rengaCoins) rengaCoins.textContent = money.toLocaleString();
     if (infoStress) infoStress.style.width = `${stress}%`;
 
-    // ストレス値による画面への影響（暗転・ブラーの強化）
+    // ストレス値による画面への影響
     const stressRatio = stress / 100;
-    if (stressOverlay) stressOverlay.style.opacity = Math.min(stressRatio, 0.9); // 最大90%まで暗転
+    if (stressOverlay) stressOverlay.style.opacity = Math.min(stressRatio, 0.9);
     
-    // 画面全体（主画面）を徐々にぼかし、狂気を表現
-    const mainScreen = document.querySelector('.main-game-screen');
-    if (mainScreen) {
-        mainScreen.style.filter = `blur(${stressRatio * 2}px)`;
+    if (mainGameScreen) {
+        mainGameScreen.style.filter = `blur(${stressRatio * 2}px)`;
     }
 }
 
@@ -119,7 +119,6 @@ function getCardName(value) {
     return value.toString();
 }
 
-// 不気味なタイピング風メッセージ表示
 function typeMessage(text) {
     if (messageText) messageText.textContent = text;
 }
@@ -130,10 +129,10 @@ if (btnMax) {
     });
 }
 
-// 【追加】効果音を鳴らす関数
+// 効果音を鳴らす関数
 function playFlipSound() {
     if (seFlip) {
-        seFlip.currentTime = 0; // 連続再生用リセット
+        seFlip.currentTime = 0; 
         seFlip.play().catch(err => console.log("オーディオ再生エラー:", err));
     }
 }
@@ -143,7 +142,7 @@ function play(choice) {
     const bet = parseInt(betInput.value);
 
     if (isNaN(bet) || bet <= 0) {
-        typeMessage("ねえ、ままとこな金額を賭けてくれない…？");
+        typeMessage("ねえ、まともな金額を賭けてくれない…？");
         return;
     }
     if (bet > money) {
@@ -158,7 +157,7 @@ function play(choice) {
     
     if (nextCardEl) {
         nextCardEl.classList.add('flip-animation');
-        // 【修正】カードが裏返ってアニメーションが開始される「この瞬間」に効果音を鳴らす
+        // カードが裏返る瞬間にSEを再生
         playFlipSound();
     }
     
@@ -269,23 +268,15 @@ function showGameOver() {
 }
 
 // ==========================================
-// 【追加】ポップアップとナビゲーションのイベント制御
+// ポップアップとナビゲーションのイベント制御
 // ==========================================
-if (btnHowTo) {
-    btnHowTo.addEventListener('click', () => modalHowTo.classList.add('is-open'));
-}
-if (btnRules) {
-    btnRules.addEventListener('click', () => modalRules.classList.add('is-open'));
-}
+if (btnHowTo) btnHowTo.addEventListener('click', () => modalHowTo.classList.add('is-open'));
+if (btnRules) btnRules.addEventListener('click', () => modalRules.classList.add('is-open'));
 
-closeButtons.forEach(btn => {
-    btn.addEventListener('click', closeModal);
-});
+closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
 
 window.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal-overlay')) {
-        closeModal();
-    }
+    if (e.target.classList.contains('modal-overlay')) closeModal();
 });
 
 function closeModal() {
@@ -293,13 +284,15 @@ function closeModal() {
     if (modalRules) modalRules.classList.remove('is-open');
 }
 
-// ホームナビゲーション用イベント
+// 【重要】ゲーム開始ボタンが押された時の画面切り替え処理
 if (btnStart) {
     btnStart.addEventListener('click', () => {
-        console.log('ゲーム開始ボタンが押されました');
-        initGame(); // ゲームを初期化してスタート
+        if (homeScreen) homeScreen.style.display = 'none'; // ホーム画面を隠す
+        if (mainGameScreen) mainGameScreen.classList.remove('hidden'); // ゲーム本編を表示
+        initGame(); // 元のゲーム初期化処理を走らせる
     });
 }
+
 if (btnCasino) {
     btnCasino.addEventListener('click', () => {
         alert('カジノに戻ります。');
@@ -307,11 +300,12 @@ if (btnCasino) {
 }
 
 // ==========================================
-// イベントリスナーの登録（本編用）
+// イベントリスナーの登録
 // ==========================================
 if (btnHigh) btnHigh.addEventListener('click', () => play('HIGH'));
 if (btnLow) btnLow.addEventListener('click', () => play('LOW'));
 if (btnNextRound) btnNextRound.addEventListener('click', startNewRound);
 if (btnRestart) btnRestart.addEventListener('click', initGame);
 
-window.onload = initGame;
+// 初回読み込み時はゲーム画面を非表示状態のまま待機（開始ボタンを押すまで始めない）
+// window.onload = initGame; は削除し、開始ボタンに委ねます
