@@ -3,70 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Small House - High & Low</title>
+    <title>High & Low</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="stress-overlay"></div>
-    <div id="flash-overlay"></div>
+    <div class="game-container">
 
-    <div class="top-status-bar">
-        <div class="status-item debt">借金: <span id="debt-display">100,000,000</span> renga</div>
-        <div class="status-item money">所持金: <span id="money-display">50,000</span> renga</div>
-        <div class="status-item stress">ストレス: <span id="stress-display">0</span>%</div>
-        <div class="status-item streak">連勝: <span id="streak-display">0</span></div>
-    </div>
-
-    <div class="main-game-screen">
-        <header>
-            <h1 class="game-title">Small House</h1>
-        </header>
-
-        <main>
-            <div class="card-area">
-                <div class="card-wrapper">
-                    <p class="card-label">現在のカード</p>
-                    <div class="card" id="current-card">?</div>
-                </div>
-                <div class="card-wrapper">
-                    <p class="card-label">次のカード</p>
-                    <div class="card card-back" id="next-card">?</div>
-                </div>
+        <div class="status-container">
+            <div class="status-bar-group">
+                <label>HUNGER</label>
+                <div class="bar-bg"><div class="bar-fill hunger-fill" style="width: 70%;"></div></div>
             </div>
-
-            <div class="result-area">
-                <p id="message-text">謎の家へようこそ。賭け金を入力して、HIGHかLOWを選べ...</p>
+            <div class="status-bar-group">
+                <label>STRESS</label>
+                <div class="bar-bg"><div class="bar-fill stress-fill" style="width: 40%;"></div></div>
             </div>
+        </div>
 
-            <div class="control-area">
-                <div class="bet-input-wrapper">
-                    <label for="bet-input">BET金額:</label>
-                    <input type="number" id="bet-input" value="1000" min="1">
-                    <button id="btn-max">MAX</button>
-                </div>
-                <div class="action-buttons">
-                    <button id="btn-high" class="game-btn high-btn">▲ HIGH</button>
-                    <button id="btn-low" class="game-btn low-btn">▼ LOW</button>
-                </div>
-                <button id="btn-next-round" class="game-btn next-btn hidden">次のカードを配る</button>
+        <div class="info-panel">
+            <div class="info-item"><span class="info-label">COINS:</span> <span id="info-coins">1,000</span></div>
+            <div class="info-item"><span class="info-label">DEBT:</span> <span id="info-debt">50,000</span></div>
+            <div class="info-item"><span class="info-label">REMAINING:</span> <span id="info-remaining">50,000</span></div>
+            <div class="info-item"><span class="info-label">DAY:</span> <span id="info-day">1</span></div>
+        </div>
+
+        <main class="home-screen">
+            <h1 class="game-title">HIGH & LOW</h1>
+            
+            <div class="menu-buttons">
+                <button class="btn-glass" id="btn-start">ゲーム開始</button>
+                <button class="btn-glass" id="btn-how-to">遊び方</button>
+                <button class="btn-glass" id="btn-rules">ルール説明</button>
+                <button class="btn-glass" id="btn-casino">カジノに戻る</button>
             </div>
         </main>
 
-        <footer>
-            <div class="history-title">ーー 記憶の断片（勝敗履歴） ーー</div>
-            <div id="history-log" class="history-log"></div>
-        </footer>
-    </div>
-
-    <div id="game-over-screen" class="hidden">
-        <div class="game-over-content">
-            <h2 class="glitch-text">GAME OVER</h2>
-            <p>あなたは「Small House」の底へと沈んでいった...</p>
-            <button id="btn-restart">もう一度やり直す</button>
+        <div class="renga-card">
+            <div class="renga-title">Renga</div>
+            <div class="renga-money">¥ <span id="renga-coins">1,000</span></div>
         </div>
+
+        <div class="modal-overlay" id="modal-how-to">
+            <div class="modal-content">
+                <h2>♥ 遊び方 ♠</h2>
+                <ol>
+                    <li>賭け金を入力します。</li>
+                    <li>最初のカードが1枚配られます。</li>
+                    <li>次に出るカードが<strong>「HIGH（大きい）」</strong>か<strong>「LOW（小さい）」</strong>かを予想します。</li>
+                    <li>予想を選択すると2枚目のカードが公開されます。</li>
+                    <li>当たれば賞金獲得、外れたら賭け金を失います。</li>
+                </ol>
+                <button class="btn-glass close-btn">閉じる</button>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="modal-rules">
+            <div class="modal-content">
+                <h2>♦ ルール説明 ♣</h2>
+                
+                <h3>【カードの強さ】</h3>
+                <p>A = 1 &nbsp;|&nbsp; 2〜10 = 数字通り &nbsp;|&nbsp; J = 11 &nbsp;|&nbsp; Q = 12 &nbsp;|&nbsp; K = 13</p>
+                
+                <h3>【勝敗】</h3>
+                <p>次のカードが大きいと思ったら <strong>HIGH</strong>、小さいと思ったら <strong>LOW</strong> を選択します。</p>
+                
+                <h3>【配当】</h3>
+                <table class="rule-table">
+                    <tr><th>勝利</th><td>賭け金 ×2</td></tr>
+                    <tr><th>引き分け</th><td>賭け金返却</td></tr>
+                    <tr><th>敗北</th><td>賭け金没収</td></tr>
+                </table>
+
+                <h3>【ゲームオーバー】</h3>
+                <p class="warning-text">所持金が0になるとゲームオーバーです。<br>借金を返済するために勝ち続けましょう...</p>
+                
+                <button class="btn-glass close-btn">閉じる</button>
+            </div>
+        </div>
+
     </div>
 
-    <div id="sparkle-container"></div>
+    <audio id="se-flip" src="カードをめくる.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
 </body>

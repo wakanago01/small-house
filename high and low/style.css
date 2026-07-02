@@ -1,339 +1,365 @@
-/* ==========================================
-   フォントと基本設定（よりダークに）
-   ========================================== */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=DotGothic16&display=swap');
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* ==========================================================================
+   「ゆめかわ × 不穏」全体スタイリング
+   ========================================================================== */
+:root {
+    --color-pink: #ffb7dd;
+    --color-purple: #7a5c9f;
+    --color-dark-purple: #23123a;
+    --color-gold: #ffd700;
+    --color-neon-pink: #ff66cc;
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-blur: blur(10px);
 }
 
 body {
-    font-family: 'DotGothic16', sans-serif;
-    background-color: #0d0914; /* 漆黒に近い不気味な深紫 */
-    background-image: url('background.png'); /* あなたの用意する背景画像が主役になります */
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #fff;
+    overflow: hidden;
+    background-color: var(--color-dark-purple); /* 画像読み込み前の保険 */
+}
+
+/* 【修正】背景画像「background.png」を設定 */
+.game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    
+    /* 背景画像の設定 */
+    background-image: url('background.png');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
-    color: #e0d5e8;
-    min-height: 100vh;
+    background-repeat: no-repeat;
+}
+
+/* ==========================================================================
+   左上 ステータス表示 (HUNGER / STRESS)
+   ========================================================================== */
+.status-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    gap: 10px;
+    z-index: 10;
 }
 
-/* ==========================================
-   最上部ステータスバー（追加・改善）
-   ========================================== */
-.top-status-bar {
-    width: 100%;
-    background: rgba(13, 9, 20, 0.85); /* 背景画像の上に馴染む半透明の黒紫 */
-    border-bottom: 3px double #a291f3; /* 毒気のある紫のライン */
+.status-bar-group {
     display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 10px 5px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    backdrop-filter: blur(5px);
+    flex-direction: column;
+    gap: 4px;
 }
 
-.status-item {
-    font-size: 0.9rem;
+.status-bar-group label {
+    font-size: 11px;
     font-weight: bold;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
     letter-spacing: 1px;
-}
-/* 闇に浮かび上がるステータスカラー */
-.debt { color: #ff4d6d; }   /* 警告を連想させるくすんだ赤 */
-.money { color: #73fcd6; }  /* 不気味に光る蛍光ミントグリーン */
-.stress { color: #cf9fff; } /* 狂気のパステルパープル */
-.streak { color: #ffb57d; } /* 焦燥感のあるオレンジ */
-
-/* ==========================================
-   不穏・演出用オーバーレイ
-   ========================================== */
-#stress-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.95) 100%);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 90;
-    transition: opacity 0.5s ease;
+    color: var(--color-pink);
+    text-shadow: 0 0 5px var(--color-dark-purple);
 }
 
-#flash-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background-color: rgba(186, 12, 47, 0.5); /* 血のようなどす黒い赤 */
-    opacity: 0;
-    pointer-events: none;
-    z-index: 95;
+.bar-bg {
+    width: 160px;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.flash-animation {
-    animation: flashActive 0.4s ease-out;
-}
-@keyframes flashActive {
-    0% { opacity: 1; }
-    100% { opacity: 0; }
+.bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease;
 }
 
-/* ==========================================
-   メインゲーム画面（画面全体を主画面に）
-   ========================================== */
-.main-game-screen {
-    width: 100%;
-    max-width: 600px;
-    margin: 70px auto 20px auto; /* 上部バーを避ける余白 */
-    padding: 20px;
-    flex-grow: 1;
+.hunger-fill {
+    background: linear-gradient(90deg, #ff94c2, #b76eff);
+    box-shadow: 0 0 8px var(--color-neon-pink);
+}
+
+.stress-fill {
+    background: linear-gradient(90deg, #a04ef6, #4a157d);
+    box-shadow: 0 0 8px #943bf5;
+}
+
+
+/* ==========================================================================
+   上中央 ガラス風情報パネル
+   ========================================================================== */
+.info-panel {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    padding: 10px 25px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    z-index: 10;
+}
+
+.info-item {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.info-label {
+    color: var(--color-pink);
+    margin-right: 3px;
+}
+
+#info-debt, #info-remaining {
+    color: #ff6b6b;
+    text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+#info-coins, #info-day {
+    color: var(--color-gold);
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+
+/* ==========================================================================
+   中央メイン画面 & タイトル
+   ========================================================================== */
+.home-screen {
+    text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    z-index: 5;
-    background: rgba(20, 15, 30, 0.6); /* 背景画像が透ける不気味な半透明ブラック */
-    border-left: 2px solid rgba(162, 145, 243, 0.2);
-    border-right: 2px solid rgba(162, 145, 243, 0.2);
+    align-items: center;
+    gap: 40px;
 }
 
 .game-title {
-    font-family: 'Cinzel', serif;
-    text-align: center;
-    font-size: 2.5rem;
-    color: #ffb7ce; /* ダーク可愛いピンク */
-    text-shadow: 0 0 10px rgba(255, 183, 206, 0.6), 3px 3px 0px #4a2a6b;
-    margin-bottom: 20px;
-    letter-spacing: 2px;
-}
-
-/* ==========================================
-   カードデザイン（ホバー＆めくるアニメ）
-   ========================================== */
-.card-area {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 25px;
-}
-
-.card-wrapper {
-    text-align: center;
-}
-
-.card-label {
-    font-size: 0.85rem;
-    margin-bottom: 8px;
-    color: #b19ffb;
-    text-shadow: 1px 1px 2px #000;
-}
-
-.card {
-    width: 110px;
-    height: 165px;
-    background: #1f1929; /* 暗いカード台紙 */
-    border: 4px solid #ffb7ce;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 3rem;
-    font-weight: bold;
-    color: #ffb7ce; /* 文字もパステルピンクに */
-    box-shadow: 0 8px 16px rgba(0,0,0,0.6), inset 0 0 15px rgba(255,183,206,0.2);
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-style: preserve-3d;
-    cursor: pointer;
-}
-
-/* ホバー時の呪われた浮遊感 */
-.card:hover {
-    transform: translateY(-8px) rotate(-3deg);
-    border-color: #a2d2ff;
-    color: #a2d2ff;
-    box-shadow: 0 12px 20px rgba(162, 210, 255, 0.3);
-}
-
-/* 裏面（おもちゃの檻のような不気味なストライプ） */
-.card-back {
-    background: repeating-linear-gradient(45deg, #2e1f3c, #2e1f3c 10px, #1c1326 10px, #1c1326 20px);
-    border: 4px solid #b19ffb;
-    color: transparent;
-}
-
-.flip-animation {
-    animation: flipCard 0.5s ease-in-out;
-}
-@keyframes flipCard {
-    0% { transform: scale(1) rotateY(0); }
-    50% { transform: scale(1.1) rotateY(90deg); }
-    100% { transform: scale(1) rotateY(0); }
-}
-
-/* ==========================================
-   結果・テキストエリア（狂気テキスト用）
-   ========================================== */
-.result-area {
-    background: rgba(13, 9, 20, 0.9);
-    color: #e0d5e8;
-    padding: 15px;
-    border-radius: 8px;
-    min-height: 65px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-bottom: 25px;
-    border: 1px solid #4a3b52;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
-    font-size: 0.95rem;
-    line-height: 1.4;
-}
-
-/* ==========================================
-   操作エリア
-   ========================================== */
-.bet-input-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.bet-input-wrapper label {
-    font-size: 0.9rem;
-    color: #b19ffb;
-}
-
-.bet-input-wrapper input {
-    width: 120px;
-    padding: 8px;
-    background: #130d1c;
-    border: 2px solid #4a3b52;
-    border-radius: 6px;
-    text-align: center;
-    font-family: 'DotGothic16', sans-serif;
-    font-size: 1.2rem;
-    color: #73fcd6; /* 入力したお金はミントグリーンに光る */
-}
-
-#btn-max {
-    background: #4a3b52;
-    border: 1px solid #b19ffb;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'DotGothic16', sans-serif;
-    color: #ffb7ce;
-}
-#btn-max:hover { background: #b19ffb; color: #130d1c; }
-
-.action-buttons {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-}
-
-/* ボタンをシックでダークなゴシック調に */
-.game-btn {
-    padding: 14px 40px;
-    font-size: 1.2rem;
-    font-family: 'DotGothic16', sans-serif;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    transition: all 0.2s ease;
-    color: #fff;
-}
-
-.game-btn:hover { transform: translateY(-2px); }
-.game-btn:active { transform: translateY(1px); }
-
-.high-btn { background: #b85776; border: 2px solid #ffb7ce; text-shadow: 0 0 5px #ffb7ce; }
-.low-btn { background: #477299; border: 2px solid #a2d2ff; text-shadow: 0 0 5px #a2d2ff; }
-.next-btn { background: #5d4799; border: 2px solid #b19ffb; width: 100%; }
-
-.hidden { display: none !important; }
-
-/* ==========================================
-   履歴エリア（最下部）
-   ========================================== */
-footer {
-    margin-top: 30px;
-}
-.history-title {
-    font-size: 0.85rem;
-    text-align: center;
-    color: #63506d;
-    margin-bottom: 8px;
-}
-.history-log {
-    max-height: 90px;
-    overflow-y: auto;
-    font-size: 0.8rem;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 6px;
-    border: 1px solid #2e1f3c;
-}
-.history-item { margin-bottom: 4px; color: #9c8ca6; }
-
-/* ==========================================
-   特殊演出
-   ========================================== */
-.sparkle {
-    position: fixed;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 100;
-    animation: sparkleAnim 1.2s ease-out forwards;
-}
-@keyframes sparkleAnim {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--mx), var(--my)) scale(0); opacity: 0; }
-}
-
-/* ==========================================
-   ゲームオーバー画面（絶望）
-   ========================================== */
-#game-over-screen {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #050308;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-.game-over-content p { color: #ff4d6d; margin-bottom: 30px; font-size: 1.2rem; letter-spacing: 2px;}
-#btn-restart {
-    background: transparent;
-    border: 2px solid #ff4d6d;
-    color: #ff4d6d;
-    padding: 12px 24px;
-    font-family: 'DotGothic16', sans-serif;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-}
-#btn-restart:hover { background: #ff4d6d; color: #000; box-shadow: 0 0 15px #ff4d6d; }
-
-.glitch-text {
-    font-family: 'Cinzel', serif;
     font-size: 4.5rem;
-    color: #ff003c;
-    animation: glitch 0.3s infinite;
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: 6px;
+    background: linear-gradient(45deg, var(--color-pink), #d6a3ff, var(--color-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(255, 183, 221, 0.6)) 
+            drop-shadow(0 5px 15px rgba(35, 18, 58, 0.9));
+    animation: titlePulse 3s infinite alternate;
 }
-@keyframes glitch {
-    0% { transform: translate(2px, 1px) cubic-bezier(0.1, 0.9, 0.2, 1); text-shadow: 3px 0 #b19ffb; }
-    50% { transform: translate(-1px, -1px); text-shadow: -3px 0 #73fcd6; }
-    100% { transform: translate(1px, 2px); text-shadow: 2px 2px #000; }
+
+@keyframes titlePulse {
+    0% { filter: drop-shadow(0 0 8px rgba(255, 183, 221, 0.5)); }
+    100% { filter: drop-shadow(0 0 18px rgba(255, 102, 204, 0.9)); }
+}
+
+
+/* ==========================================================================
+   楕円形ガラス風ボタン & ホバーアニメーション
+   ========================================================================== */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 260px;
+}
+
+.btn-glass {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    cursor: pointer;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    letter-spacing: 2px;
+    outline: none;
+}
+
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: var(--color-pink);
+    box-shadow: 0 0 15px rgba(255, 183, 221, 0.6), 
+                inset 0 0 8px rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    text-shadow: 0 0 5px #fff;
+}
+
+.btn-glass:active {
+    transform: translateY(1px);
+}
+
+
+/* ==========================================================================
+   右下 Rengaカード
+   ========================================================================== */
+.renga-card {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 150px;
+    padding: 12px;
+    background: rgba(35, 18, 58, 0.4);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid rgba(255, 183, 221, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+.renga-title {
+    font-size: 12px;
+    color: var(--color-pink);
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.renga-money {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-gold);
+}
+
+
+/* ==========================================================================
+   ポップアップ（モダール）＆フェードイン・アウト
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 9, 28, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.modal-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background: rgba(35, 18, 58, 0.85);
+    border: 2px solid rgba(255, 183, 221, 0.3);
+    border-radius: 24px;
+    width: 90%;
+    max-width: 440px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 
+                0 0 30px rgba(122, 92, 159, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+}
+
+.modal-overlay.is-open .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
+    color: var(--color-pink);
+    font-size: 22px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-shadow: 0 0 8px rgba(255, 114, 196, 0.6);
+}
+
+.modal-content h3 {
+    color: var(--color-gold);
+    font-size: 15px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.modal-content p, .modal-content ol {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e0d5ea;
+    text-align: left;
+    margin: 10px 0;
+}
+
+.modal-content ol {
+    padding-left: 20px;
+}
+
+.modal-content strong {
+    color: var(--color-pink);
+}
+
+.rule-table {
+    width: 100%;
+    margin: 10px 0;
+    border-collapse: collapse;
+}
+.rule-table th, .rule-table td {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.rule-table th {
+    color: var(--color-pink);
+    text-align: left;
+}
+.rule-table td {
+    text-align: right;
+    font-weight: bold;
+}
+
+.warning-text {
+    color: #ff6b6b !important;
+    text-align: center !important;
+    font-weight: bold;
+}
+
+.close-btn {
+    margin-top: 25px;
+    padding: 10px;
+    font-size: 14px;
+    width: 50%;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 600px) {
+    .game-title {
+        font-size: 3rem;
+    }
+    .info-panel {
+        width: 85%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        border-radius: 15px;
+    }
+    .status-container {
+        top: 85px;
+    }
+    .menu-buttons {
+        width: 220px;
+    }
 }
