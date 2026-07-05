@@ -1,9 +1,4 @@
 // ==========================================
-// 効果音の設定
-// ==========================================
-const flipSound = new Audio('カードをめくる.mp3');
-
-// ==========================================
 // ゲーム状態の管理
 // ==========================================
 let money = 50000;            // 初期所持金
@@ -39,6 +34,19 @@ const flashOverlay = document.getElementById('flash-overlay');
 const gameOverScreen = document.getElementById('game-over-screen');
 const sparkleContainer = document.getElementById('sparkle-container');
 
+// ホーム画面用・ポップアップ用の要素取得
+const btnStart = document.getElementById('btn-start');
+const btnHowTo = document.getElementById('btn-how-to');
+const btnRules = document.getElementById('btn-rules');
+const modalHowTo = document.getElementById('modal-how-to');
+const modalRules = document.getElementById('modal-rules');
+const closeButtons = document.querySelectorAll('.close-btn');
+const seFlip = document.getElementById('se-flip'); 
+
+const homeScreen = document.getElementById('home-screen');
+const mainGameScreen = document.getElementById('main-game-screen');
+const btnBackHome = document.getElementById('btn-back-home');
+
 // ==========================================
 // 初期化・更新処理
 // ==========================================
@@ -46,38 +54,52 @@ function initGame() {
     money = 50000;
     stress = 0;
     winStreak = 0;
-    historyLog.innerHTML = '';
-    gameOverScreen.classList.add('hidden');
+    if (historyLog) historyLog.innerHTML = '';
+    if (gameOverScreen) gameOverScreen.classList.add('hidden');
     
     updateDisplay();
     startNewRound();
 }
 
 function updateDisplay() {
-    moneyDisplay.textContent = money.toLocaleString();
-    stressDisplay.textContent = stress;
-    streakDisplay.textContent = winStreak;
+    if (moneyDisplay) moneyDisplay.textContent = money.toLocaleString();
+    if (stressDisplay) stressDisplay.textContent = stress;
+    if (streakDisplay) streakDisplay.textContent = winStreak;
     
-    // ストレス値による画面への影響（暗転・ブラーの強化）
+    // パネルやゲージ類の同期
+    const infoCoins = document.getElementById('info-coins');
+    const rengaCoins = document.getElementById('renga-coins');
+    const infoStress = document.getElementById('stress-bar-fill');
+    
+    if (infoCoins) infoCoins.textContent = money.toLocaleString();
+    if (rengaCoins) rengaCoins.textContent = money.toLocaleString();
+    if (infoStress) infoStress.style.width = `${stress}%`;
+
+    // ストレス値による画面への影響
     const stressRatio = stress / 100;
-    stressOverlay.style.opacity = Math.min(stressRatio, 0.9); // 最大90%まで暗転
+    if (stressOverlay) stressOverlay.style.opacity = Math.min(stressRatio, 0.9);
     
-    // 画面全体（主画面）を徐々にぼかし、狂気を表現
-    document.querySelector('.main-game-screen').style.filter = `blur(${stressRatio * 2}px)`;
+    if (mainGameScreen) {
+        mainGameScreen.style.filter = `blur(${stressRatio * 2}px)`;
+    }
 }
 
 function startNewRound() {
     currentCardValue = getRandomCard();
-    currentCardEl.textContent = getCardName(currentCardValue);
-    currentCardEl.classList.remove('card-back');
+    if (currentCardEl) {
+        currentCardEl.textContent = getCardName(currentCardValue);
+        currentCardEl.classList.remove('card-back');
+    }
     
-    nextCardEl.textContent = '?';
-    nextCardEl.classList.add('card-back');
-    nextCardEl.classList.remove('flip-animation');
+    if (nextCardEl) {
+        nextCardEl.textContent = '?';
+        nextCardEl.classList.add('card-back');
+        nextCardEl.classList.remove('flip-animation');
+    }
     
-    btnHigh.disabled = false;
-    btnLow.disabled = false;
-    btnNextRound.classList.add('hidden');
+    if (btnHigh) btnHigh.disabled = false;
+    if (btnLow) btnLow.disabled = false;
+    if (btnNextRound) btnNextRound.classList.add('hidden');
     
     typeMessage("カードが配られたよ。さあ、次を予想して……ウフフ。");
 }
@@ -97,16 +119,26 @@ function getCardName(value) {
     return value.toString();
 }
 
-// 不気味なタイピング風メッセージ表示
 function typeMessage(text) {
-    messageText.textContent = text;
+    if (messageText) messageText.textContent = text;
 }
 
-btnMax.addEventListener('click', () => {
-    betInput.value = money;
-});
+if (btnMax) {
+    btnMax.addEventListener('click', () => {
+        if (betInput) betInput.value = money;
+    });
+}
+
+// 効果音を鳴らす共通関数
+function playFlipSound() {
+    if (seFlip) {
+        seFlip.currentTime = 0; 
+        seFlip.play().catch(err => console.log("オーディオ再生エラー:", err));
+    }
+}
 
 function play(choice) {
+    if (!betInput) return;
     const bet = parseInt(betInput.value);
 
     if (isNaN(bet) || bet <= 0) {
@@ -118,21 +150,22 @@ function play(choice) {
         return;
     }
 
-    btnHigh.disabled = true;
-    btnLow.disabled = true;
+    if (btnHigh) btnHigh.disabled = true;
+    if (btnLow) btnLow.disabled = true;
 
     nextCardValue = getRandomCard();
     
-    // ---- 🔊 効果音を鳴らす（ここを追加しました） ----
-    flipSound.currentTime = 0; 
-    flipSound.play();
-    // ----------------------------------------------
-
-    nextCardEl.classList.add('flip-animation');
+    if (nextCardEl) {
+        nextCardEl.classList.add('flip-animation');
+        // カードが裏返るアニメーション開始の「この瞬間」にSEを再生
+        playFlipSound();
+    }
     
     setTimeout(() => {
-        nextCardEl.textContent = getCardName(nextCardValue);
-        nextCardEl.classList.remove('card-back');
+        if (nextCardEl) {
+            nextCardEl.textContent = getCardName(nextCardValue);
+            nextCardEl.classList.remove('card-back');
+        }
         judgeResult(choice, bet);
     }, 250);
 }
@@ -186,16 +219,15 @@ function judgeResult(choice, bet) {
     if (money <= 0) {
         setTimeout(showGameOver, 1000);
     } else {
-        btnNextRound.classList.remove('hidden');
+        if (btnNextRound) btnNextRound.classList.remove('hidden');
     }
 }
 
 // ==========================================
 // 演出用関数
 // ==========================================
-
-// 勝利時のダークキラキラ演出（毒パステルカラー）
 function createSparkles() {
+    if (!sparkleContainer) return;
     const colors = ['#ffb7ce', '#a2d2ff', '#b19ffb', '#73fcd6'];
     for (let i = 0; i < 25; i++) {
         const sparkle = document.createElement('div');
@@ -216,6 +248,7 @@ function createSparkles() {
 }
 
 function triggerFlash() {
+    if (!flashOverlay) return;
     flashOverlay.classList.add('flash-animation');
     flashOverlay.addEventListener('animationend', () => {
         flashOverlay.classList.remove('flash-animation');
@@ -223,6 +256,7 @@ function triggerFlash() {
 }
 
 function addHistory(text) {
+    if (!historyLog) return;
     const item = document.createElement('div');
     item.classList.add('history-item');
     item.textContent = text;
@@ -230,12 +264,49 @@ function addHistory(text) {
 }
 
 function showGameOver() {
-    gameOverScreen.classList.remove('hidden');
+    if (gameOverScreen) gameOverScreen.classList.remove('hidden');
 }
 
-btnHigh.addEventListener('click', () => play('HIGH'));
-btnLow.addEventListener('click', () => play('LOW'));
-btnNextRound.addEventListener('click', startNewRound);
-btnRestart.addEventListener('click', initGame);
+// ==========================================
+// ポップアップとナビゲーションのイベント制御
+// ==========================================
+if (btnHowTo) btnHowTo.addEventListener('click', () => modalHowTo.classList.add('is-open'));
+if (btnRules) btnRules.addEventListener('click', () => modalRules.classList.add('is-open'));
 
-window.onload = initGame;
+closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+
+window.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) closeModal();
+});
+
+function closeModal() {
+    if (modalHowTo) modalHowTo.classList.remove('is-open');
+    if (modalRules) modalRules.classList.remove('is-open');
+}
+
+// ゲーム開始ボタンの処理
+if (btnStart) {
+    btnStart.addEventListener('click', () => {
+        if (homeScreen) homeScreen.style.display = 'none'; 
+        if (mainGameScreen) mainGameScreen.classList.remove('hidden'); 
+        initGame(); 
+    });
+}
+
+// 「ホームに戻る」ボタンの処理（ゆめかわ不穏セリフ版）
+if (btnBackHome) {
+    btnBackHome.addEventListener('click', () => {
+        if (confirm('ここから逃げ出すの……？')) {
+            if (mainGameScreen) mainGameScreen.classList.add('hidden'); 
+            if (homeScreen) homeScreen.style.display = 'flex';         
+        }
+    });
+}
+
+// ==========================================
+// イベントリスナーの登録
+// ==========================================
+if (btnHigh) btnHigh.addEventListener('click', () => play('HIGH'));
+if (btnLow) btnLow.addEventListener('click', () => play('LOW'));
+if (btnNextRound) btnNextRound.addEventListener('click', startNewRound);
+if (btnRestart) btnRestart.addEventListener('click', initGame);
