@@ -16,6 +16,18 @@ const startBtn = document.getElementById("startBtn");
 const autoBtn = document.getElementById("autoBtn");
 const missionBtn = document.getElementById("missionBtn");
 const settingBtn = document.getElementById("settingBtn");
+const gameMenuButton = document.getElementById("gameMenuButton");
+const gameMenuOverlay = document.getElementById("gameMenuOverlay");
+const gamePopupOverlay = document.getElementById("gamePopupOverlay");
+const gameMenuMain = document.getElementById("gameMenuMain");
+const gameRulesPanel = document.getElementById("gameRulesPanel");
+const gamePayoutPanel = document.getElementById("gamePayoutPanel");
+const menuRulesBtn = document.getElementById("menuRulesBtn");
+const menuHomeBtn = document.getElementById("menuHomeBtn");
+const menuCloseBtn = document.getElementById("menuCloseBtn");
+const menuPayoutBtn = document.getElementById("menuPayoutBtn");
+const rulesCloseBtn = document.getElementById("rulesCloseBtn");
+const payoutCloseBtn = document.getElementById("payoutCloseBtn");
 const startScreen = document.getElementById("startScreen");
 const openGameBtn = document.getElementById("openGameBtn");
 const autoStartBtn = document.getElementById("autoStartBtn");
@@ -136,6 +148,7 @@ let reelStopped = {
 let isSpinning = false;
 let stopCount = 0;
 let isStartScreenOpen = true;
+let isGameMenuOpen = false;
 
 function saveGameData(){
 
@@ -303,6 +316,72 @@ function closeStartScreen(){
 
     isStartScreenOpen = false;
     startScreen.classList.add("hidden");
+
+}
+
+function openStartScreen(){
+
+    isStartScreenOpen = true;
+    closeGameMenu();
+    closeGamePopup();
+    updateStartScreenStats();
+    startScreen.classList.remove("hidden");
+
+}
+
+function showGameMenuPanel(panel){
+
+    gameRulesPanel.classList.add("hidden");
+    gamePayoutPanel.classList.add("hidden");
+    panel.classList.remove("hidden");
+
+}
+
+function closeGamePopup(){
+
+    gamePopupOverlay.classList.add("hidden");
+    gamePopupOverlay.setAttribute("aria-hidden","true");
+    gameRulesPanel.classList.add("hidden");
+    gamePayoutPanel.classList.add("hidden");
+
+}
+
+function openGamePopup(panel){
+
+    closeGameMenu();
+    gamePopupOverlay.classList.remove("hidden");
+    gamePopupOverlay.setAttribute("aria-hidden","false");
+    gameRulesPanel.classList.add("hidden");
+    gamePayoutPanel.classList.add("hidden");
+    panel.classList.remove("hidden");
+
+}
+
+function openGameMenu(){
+
+    if(isStartScreenOpen){
+        return;
+    }
+
+    isGameMenuOpen = true;
+    gameMenuOverlay.classList.add("open");
+    gameMenuButton.classList.add("open");
+    gameMenuButton.textContent = "<";
+    gameMenuButton.setAttribute("aria-label","メニューを閉じる");
+    gameMenuOverlay.setAttribute("aria-hidden","false");
+    showGameMenuPanel(gameMenuMain);
+
+}
+
+function closeGameMenu(){
+
+    isGameMenuOpen = false;
+    gameMenuOverlay.classList.remove("open");
+    gameMenuButton.classList.remove("open");
+    gameMenuButton.textContent = ">";
+    gameMenuButton.setAttribute("aria-label","メニューを開く");
+    gameMenuOverlay.setAttribute("aria-hidden","true");
+    gameMenuMain.classList.remove("hidden");
 
 }
 
@@ -1411,6 +1490,38 @@ setButton(settingBtn,"SETTING",() => {
     resetGameData();
 });
 
+setButton(gameMenuButton,"MENU",() => {
+    if(isGameMenuOpen){
+        closeGameMenu();
+    }else{
+        openGameMenu();
+    }
+});
+
+setButton(menuRulesBtn,"RULES",() => {
+    openGamePopup(gameRulesPanel);
+});
+
+setButton(menuHomeBtn,"HOME",() => {
+    openStartScreen();
+});
+
+setButton(menuCloseBtn,"CLOSE",() => {
+    closeGameMenu();
+});
+
+setButton(menuPayoutBtn,"PAYOUT",() => {
+    openGamePopup(gamePayoutPanel);
+});
+
+setButton(rulesCloseBtn,"RULES CLOSE",() => {
+    closeGamePopup();
+});
+
+setButton(payoutCloseBtn,"PAYOUT CLOSE",() => {
+    closeGamePopup();
+});
+
 setButton(openGameBtn,"START",() => {
     closeStartScreen();
 });
@@ -1429,6 +1540,28 @@ setButton(startResetBtn,"RESET DATA",() => {
 });
 
 document.addEventListener("keydown",(e)=>{
+
+    if(!gamePopupOverlay.classList.contains("hidden")){
+
+        if(e.code === "Escape"){
+            e.preventDefault();
+            closeGamePopup();
+        }
+
+        return;
+
+    }
+
+    if(isGameMenuOpen){
+
+        if(e.code === "Escape"){
+            e.preventDefault();
+            closeGameMenu();
+        }
+
+        return;
+
+    }
 
     if(isStartScreenOpen){
 

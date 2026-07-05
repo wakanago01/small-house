@@ -44,6 +44,15 @@ body{
 }
 
 #pekaLamp,
+#bonusLamp,
+#kanbanPanel,
+#payoutTable,
+#rengaPanel,
+#rengaText{
+    display:none !important;
+}
+
+#pekaLamp,
 #bonusLamp{
     opacity:0;
     transition:opacity 0.22s, filter 0.22s;
@@ -80,10 +89,10 @@ body{
 }
 
 #slotMachine{
-    top:8%;
-    left:2%;
-    width:95%;
-    height:95%;
+    top:15%;
+    left:9%;
+    width:85%;
+    height:85%;
 
     z-index:5;
 }
@@ -132,7 +141,7 @@ body{
     overflow:hidden;
 
     pointer-events:none;
-    z-index:8;
+    z-index:12;
 }
 
 .segDigit{
@@ -597,6 +606,319 @@ body{
     height:8.55%;
 }
 
+.gameMenuButton{
+    position:absolute;
+    left:0;
+    top:68%;
+
+    width:30px;
+    height:64px;
+    padding:0;
+
+    border:1px solid rgba(255,230,150,0.82);
+    border-left:none;
+    border-radius:0 8px 8px 0;
+    background:
+        linear-gradient(180deg, rgba(255,238,172,0.28), rgba(125,54,145,0.82)),
+        rgba(42,18,58,0.94);
+    box-shadow:
+        0 0 14px rgba(255,170,255,0.32),
+        inset 0 0 10px rgba(255,245,190,0.13);
+
+    color:#fff8dd;
+    cursor:pointer;
+    font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+    font-size:1.2rem;
+    font-weight:700;
+    line-height:1;
+    text-shadow:0 0 9px rgba(255,255,255,0.44);
+
+    z-index:38;
+    transition:left 0.36s ease, transform 0.12s, box-shadow 0.12s;
+}
+
+.gameMenuButton:hover,
+.gameMenuButton.pressed{
+    transform:translateX(1px);
+    box-shadow:
+        0 0 20px rgba(255,218,120,0.42),
+        0 0 30px rgba(255,120,255,0.34);
+}
+
+.gameMenuButton.open{
+    left:clamp(230px,24vw,318px);
+}
+
+.gameMenuOverlay{
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+
+    width:clamp(230px,24vw,318px);
+    padding:0;
+    box-sizing:border-box;
+
+    display:flex;
+    align-items:center;
+
+    background:
+        radial-gradient(circle at 50% 8%, rgba(255,112,230,0.14), transparent 36%),
+        linear-gradient(90deg, rgba(18,0,34,0.98), rgba(42,7,62,0.94) 78%, rgba(42,18,58,0.24));
+    backdrop-filter:blur(3px) saturate(1.1);
+    border-right:2px solid rgba(255,82,210,0.54);
+    box-shadow:
+        8px 0 28px rgba(18,8,30,0.5),
+        0 0 28px rgba(255,71,218,0.18),
+        inset -16px 0 26px rgba(255,120,255,0.1);
+
+    transform:translateX(-100%);
+    opacity:0.98;
+
+    z-index:35;
+    transition:transform 0.36s ease;
+}
+
+.gameMenuOverlay.open{
+    transform:translateX(0);
+}
+
+.gamePopupOverlay{
+    position:absolute;
+    inset:0;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:4vw;
+    box-sizing:border-box;
+
+    background:rgba(12,2,22,0.42);
+    backdrop-filter:blur(3px) saturate(1.08);
+
+    z-index:42;
+}
+
+.gamePopupOverlay.hidden,
+.gameMenuPanel.hidden{
+    display:none;
+}
+
+.gameMenuPanel{
+    width:100%;
+    max-height:78vh;
+    overflow:auto;
+
+    padding:28px 20px;
+    box-sizing:border-box;
+
+    border:1px solid rgba(255,82,210,0.5);
+    border-left:none;
+    border-radius:0 18px 18px 0;
+    background:
+        radial-gradient(circle at 50% 0, rgba(255,112,230,0.12), transparent 42%),
+        linear-gradient(145deg, rgba(34,4,51,0.95), rgba(18,0,34,0.94));
+    box-shadow:
+        inset 0 0 28px rgba(255,120,255,0.08),
+        0 0 22px rgba(255,71,218,0.14);
+
+    color:#fff7e7;
+    font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+    text-align:center;
+}
+
+.gameMenuPanelWide{
+    width:min(76vw,760px);
+    max-height:80vh;
+    padding:clamp(22px,2.7vw,36px);
+    border:2px solid rgba(255,82,210,0.66);
+    border-radius:20px;
+    background:
+        radial-gradient(circle at 50% 0, rgba(255,112,230,0.15), transparent 38%),
+        linear-gradient(145deg, rgba(34,4,51,0.98), rgba(18,0,34,0.98)),
+        rgba(18,0,34,0.98);
+    box-shadow:
+        0 0 30px rgba(255,71,218,0.28),
+        0 0 60px rgba(114,0,180,0.22),
+        inset 0 0 36px rgba(255,120,255,0.12);
+}
+
+.menuEyebrow{
+    margin:0 0 8px;
+
+    color:#f6d98b;
+    font-size:0.78rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+}
+
+.menuIcon{
+    margin:0 0 4px;
+
+    color:#ffe5ff;
+    font-size:clamp(1.45rem,2.4vw,2rem);
+    line-height:1;
+    text-shadow:
+        0 0 12px rgba(255,77,226,0.9),
+        0 0 24px rgba(255,197,96,0.42);
+}
+
+.gameMenuPanel h2{
+    margin:0 0 18px;
+
+    color:#ffd0ff;
+    font-size:clamp(1.6rem,2.7vw,2.25rem);
+    line-height:1.1;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.82),
+        0 0 18px rgba(255,77,226,0.9),
+        0 0 34px rgba(255,77,226,0.42);
+}
+
+.gameMenuPanelWide h2{
+    margin-bottom:clamp(18px,2.4vw,28px);
+
+    color:#ffd0ff;
+    font-size:clamp(1.8rem,3.5vw,2.65rem);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.82),
+        0 0 18px rgba(255,77,226,0.9),
+        0 0 34px rgba(255,77,226,0.42);
+}
+
+.gameMenuActions{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+}
+
+.singleAction{
+    margin-top:16px;
+    display:flex;
+    justify-content:center;
+}
+
+.menuActionButton{
+    min-height:66px;
+    padding:0 24px;
+
+    border:1px solid rgba(255,230,150,0.78);
+    border-radius:16px;
+    background:
+        linear-gradient(180deg, rgba(255,169,247,0.24), rgba(129,18,164,0.62)),
+        rgba(46,7,69,0.96);
+    box-shadow:
+        0 0 18px rgba(255,77,226,0.26),
+        inset 0 0 14px rgba(255,245,190,0.12);
+
+    color:#fff8dd;
+    cursor:pointer;
+    font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+    font-size:1.14rem;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-shadow:
+        0 0 9px rgba(255,255,255,0.38),
+        0 0 14px rgba(255,77,226,0.44);
+
+    transition:transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.menuActionButton.primary{
+    min-width:168px;
+    min-height:56px;
+    border-radius:999px;
+    background:
+        linear-gradient(180deg, #b749df, #7a0da8 54%, #45115f);
+    color:#fff8ff;
+    font-size:1.05rem;
+    letter-spacing:0.08em;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.84),
+        0 0 16px rgba(255,77,226,0.72);
+    box-shadow:
+        0 0 24px rgba(255,77,226,0.42),
+        inset 0 0 18px rgba(255,255,255,0.16);
+}
+
+.menuActionButton:hover,
+.menuActionButton.pressed{
+    transform:translateY(-1px);
+    box-shadow:
+        0 0 22px rgba(255,218,120,0.44),
+        0 0 34px rgba(255,120,255,0.32);
+}
+
+.gameMenuPanelWide .menuRuleGrid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:clamp(16px,2.2vw,24px);
+
+    max-height:46vh;
+    overflow:auto;
+    margin-bottom:0;
+    padding-right:16px;
+    text-align:left;
+}
+
+.gameMenuPanelWide .menuRuleGrid::-webkit-scrollbar{
+    width:8px;
+}
+
+.gameMenuPanelWide .menuRuleGrid::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.06);
+    border-radius:999px;
+}
+
+.gameMenuPanelWide .menuRuleGrid::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, #ff69dc, #74269d);
+    border-radius:999px;
+}
+
+.gameMenuPanelWide .menuRuleGrid section{
+    padding:0 0 0 18px;
+
+    border:none;
+    border-left:4px solid #ff67d7;
+    border-radius:0;
+    background:transparent;
+}
+
+.gameMenuPanelWide .menuRuleGrid h2{
+    margin:0 0 8px;
+
+    color:#ffd0ff;
+    font-size:clamp(1.06rem,1.65vw,1.34rem);
+    letter-spacing:0.04em;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.52),
+        0 0 16px rgba(255,77,226,0.58);
+}
+
+.gameMenuPanelWide .menuRuleGrid p{
+    color:#f5e9ff;
+    font-size:clamp(0.9rem,1.22vw,1.04rem);
+    line-height:1.75;
+}
+
+.payoutPopupImage{
+    display:block;
+    width:min(100%,540px);
+    max-height:46vh;
+    object-fit:contain;
+    margin:0 auto;
+
+    border:1px solid rgba(255,230,150,0.38);
+    border-radius:6px;
+    background:rgba(255,255,255,0.06);
+    box-shadow:0 0 18px rgba(255,120,255,0.18);
+}
+
 .startScreen{
     position:absolute;
     inset:0;
@@ -609,10 +931,9 @@ body{
     box-sizing:border-box;
 
     background:
-        radial-gradient(circle at 50% 18%, rgba(255,235,175,0.2), transparent 28%),
-        radial-gradient(circle at 16% 80%, rgba(255,120,255,0.18), transparent 26%),
-        rgba(18,8,30,0.78);
-    backdrop-filter:blur(5px) saturate(1.2);
+        radial-gradient(circle at 50% 14%, rgba(255,112,230,0.16), transparent 32%),
+        rgba(12,2,22,0.58);
+    backdrop-filter:blur(5px) saturate(1.15);
 
     z-index:40;
 }
@@ -622,21 +943,23 @@ body{
 }
 
 .startPanel{
-    width:min(74vw,920px);
-    max-height:86vh;
+    width:min(76vw,760px);
+    max-height:80vh;
     overflow:auto;
 
-    padding:clamp(22px,3.2vw,44px);
+    padding:clamp(22px,2.7vw,36px);
     box-sizing:border-box;
 
-    border:1px solid rgba(255,230,150,0.72);
-    border-radius:8px;
+    border:2px solid rgba(255,82,210,0.66);
+    border-radius:20px;
     background:
-        linear-gradient(145deg, rgba(42,18,58,0.95), rgba(14,8,26,0.96)),
-        rgba(18,8,30,0.96);
+        radial-gradient(circle at 50% 0, rgba(255,112,230,0.15), transparent 38%),
+        linear-gradient(145deg, rgba(34,4,51,0.98), rgba(18,0,34,0.98)),
+        rgba(18,0,34,0.98);
     box-shadow:
-        0 0 28px rgba(255,190,92,0.25),
-        inset 0 0 38px rgba(255,120,255,0.14);
+        0 0 30px rgba(255,71,218,0.28),
+        0 0 60px rgba(114,0,180,0.22),
+        inset 0 0 36px rgba(255,120,255,0.12);
 
     color:#fff7e7;
     font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
@@ -646,7 +969,7 @@ body{
 .startEyebrow{
     margin:0 0 0.5rem;
 
-    color:#f6d98b;
+    color:#ffe5ff;
     font-size:clamp(0.72rem,1.15vw,1rem);
     letter-spacing:0.18em;
     text-transform:uppercase;
@@ -655,16 +978,17 @@ body{
 .startPanel h1{
     margin:0;
 
-    color:#fff8dc;
-    font-size:clamp(2.4rem,5.2vw,4.9rem);
+    color:#ffd0ff;
+    font-size:clamp(1.8rem,3.5vw,2.65rem);
     font-weight:700;
-    letter-spacing:0;
+    letter-spacing:0.12em;
     line-height:1;
+    text-transform:uppercase;
 
     text-shadow:
-        0 0 10px rgba(255,255,255,0.9),
-        0 0 24px rgba(255,160,255,0.72),
-        0 0 42px rgba(255,207,88,0.56);
+        0 0 8px rgba(255,255,255,0.82),
+        0 0 18px rgba(255,77,226,0.9),
+        0 0 34px rgba(255,77,226,0.42);
 }
 
 .startStats{
@@ -672,13 +996,13 @@ body{
     grid-template-columns:repeat(3,1fr);
     gap:10px;
 
-    margin:clamp(18px,2.4vw,28px) auto;
-    width:min(100%,620px);
+    margin:clamp(14px,2vw,22px) auto;
+    width:min(100%,560px);
 }
 
 .startStats div{
     min-width:0;
-    padding:12px 10px;
+    padding:10px 8px;
 
     border:1px solid rgba(246,217,139,0.42);
     border-radius:6px;
@@ -699,62 +1023,83 @@ body{
 
 .startStats strong{
     color:white;
-    font-size:clamp(1rem,1.65vw,1.45rem);
+    font-size:clamp(0.94rem,1.4vw,1.24rem);
     text-shadow:0 0 12px rgba(255,138,255,0.78);
 }
 
 .ruleGrid{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:14px;
+    grid-template-columns:1fr;
+    gap:clamp(13px,1.8vw,20px);
 
+    max-height:46vh;
+    overflow:auto;
     margin:0 auto clamp(18px,2.6vw,30px);
+    padding-right:16px;
     text-align:left;
 }
 
-.ruleGrid section{
-    padding:16px;
+.ruleGrid::-webkit-scrollbar{
+    width:8px;
+}
 
-    border:1px solid rgba(255,255,255,0.18);
-    border-radius:6px;
-    background:rgba(255,255,255,0.065);
+.ruleGrid::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.06);
+    border-radius:999px;
+}
+
+.ruleGrid::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, #ff69dc, #74269d);
+    border-radius:999px;
+}
+
+.ruleGrid section{
+    padding:0 0 0 18px;
+
+    border:none;
+    border-left:4px solid #ff67d7;
+    border-radius:0;
+    background:transparent;
 }
 
 .ruleGrid h2{
     margin:0 0 8px;
 
-    color:#ffe8a8;
-    font-size:clamp(1rem,1.35vw,1.24rem);
-    letter-spacing:0;
+    color:#ffd0ff;
+    font-size:clamp(1.06rem,1.65vw,1.34rem);
+    letter-spacing:0.04em;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.52),
+        0 0 16px rgba(255,77,226,0.58);
 }
 
 .ruleGrid p{
     margin:0;
 
-    color:#fff7ee;
-    font-size:clamp(0.86rem,1.15vw,1rem);
+    color:#f5e9ff;
+    font-size:clamp(0.9rem,1.22vw,1.04rem);
     line-height:1.75;
 }
 
 .startActions{
     display:flex;
     justify-content:center;
-    gap:12px;
+    gap:14px;
     flex-wrap:wrap;
 }
 
 .startButton{
     min-width:142px;
-    min-height:46px;
-    padding:0 22px;
+    min-height:56px;
+    padding:0 20px;
 
     border:1px solid rgba(255,230,150,0.82);
-    border-radius:6px;
+    border-radius:16px;
     background:
-        linear-gradient(180deg, rgba(255,238,172,0.2), rgba(129,56,126,0.28)),
-        rgba(46,20,64,0.92);
+        linear-gradient(180deg, rgba(255,169,247,0.24), rgba(129,18,164,0.62)),
+        rgba(46,7,69,0.96);
     box-shadow:
-        0 0 16px rgba(255,170,255,0.3),
+        0 0 18px rgba(255,77,226,0.26),
         inset 0 0 12px rgba(255,245,190,0.14);
 
     color:#fff8dd;
@@ -763,20 +1108,26 @@ body{
     font-size:1rem;
     font-weight:700;
     letter-spacing:0.06em;
-    text-shadow:0 0 10px rgba(255,255,255,0.45);
+    text-shadow:
+        0 0 9px rgba(255,255,255,0.38),
+        0 0 14px rgba(255,77,226,0.44);
 
     transition:transform 0.12s, box-shadow 0.12s, background 0.12s;
 }
 
 .startButton.primary{
     min-width:176px;
+    min-height:58px;
+    border-radius:999px;
     background:
-        linear-gradient(180deg, #fff0a8, #d09332 42%, #8b3d79);
-    color:#2b1233;
-    text-shadow:0 1px 0 rgba(255,255,255,0.45);
+        linear-gradient(180deg, #b749df, #7a0da8 54%, #45115f);
+    color:#fff8ff;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.84),
+        0 0 16px rgba(255,77,226,0.72);
     box-shadow:
-        0 0 22px rgba(255,225,132,0.56),
-        0 0 34px rgba(255,120,255,0.28);
+        0 0 24px rgba(255,77,226,0.42),
+        inset 0 0 18px rgba(255,255,255,0.16);
 }
 
 .startButton.subtle{
@@ -814,5 +1165,54 @@ body{
 
     .startButton{
         width:100%;
+    }
+
+    .gameMenuButton{
+        left:0;
+        top:66%;
+        width:28px;
+        height:56px;
+        min-width:0;
+        min-height:0;
+        font-size:1rem;
+    }
+
+    .gameMenuButton.open{
+        left:min(72vw,240px);
+    }
+
+    .gameMenuOverlay{
+        width:min(72vw,240px);
+        padding:0;
+        align-items:center;
+    }
+
+    .gameMenuPanel{
+        width:100%;
+        max-height:82vh;
+    }
+
+    .gameMenuPanelWide{
+        width:100%;
+        max-height:calc(100vh - 36px);
+        margin-left:0;
+        padding:16px;
+    }
+
+    .gamePopupOverlay{
+        padding:18px;
+        align-items:center;
+    }
+
+    .gameMenuPanelWide h2{
+        font-size:clamp(1.5rem,7vw,2.05rem);
+    }
+
+    .gameMenuPanelWide .menuRuleGrid{
+        max-height:46vh;
+    }
+
+    .payoutPopupImage{
+        max-height:40vh;
     }
 }
