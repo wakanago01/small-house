@@ -24,6 +24,7 @@ const gameRulesPanel = document.getElementById("gameRulesPanel");
 const gamePayoutPanel = document.getElementById("gamePayoutPanel");
 const menuRulesBtn = document.getElementById("menuRulesBtn");
 const menuHomeBtn = document.getElementById("menuHomeBtn");
+const menuPayoutBtn = document.getElementById("menuPayoutBtn");
 const menuCloseBtn = document.getElementById("menuCloseBtn");
 const rulesCloseBtn = document.getElementById("rulesCloseBtn");
 const payoutCloseBtn = document.getElementById("payoutCloseBtn");
@@ -51,9 +52,30 @@ const slotStatDays = document.getElementById("slotStatDays");
 const slotClockProgress = document.getElementById("slotClockProgress");
 
 const SAVE_KEY = "smallHouseSlotData";
+const HOME_SAVE_KEY = "small_house_game_state";
 const SAVE_VERSION = 2;
 const AUTO_BET_AMOUNT = 3;
 const CLOCK_CIRCUMFERENCE = 283;
+const HOME_DAY_DURATION_SEC = 20 * 60;
+const HOME_INITIAL_STATE = {
+    coins:1000,
+    debt:100000000,
+    remainingDebt:100000000,
+    hunger:100,
+    stress:20,
+    alcohol:45,
+    cigarette:10,
+    days:1,
+    inventory:[],
+    thirst:90,
+    sleep:0,
+    health:100,
+    fatigue:10,
+    motivation:70,
+    energy:100,
+    condition:100,
+    clockSeconds:0
+};
 const DEFAULT_GAME_DATA = {
     renga:1000,
     gameCount:0,
@@ -90,9 +112,9 @@ const symbolImages = {
 };
 
 const reelStrips = {
-    reel1:["seven","grape","bell","cherry","bar","rabbit","grape","bell","grape","bell"],
-    reel2:["grape","seven","cherry","bell","rabbit","bar","grape","bell","grape","rabbit"],
-    reel3:["bell","grape","seven","bar","rabbit","cherry","grape","bell","grape","rabbit"]
+    reel1:["seven","grape","bar","bell","seven","cherry","rabbit","grape","seven","bell","bar","rabbit","grape","seven"],
+    reel2:["bar","seven","grape","cherry","seven","bell","rabbit","grape","bar","seven","cherry","grape","rabbit","bell"],
+    reel3:["bell","grape","seven","bar","rabbit","cherry","grape","seven","bell","rabbit","bar","grape","cherry","seven"]
 };
 
 const VISIBLE_SYMBOL_COUNT = 3;
@@ -100,16 +122,15 @@ const TRACK_BUFFER_SYMBOLS = 4;
 const SYMBOL_HEIGHT_PERCENT = 100 / VISIBLE_SYMBOL_COUNT;
 const REEL_SPEED = 0.014;
 const REEL_SNAP_DURATION = 120;
-const MAX_SLIP_SYMBOLS = 9;
 
 const outcomeLottery = [
-    {result:"big", weight:12},
-    {result:"reg", weight:8},
-    {result:"bell", weight:85},
-    {result:"grape", weight:145},
-    {result:"cherry", weight:35},
-    {result:"rabbit", weight:25},
-    {result:"lose", weight:690}
+    {result:"big", weight:7},
+    {result:"reg", weight:5},
+    {result:"bell", weight:25},
+    {result:"grape", weight:50},
+    {result:"cherry", weight:15},
+    {result:"rabbit", weight:10},
+    {result:"lose", weight:888}
 ];
 
 const payouts = {
@@ -168,6 +189,57 @@ let stopCount = 0;
 let isStartScreenOpen = true;
 let isGameMenuOpen = false;
 
+function loadHomeGameState(){
+
+    const savedData = localStorage.getItem(HOME_SAVE_KEY);
+
+    if(!savedData){
+        return {...HOME_INITIAL_STATE};
+    }
+
+    try{
+
+        const parsedData = JSON.parse(savedData);
+
+        return {
+            ...HOME_INITIAL_STATE,
+            ...parsedData
+        };
+
+    }catch(error){
+
+        return {...HOME_INITIAL_STATE};
+
+    }
+
+}
+
+function syncSlotFromHomeGameState(){
+
+    const homeGameState = loadHomeGameState();
+
+    renga = getNumber(homeGameState.coins,HOME_INITIAL_STATE.coins);
+    statusHud = {
+        hunger:getNumber(homeGameState.hunger,HOME_INITIAL_STATE.hunger),
+        strenn:getNumber(homeGameState.stress,HOME_INITIAL_STATE.stress),
+        coins:renga,
+        debt:getNumber(homeGameState.debt,HOME_INITIAL_STATE.debt),
+        remaining:getNumber(homeGameState.remainingDebt,HOME_INITIAL_STATE.remainingDebt),
+        survivalDays:getNumber(homeGameState.days,HOME_INITIAL_STATE.days),
+        dayProgress:clampPercent((getNumber(homeGameState.clockSeconds,0) / HOME_DAY_DURATION_SEC) * 100)
+    };
+
+}
+
+function saveHomeGameState(){
+
+    const homeGameState = loadHomeGameState();
+
+    homeGameState.coins = renga;
+    localStorage.setItem(HOME_SAVE_KEY,JSON.stringify(homeGameState));
+
+}
+
 function saveGameData(){
 
     const data = {
@@ -186,6 +258,7 @@ function saveGameData(){
     };
 
     localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+    saveHomeGameState();
 
 }
 
@@ -289,10 +362,16 @@ function formatStatusNumber(value){
 
 function updateSlotStatusHud(nextStatus = {}){
 
+    const shouldSyncCoinsToSlot = Object.prototype.hasOwnProperty.call(nextStatus,"coins");
+
     statusHud = {
         ...statusHud,
         ...nextStatus
     };
+
+    if(shouldSyncCoinsToSlot){
+        renga = getNumber(statusHud.coins,renga);
+    }
 
     statusHud.hunger = clampPercent(getNumber(statusHud.hunger,DEFAULT_GAME_DATA.statusHud.hunger));
     statusHud.strenn = clampPercent(getNumber(statusHud.strenn,DEFAULT_GAME_DATA.statusHud.strenn));
@@ -422,6 +501,14 @@ function openStartScreen(){
 
 }
 
+function returnToHome(){
+
+    stopReelSpinLoop();
+    saveGameData();
+    window.location.href = "../../home/index.html";
+
+}
+
 function showGameMenuPanel(panel){
 
     gameRulesPanel.classList.add("hidden");
@@ -539,6 +626,265 @@ function showResultText(text){
 
 }
 
+let slotAudioContext = null;
+let slotAudioMaster = null;
+let reelSpinSound = null;
+
+function getSlotAudioContext(){
+
+    if(!slotAudioContext){
+
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+        if(!AudioContextClass){
+            return null;
+        }
+
+        slotAudioContext = new AudioContextClass();
+        slotAudioMaster = slotAudioContext.createGain();
+        slotAudioMaster.gain.value = 0.62;
+        slotAudioMaster.connect(slotAudioContext.destination);
+
+    }
+
+    if(slotAudioContext.state === "suspended"){
+        slotAudioContext.resume();
+    }
+
+    return slotAudioContext;
+
+}
+
+function playTone(frequency,duration,options = {}){
+
+    const audioContext = getSlotAudioContext();
+
+    if(!audioContext || !slotAudioMaster){
+        return;
+    }
+
+    const startTime = audioContext.currentTime + (options.delay || 0);
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = options.type || "sine";
+    oscillator.frequency.setValueAtTime(frequency,startTime);
+
+    if(options.frequencyEnd){
+        oscillator.frequency.exponentialRampToValueAtTime(Math.max(1,options.frequencyEnd),startTime + duration);
+    }
+
+    if(options.detune){
+        oscillator.detune.setValueAtTime(options.detune,startTime);
+    }
+
+    const peak = options.gain || 0.12;
+    const attack = options.attack || 0.01;
+    const releaseStart = Math.max(attack,startTime + duration - (options.release || 0.08));
+
+    gain.gain.setValueAtTime(0,startTime);
+    gain.gain.linearRampToValueAtTime(peak,startTime + attack);
+    gain.gain.setValueAtTime(peak,releaseStart);
+    gain.gain.exponentialRampToValueAtTime(0.0001,startTime + duration);
+
+    oscillator.connect(gain);
+    gain.connect(slotAudioMaster);
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration + 0.03);
+
+}
+
+function playNoiseBurst(duration,options = {}){
+
+    const audioContext = getSlotAudioContext();
+
+    if(!audioContext || !slotAudioMaster){
+        return;
+    }
+
+    const sampleRate = audioContext.sampleRate;
+    const buffer = audioContext.createBuffer(1,Math.max(1,Math.floor(sampleRate * duration)),sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for(let i=0;i<data.length;i++){
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length,options.decay || 1.2);
+    }
+
+    const startTime = audioContext.currentTime + (options.delay || 0);
+    const source = audioContext.createBufferSource();
+    const filter = audioContext.createBiquadFilter();
+    const gain = audioContext.createGain();
+
+    source.buffer = buffer;
+    filter.type = options.filterType || "bandpass";
+    filter.frequency.setValueAtTime(options.frequency || 1400,startTime);
+    filter.Q.value = options.q || 2;
+
+    gain.gain.setValueAtTime(options.gain || 0.08,startTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001,startTime + duration);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(slotAudioMaster);
+    source.start(startTime);
+    source.stop(startTime + duration + 0.03);
+
+}
+
+function playMagicSparkle(baseFrequency = 880,delay = 0){
+
+    [0,4,7,12].forEach((step,index) => {
+        playTone(baseFrequency * Math.pow(2,step / 12),0.18,{
+            type:"triangle",
+            gain:0.07,
+            delay:delay + index * 0.045,
+            attack:0.006,
+            release:0.12
+        });
+    });
+
+    playNoiseBurst(0.22,{
+        delay:delay + 0.02,
+        gain:0.035,
+        frequency:4200,
+        q:6,
+        decay:2
+    });
+
+}
+
+function playUiClickSound(){
+
+    playTone(880,0.055,{type:"triangle",gain:0.035,frequencyEnd:1320,release:0.04});
+
+}
+
+function playBetSound(){
+
+    playTone(520,0.08,{type:"square",gain:0.055,frequencyEnd:700,release:0.05});
+    playTone(1040,0.12,{type:"triangle",gain:0.035,delay:0.035,release:0.08});
+
+}
+
+function playSpinStartSound(){
+
+    playNoiseBurst(0.28,{gain:0.09,frequency:720,q:1.2,filterType:"lowpass",decay:0.75});
+    playTone(92,0.32,{type:"sawtooth",gain:0.07,frequencyEnd:150,release:0.14});
+    playMagicSparkle(660,0.08);
+
+}
+
+function startReelSpinLoop(){
+
+    const audioContext = getSlotAudioContext();
+
+    if(!audioContext || !slotAudioMaster || reelSpinSound){
+        return;
+    }
+
+    const hum = audioContext.createOscillator();
+    const shimmer = audioContext.createOscillator();
+    const filter = audioContext.createBiquadFilter();
+    const gain = audioContext.createGain();
+    const startTime = audioContext.currentTime;
+
+    hum.type = "sawtooth";
+    hum.frequency.setValueAtTime(72,startTime);
+
+    shimmer.type = "triangle";
+    shimmer.frequency.setValueAtTime(185,startTime);
+    shimmer.detune.setValueAtTime(6,startTime);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(620,startTime);
+    filter.Q.value = 1.8;
+
+    gain.gain.setValueAtTime(0,startTime);
+    gain.gain.linearRampToValueAtTime(0.045,startTime + 0.15);
+
+    hum.connect(filter);
+    shimmer.connect(filter);
+    filter.connect(gain);
+    gain.connect(slotAudioMaster);
+
+    hum.start(startTime);
+    shimmer.start(startTime);
+
+    reelSpinSound = {hum,shimmer,gain};
+
+}
+
+function stopReelSpinLoop(){
+
+    if(!reelSpinSound || !slotAudioContext){
+        return;
+    }
+
+    const stopTime = slotAudioContext.currentTime + 0.12;
+
+    reelSpinSound.gain.gain.cancelScheduledValues(slotAudioContext.currentTime);
+    reelSpinSound.gain.gain.setValueAtTime(reelSpinSound.gain.gain.value,slotAudioContext.currentTime);
+    reelSpinSound.gain.gain.exponentialRampToValueAtTime(0.0001,stopTime);
+    reelSpinSound.hum.stop(stopTime + 0.03);
+    reelSpinSound.shimmer.stop(stopTime + 0.03);
+    reelSpinSound = null;
+
+}
+
+function playReelStopSound(stopIndex){
+
+    const base = [420,520,640][Math.min(stopIndex - 1,2)] || 420;
+
+    playNoiseBurst(0.08,{gain:0.07,frequency:1800 + stopIndex * 400,q:4,decay:1.8});
+    playTone(base,0.09,{type:"square",gain:0.06,frequencyEnd:base * 0.72,release:0.05});
+    playTone(base * 2,0.08,{type:"triangle",gain:0.035,delay:0.035,release:0.05});
+
+}
+
+function playPekariSound(){
+
+    playNoiseBurst(0.18,{gain:0.06,frequency:5200,q:7,decay:2.4});
+    playMagicSparkle(880,0);
+    playTone(1760,0.24,{type:"sine",gain:0.08,delay:0.12,release:0.18});
+
+}
+
+function playWinSound(result){
+
+    if(result === "lose"){
+        playTone(180,0.18,{type:"triangle",gain:0.04,frequencyEnd:120,release:0.12});
+        return;
+    }
+
+    if(result === "rabbit"){
+        playTone(720,0.12,{type:"triangle",gain:0.06,frequencyEnd:980,release:0.08});
+        playTone(980,0.16,{type:"triangle",gain:0.06,delay:0.08,frequencyEnd:1280,release:0.1});
+        return;
+    }
+
+    playMagicSparkle(result === "cherry" ? 740 : 820,0);
+    playTone(1320,0.22,{type:"triangle",gain:0.07,delay:0.18,release:0.14});
+
+}
+
+function playBonusSound(){
+
+    playNoiseBurst(0.42,{gain:0.13,frequency:900,q:1.2,filterType:"lowpass",decay:0.55});
+    playTone(110,0.42,{type:"sawtooth",gain:0.11,frequencyEnd:220,release:0.2});
+
+    [523.25,659.25,783.99,1046.5,1318.5,1568].forEach((frequency,index) => {
+        playTone(frequency,0.28,{
+            type:index % 2 === 0 ? "triangle" : "sine",
+            gain:0.075,
+            delay:0.12 + index * 0.085,
+            release:0.18
+        });
+    });
+
+    playNoiseBurst(0.7,{delay:0.32,gain:0.075,frequency:5200,q:4,decay:1.8});
+
+}
+
 function setupStarRain(){
 
     if(!starRain || starRain.children.length > 0){
@@ -568,11 +914,16 @@ function triggerPekari(){
 
     const game = document.getElementById("game");
     const pekariText = document.getElementById("pekariText");
+    const wasPekari = game.classList.contains("pekariGlow");
 
     game.classList.add("pekariGlow");
     game.classList.remove("bonusGlow");
     pekariText.classList.add("on");
     pekariText.textContent = "CHANCE";
+
+    if(!wasPekari){
+        playPekariSound();
+    }
 
 }
 
@@ -644,6 +995,7 @@ function setBet(amount){
     }
 
     currentBet = amount;
+    playBetSound();
     showResultText(amount + " BET");
 
 }
@@ -844,14 +1196,15 @@ function canCompleteOutcome(partialPositions,remainingReelIds,outcome,index = 0)
 
 function getStopChoices(reelId,startPosition,startOffset){
 
+    const nearestAdvance = startOffset >= 0.5 ? 1 : 0;
+    const stripLength = reelStrips[reelId].length;
     const choices = [];
     const usedPositions = new Set();
-    const firstAdvance = Math.ceil(startOffset);
-    const lastAdvance = firstAdvance + MAX_SLIP_SYMBOLS;
 
-    for(let advance=firstAdvance;advance<=lastAdvance;advance++){
+    for(let extra=0;extra<stripLength;extra++){
 
-        const finalPosition = normalizeReelPosition(startPosition + advance,reelId);
+        const targetOffset = nearestAdvance + extra;
+        const finalPosition = normalizeReelPosition(startPosition + targetOffset,reelId);
 
         if(usedPositions.has(finalPosition)){
             continue;
@@ -860,7 +1213,7 @@ function getStopChoices(reelId,startPosition,startOffset){
         usedPositions.add(finalPosition);
         choices.push({
             finalPosition:finalPosition,
-            targetOffset:advance
+            targetOffset:targetOffset
         });
 
     }
@@ -873,11 +1226,26 @@ function chooseStopChoice(reelId,choices){
 
     const reelIds = getReelIds();
     const remainingReelIds = reelIds.filter((id) => id !== reelId && !reelStopped[id]);
-    const outcome = currentOutcome || "lose";
-    let bestFallback = choices[0];
-    let bestFallbackScore = Infinity;
+    const canShowBonusLine = pendingBonus || bonusMode;
 
-    if(pendingBonus && !bonusMode){
+    if(bonusMode){
+
+        for(const choice of choices){
+
+            const positions = {...reelPositions};
+            positions[reelId] = choice.finalPosition;
+
+            if(canCompleteOutcome(positions,remainingReelIds,"grape")){
+                return choice;
+            }
+
+        }
+
+        return choices[0];
+
+    }
+
+    if(canShowBonusLine || remainingReelIds.length > 0){
         return choices[0];
     }
 
@@ -886,37 +1254,13 @@ function chooseStopChoice(reelId,choices){
         const positions = {...reelPositions};
         positions[reelId] = choice.finalPosition;
 
-        if(canCompleteOutcome(positions,remainingReelIds,outcome)){
-            return choice;
-        }
-
-        if(remainingReelIds.length === 0){
-            const score = getStopChoiceScore(positions,outcome);
-
-            if(score < bestFallbackScore){
-                bestFallback = choice;
-                bestFallbackScore = score;
-            }
-        }
-
-    }
-
-    if(remainingReelIds.length === 0){
-        return bestFallback;
-    }
-
-    for(const choice of choices){
-
-        const positions = {...reelPositions};
-        positions[reelId] = choice.finalPosition;
-
-        if(canCompleteOutcome(positions,remainingReelIds,"lose")){
+        if(!hasBonusLine(positions)){
             return choice;
         }
 
     }
 
-    return bestFallback;
+    return choices[0];
 
 }
 
@@ -1038,10 +1382,10 @@ function stopReel(reelId){
     );
     const targetOffset = stopChoice.targetOffset;
     const finalPosition = stopChoice.finalPosition;
-    const symbolDistance = Math.max(targetOffset - startOffset,0);
-    const stopDuration = Math.max(
-        REEL_SNAP_DURATION,
-        symbolDistance / REEL_SPEED
+    const symbolDistance = Math.abs(targetOffset - startOffset);
+    const stopDuration = Math.min(
+        480,
+        Math.max(REEL_SNAP_DURATION,symbolDistance / REEL_SPEED)
     );
 
     if(reelTimers[reelId]){
@@ -1105,7 +1449,7 @@ function judgeLine(line){
         return "cherry";
     }
 
-    if(left === center && center === right && left !== "cherry"){
+    if(left === center && center === right && ["bell","grape","rabbit"].includes(left)){
         return left;
     }
 
@@ -1155,6 +1499,7 @@ function startBonusTime(type){
     pendingBonus = null;
     currentOutcome = "grape";
 
+    playBonusSound();
     triggerBonusEffects();
 
 }
@@ -1204,6 +1549,12 @@ function checkResult(){
 
         renga += payout;
         lastPayout = payout;
+
+        if(result === "grape"){
+            playWinSound("grape");
+        }else{
+            playTone(520,0.12,{type:"triangle",gain:0.035,frequencyEnd:640,release:0.08});
+        }
 
         updateRenga();
         updateMission();
@@ -1285,6 +1636,10 @@ function checkResult(){
     renga += payout;
     lastPayout = payout;
 
+    if(result !== "big" && result !== "reg"){
+        playWinSound(result);
+    }
+
     updateRenga();
     updateMission();
     saveGameData();
@@ -1336,6 +1691,8 @@ function startSpin(){
     }
 
     retryMode = false;
+    playSpinStartSound();
+    startReelSpinLoop();
 
     gameCount++;
     lastPayout = 0;
@@ -1380,6 +1737,7 @@ function stopNextReel(){
     }
 
     stopCount++;
+    playReelStopSound(stopCount);
 
     if(stopCount === 1){
 
@@ -1397,6 +1755,7 @@ function stopNextReel(){
 
             isSpinning = false;
             stopCount = 0;
+            stopReelSpinLoop();
 
             checkResult();
 
@@ -1490,6 +1849,7 @@ function resetGameData(){
 
     autoMode = false;
     clearTimeout(autoTimer);
+    stopReelSpinLoop();
 
     for(const reelId of Object.keys(reelTimers)){
 
@@ -1525,6 +1885,7 @@ function resetGameData(){
 }
 
 loadGameData();
+syncSlotFromHomeGameState();
 
 restoreSavedEffects();
 showReel("reel1");
@@ -1540,6 +1901,7 @@ function setButton(button,name,action){
     button.addEventListener("click",() => {
 
         pressButton(button);
+        playUiClickSound();
 
         if(action){
             action();
@@ -1598,7 +1960,11 @@ setButton(menuRulesBtn,"RULES",() => {
 });
 
 setButton(menuHomeBtn,"HOME",() => {
-    openStartScreen();
+    returnToHome();
+});
+
+setButton(menuPayoutBtn,"PAYOUT",() => {
+    openGamePopup(gamePayoutPanel);
 });
 
 setButton(menuCloseBtn,"CLOSE",() => {
@@ -1634,6 +2000,12 @@ setButton(startResetBtn,"RESET DATA",() => {
     resetGameData();
 });
 
+function isStartKey(e){
+
+    return e.code === "Space" || e.code === "Enter" || e.key === "Enter";
+
+}
+
 document.addEventListener("keydown",(e)=>{
 
     if(!gamePopupOverlay.classList.contains("hidden")){
@@ -1660,7 +2032,7 @@ document.addEventListener("keydown",(e)=>{
 
     if(isStartScreenOpen){
 
-        if(e.code === "Enter" || e.code === "Space"){
+        if(isStartKey(e)){
             e.preventDefault();
             openGameBtn.click();
         }
@@ -1674,11 +2046,11 @@ document.addEventListener("keydown",(e)=>{
     if(e.key==="3") bet3.click();
     if(e.key==="m" || e.key==="M") maxBet.click();
 
-    if(e.code==="Space"){
+    if(isStartKey(e)){
         e.preventDefault();
         startBtn.click();
     }
 
     if(e.key==="a" || e.key==="A") autoBtn.click();
 
-});
+},true);

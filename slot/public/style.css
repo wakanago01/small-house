@@ -1,7 +1,11 @@
+html{
+    overflow:hidden;
+}
+
 body{
     margin:0;
     background:#1b1028;
-    overflow:visible;
+    overflow:hidden;
 
     display:flex;
     justify-content:center;
@@ -103,8 +107,10 @@ body{
 
 .slotMeterFill{
     height:100%;
-    background:linear-gradient(90deg, #b85cad, #ffb3e6);
-    box-shadow:0 0 10px #ffb3e6;
+    background:linear-gradient(90deg, #a7f3c8, #d9ffe8);
+    box-shadow:
+        0 0 10px rgba(181,255,214,0.9),
+        0 0 18px rgba(167,243,200,0.45);
     transition:width 0.5s ease-in-out;
 }
 
@@ -579,38 +585,57 @@ body{
 #pekariText{
     position:absolute;
 
-    top:18%;
-    left:8%;
+    top:18.2%;
+    left:50%;
 
-    width:18%;
+    width:22%;
 
     text-align:center;
 
-    color:#fff7ff;
-    font-size:2.2vw;
-    font-weight:bold;
+    color:#fff9dd;
+    font-family:"Cinzel","Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif;
+    font-size:clamp(1rem,2.1vw,2rem);
+    font-weight:800;
+    letter-spacing:0.14em;
 
     text-shadow:
-        0 0 10px #ffffff,
-        0 0 25px #ff80ff,
-        0 0 45px #ff00ff;
+        0 1px 0 rgba(70,20,84,0.85),
+        0 0 8px rgba(255,255,255,0.96),
+        0 0 18px rgba(255,224,114,0.72),
+        0 0 28px rgba(255,103,231,0.52);
 
     opacity:0;
-    transform:scale(0.8);
+    transform:translateX(-50%) scale(0.9);
 
     pointer-events:none;
-    z-index:9;
+    z-index:16;
 
-    transition:0.25s;
+    transition:opacity 0.28s, transform 0.28s;
 }
 
 #pekariText.on{
-    opacity:0;
-    transform:scale(1.02);
+    opacity:1;
+    transform:translateX(-50%) scale(1);
+    animation:pekariTextPulse 1.6s ease-in-out infinite alternate;
 }
 
 #game.pekariGlow::after{
-    content:none;
+    content:"";
+    position:absolute;
+    top:11.4%;
+    left:36.4%;
+    width:27%;
+    height:20%;
+
+    border-radius:50%;
+    background:
+        radial-gradient(circle, rgba(255,255,255,0.42) 0 12%, rgba(255,232,115,0.28) 25%, rgba(255,78,224,0.18) 48%, transparent 68%);
+    filter:blur(5px);
+    mix-blend-mode:screen;
+    pointer-events:none;
+    opacity:0.76;
+    z-index:10;
+    animation:pekariAuraPulse 1.7s ease-in-out infinite alternate;
 }
 
 #game.bonusGlow::after{
@@ -619,6 +644,13 @@ body{
 
 #game.bonusGlow #pekariText.on{
     opacity:0;
+}
+
+#game.pekariGlow #slotMachine{
+    filter:
+        drop-shadow(0 0 10px rgba(255,236,130,0.24))
+        drop-shadow(0 0 18px rgba(255,95,224,0.16));
+    animation:pekariMachinePulse 1.8s ease-in-out infinite alternate;
 }
 
 #starRain{
@@ -915,6 +947,39 @@ body{
     }
 }
 
+@keyframes pekariAuraPulse{
+    from{
+        opacity:0.42;
+        transform:scale(0.96);
+    }
+    to{
+        opacity:0.82;
+        transform:scale(1.04);
+    }
+}
+
+@keyframes pekariTextPulse{
+    from{
+        filter:brightness(1);
+    }
+    to{
+        filter:brightness(1.18);
+    }
+}
+
+@keyframes pekariMachinePulse{
+    from{
+        filter:
+            drop-shadow(0 0 8px rgba(255,236,130,0.18))
+            drop-shadow(0 0 14px rgba(255,95,224,0.12));
+    }
+    to{
+        filter:
+            drop-shadow(0 0 14px rgba(255,236,130,0.32))
+            drop-shadow(0 0 24px rgba(255,95,224,0.2));
+    }
+}
+
 @keyframes screenFlash{
     from{
         opacity:0.2;
@@ -1053,44 +1118,83 @@ body{
 .gameMenuButton{
     position:absolute;
     left:0;
-    top:68%;
+    top:66%;
 
-    width:30px;
-    height:64px;
+    width:34px;
+    height:78px;
     padding:0;
 
-    border:1px solid rgba(255,230,150,0.82);
+    border:1px solid rgba(255,224,145,0.92);
     border-left:none;
-    border-radius:0 8px 8px 0;
+    border-radius:0 18px 18px 0;
     background:
-        linear-gradient(180deg, rgba(255,238,172,0.28), rgba(125,54,145,0.82)),
-        rgba(42,18,58,0.94);
+        radial-gradient(circle at 76% 22%, rgba(255,255,255,0.62), transparent 16%),
+        radial-gradient(circle at 72% 74%, rgba(255,98,223,0.32), transparent 38%),
+        linear-gradient(180deg, rgba(111,42,142,0.98), rgba(45,10,70,0.98) 58%, rgba(92,30,122,0.98));
     box-shadow:
-        0 0 14px rgba(255,170,255,0.32),
-        inset 0 0 10px rgba(255,245,190,0.13);
+        0 0 16px rgba(255,170,255,0.42),
+        0 0 26px rgba(255,220,128,0.16),
+        inset 0 0 10px rgba(255,245,190,0.2),
+        inset -8px 0 14px rgba(255,147,238,0.16);
 
-    color:#fff8dd;
+    color:#fff8e4;
     cursor:pointer;
     font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
-    font-size:1.2rem;
+    font-size:1.28rem;
     font-weight:700;
     line-height:1;
-    text-shadow:0 0 9px rgba(255,255,255,0.44);
+    text-shadow:
+        0 1px 0 rgba(63,18,80,0.9),
+        0 0 8px rgba(255,255,255,0.72),
+        0 0 16px rgba(255,105,230,0.58);
 
     z-index:38;
-    transition:left 0.36s ease, transform 0.12s, box-shadow 0.12s;
+    transition:left 0.36s ease, transform 0.12s, box-shadow 0.12s, filter 0.12s;
+}
+
+.gameMenuButton::before,
+.gameMenuButton::after{
+    content:"";
+    position:absolute;
+    pointer-events:none;
+}
+
+.gameMenuButton::before{
+    top:9px;
+    right:7px;
+
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+    background:#fff7d6;
+    box-shadow:
+        0 0 8px rgba(255,247,214,0.88),
+        0 0 16px rgba(255,117,232,0.56);
+}
+
+.gameMenuButton::after{
+    left:7px;
+    right:7px;
+    bottom:10px;
+
+    height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,228,151,0.9), transparent);
+    box-shadow:0 -46px 0 rgba(255,228,151,0.5);
 }
 
 .gameMenuButton:hover,
 .gameMenuButton.pressed{
-    transform:translateX(1px);
+    transform:translateX(2px) scale(1.02);
+    filter:saturate(1.12) brightness(1.08);
     box-shadow:
-        0 0 20px rgba(255,218,120,0.42),
-        0 0 30px rgba(255,120,255,0.34);
+        0 0 22px rgba(255,218,120,0.5),
+        0 0 36px rgba(255,120,255,0.44),
+        inset 0 0 14px rgba(255,245,190,0.28);
 }
 
 .gameMenuButton.open{
-    left:clamp(230px,24vw,318px);
+    left:clamp(240px,20vw,300px);
 }
 
 .gameMenuOverlay{
@@ -1099,22 +1203,21 @@ body{
     top:0;
     bottom:0;
 
-    width:clamp(230px,24vw,318px);
+    width:clamp(240px,20vw,300px);
     padding:0;
     box-sizing:border-box;
 
     display:flex;
-    align-items:center;
+    align-items:stretch;
 
     background:
-        radial-gradient(circle at 50% 8%, rgba(255,112,230,0.14), transparent 36%),
-        linear-gradient(90deg, rgba(18,0,34,0.98), rgba(42,7,62,0.94) 78%, rgba(42,18,58,0.24));
-    backdrop-filter:blur(3px) saturate(1.1);
-    border-right:2px solid rgba(255,82,210,0.54);
+        radial-gradient(circle at 20% 12%, rgba(255,227,158,0.18), transparent 34%),
+        linear-gradient(180deg, rgba(63,20,91,0.9), rgba(27,6,47,0.92));
+    backdrop-filter:blur(8px);
+    border-right:1px solid rgba(255,214,142,0.28);
     box-shadow:
-        8px 0 28px rgba(18,8,30,0.5),
-        0 0 28px rgba(255,71,218,0.18),
-        inset -16px 0 26px rgba(255,120,255,0.1);
+        12px 0 36px rgba(18,8,30,0.5),
+        inset -18px 0 32px rgba(255,120,255,0.08);
 
     transform:translateX(-100%);
     opacity:0.98;
@@ -1151,29 +1254,39 @@ body{
 
 .gameMenuPanel{
     width:100%;
-    max-height:78vh;
+    max-height:calc(100vh - 40px);
     overflow:auto;
 
-    padding:28px 20px;
+    padding:20px 16px;
     box-sizing:border-box;
 
-    border:1px solid rgba(255,82,210,0.5);
-    border-left:none;
-    border-radius:0 18px 18px 0;
+    border:0;
+    border-right:1px solid rgba(255,220,142,0.42);
+    border-radius:0;
     background:
-        radial-gradient(circle at 50% 0, rgba(255,112,230,0.12), transparent 42%),
-        linear-gradient(145deg, rgba(34,4,51,0.95), rgba(18,0,34,0.94));
+        radial-gradient(circle at 50% 0, rgba(255,134,232,0.16), transparent 42%),
+        linear-gradient(180deg, rgba(45,8,70,0.94), rgba(24,1,42,0.96));
     box-shadow:
-        inset 0 0 28px rgba(255,120,255,0.08),
-        0 0 22px rgba(255,71,218,0.14);
+        0 0 20px rgba(255,81,221,0.28),
+        inset 0 0 28px rgba(255,221,141,0.09);
 
     color:#fff7e7;
     font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
     text-align:center;
 }
 
+#gameMenuMain{
+    min-height:100%;
+    max-height:100%;
+
+    display:flex;
+    flex-direction:column;
+    position:relative;
+}
+
 .gameMenuPanelWide{
     width:min(76vw,760px);
+    min-height:auto;
     max-height:80vh;
     padding:clamp(22px,2.7vw,36px);
     border:2px solid rgba(255,82,210,0.66);
@@ -1189,7 +1302,7 @@ body{
 }
 
 .menuEyebrow{
-    margin:0 0 8px;
+    margin:0;
 
     color:#f6d98b;
     font-size:0.78rem;
@@ -1198,7 +1311,7 @@ body{
 }
 
 .menuIcon{
-    margin:0 0 4px;
+    margin:0;
 
     color:#ffe5ff;
     font-size:clamp(1.45rem,2.4vw,2rem);
@@ -1209,17 +1322,38 @@ body{
 }
 
 .gameMenuPanel h2{
-    margin:0 0 18px;
+    margin:0 0 6px;
 
     color:#ffd0ff;
-    font-size:clamp(1.6rem,2.7vw,2.25rem);
+    font-size:clamp(1.4rem,2.5vw,2rem);
     line-height:1.1;
-    letter-spacing:0.12em;
+    letter-spacing:0.08em;
     text-transform:uppercase;
     text-shadow:
         0 0 8px rgba(255,255,255,0.82),
         0 0 18px rgba(255,77,226,0.9),
         0 0 34px rgba(255,77,226,0.42);
+}
+
+#gameMenuMain .menuIcon{
+    position:absolute;
+    left:0;
+    right:0;
+    top:calc(50% - 214px);
+}
+
+#gameMenuTitle{
+    position:absolute;
+    left:0;
+    right:0;
+    top:calc(50% - 184px);
+}
+
+#gameMenuMain .menuEyebrow{
+    position:absolute;
+    left:0;
+    right:0;
+    top:calc(50% - 142px);
 }
 
 .gameMenuPanelWide h2{
@@ -1238,7 +1372,8 @@ body{
 .gameMenuActions{
     display:grid;
     grid-template-columns:1fr;
-    gap:14px;
+    gap:12px;
+    margin:auto 0;
 }
 
 .singleAction{
@@ -1248,27 +1383,26 @@ body{
 }
 
 .menuActionButton{
-    min-height:66px;
-    padding:0 24px;
+    min-height:50px;
+    padding:12px 18px;
 
-    border:1px solid rgba(255,230,150,0.78);
-    border-radius:16px;
+    border:1px solid rgba(255,222,156,0.58);
+    border-radius:999px;
     background:
-        linear-gradient(180deg, rgba(255,169,247,0.24), rgba(129,18,164,0.62)),
-        rgba(46,7,69,0.96);
+        linear-gradient(180deg, rgba(189,82,217,0.94), rgba(94,16,138,0.96));
     box-shadow:
-        0 0 18px rgba(255,77,226,0.26),
-        inset 0 0 14px rgba(255,245,190,0.12);
+        0 0 14px rgba(255,77,226,0.28),
+        inset 0 0 12px rgba(255,255,255,0.14);
 
-    color:#fff8dd;
+    color:#fff8ff;
     cursor:pointer;
     font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
-    font-size:1.14rem;
+    font-size:clamp(0.9rem,1.25vw,1.08rem);
     font-weight:700;
-    letter-spacing:0.06em;
+    letter-spacing:0.05em;
     text-shadow:
-        0 0 9px rgba(255,255,255,0.38),
-        0 0 14px rgba(255,77,226,0.44);
+        0 0 8px rgba(255,255,255,0.84),
+        0 0 16px rgba(255,77,226,0.72);
 
     transition:transform 0.12s, box-shadow 0.12s, background 0.12s;
 }
@@ -1292,10 +1426,10 @@ body{
 
 .menuActionButton:hover,
 .menuActionButton.pressed{
-    transform:translateY(-1px);
+    transform:translateY(-2px) scale(1.01);
     box-shadow:
-        0 0 22px rgba(255,218,120,0.44),
-        0 0 34px rgba(255,120,255,0.32);
+        0 0 28px rgba(255,190,255,0.36),
+        inset 0 0 26px rgba(255,255,255,0.18);
 }
 
 .gameMenuPanelWide .menuRuleGrid{
@@ -1462,11 +1596,15 @@ body{
 
 .startPanel{
     width:min(76vw,760px);
-    max-height:80vh;
-    overflow:auto;
+    height:min(92vh,900px);
+    max-height:92vh;
+    overflow:hidden;
 
     padding:clamp(22px,2.7vw,36px);
     box-sizing:border-box;
+
+    display:flex;
+    flex-direction:column;
 
     border:2px solid rgba(255,82,210,0.66);
     border-radius:20px;
@@ -1550,7 +1688,9 @@ body{
     grid-template-columns:1fr;
     gap:clamp(13px,1.8vw,20px);
 
-    max-height:46vh;
+    flex:1 1 auto;
+    min-height:0;
+    max-height:none;
     overflow:auto;
     margin:0 auto clamp(18px,2.6vw,30px);
     padding-right:16px;
@@ -1634,23 +1774,13 @@ body{
 }
 
 .startButton.primary{
-    min-width:176px;
-    min-height:58px;
-    border-radius:999px;
-    background:
-        linear-gradient(180deg, #b749df, #7a0da8 54%, #45115f);
-    color:#fff8ff;
-    text-shadow:
-        0 0 8px rgba(255,255,255,0.84),
-        0 0 16px rgba(255,77,226,0.72);
-    box-shadow:
-        0 0 24px rgba(255,77,226,0.42),
-        inset 0 0 18px rgba(255,255,255,0.16);
+    min-width:142px;
+    min-height:56px;
 }
 
 .startButton.subtle{
-    color:#ead7ff;
-    border-color:rgba(224,196,255,0.54);
+    color:#fff8dd;
+    border-color:rgba(255,230,150,0.82);
 }
 
 .startButton:hover,
@@ -1689,6 +1819,7 @@ body{
 
     .startPanel{
         width:100%;
+        height:calc(100vh - 36px);
         max-height:calc(100vh - 36px);
     }
 
@@ -1708,26 +1839,46 @@ body{
     .gameMenuButton{
         left:0;
         top:66%;
-        width:28px;
-        height:56px;
+        width:32px;
+        height:68px;
         min-width:0;
         min-height:0;
         font-size:1rem;
     }
 
     .gameMenuButton.open{
-        left:min(72vw,240px);
+        left:min(78vw,300px);
     }
 
     .gameMenuOverlay{
-        width:min(72vw,240px);
+        width:min(78vw,300px);
         padding:0;
-        align-items:center;
     }
 
     .gameMenuPanel{
         width:100%;
-        max-height:82vh;
+        max-height:calc(100vh - 30px);
+        padding:18px 14px;
+    }
+
+    #gameMenuMain{
+        min-height:100%;
+        max-height:100%;
+    }
+
+    .gameMenuPanel h2{
+        font-size:clamp(1.25rem,6vw,1.8rem);
+    }
+
+    .menuActionButton{
+        min-height:48px;
+        padding:10px 14px;
+        font-size:0.92rem;
+    }
+
+    .gameMenuActions{
+        gap:10px;
+        margin:auto 0;
     }
 
     .gameMenuPanelWide{
