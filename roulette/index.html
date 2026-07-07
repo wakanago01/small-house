@@ -9,31 +9,35 @@
 <body>
   <main class="game-wrap">
     <section class="top-ui">
+      <button class="menu-button" type="button" aria-label="メニューを開く" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
       <div class="hud-panel hud-gauges">
         <div class="hud-gauge">
-          <span class="hud-icon">✦</span>
-          <span class="hud-label">LUCK</span>
-          <span class="hud-bar"><span style="width:92%"></span></span>
+          <span class="hud-icon">🍱</span>
+          <span class="hud-label">HUNGER</span>
+          <span class="hud-bar"><span id="hungerFill" style="width:100%"></span></span>
+          <strong id="hungerValue">100%</strong>
         </div>
         <div class="hud-gauge">
-          <span class="hud-icon">◆</span>
-          <span class="hud-label">TENSION</span>
-          <span class="hud-bar tension"><span style="width:38%"></span></span>
+          <span class="hud-icon">🧠</span>
+          <span class="hud-label">STRESS</span>
+          <span class="hud-bar tension"><span id="stressFill" style="width:20%"></span></span>
+          <strong id="stressValue">20%</strong>
         </div>
       </div>
 
-      <div class="hud-panel hud-stats">
+      <div class="hud-panel hud-stats hud-finance">
         <div class="hud-stat">
           <span>COINS</span>
           <strong id="balance">50,000</strong>
         </div>
         <div class="hud-stat">
-          <span>TOTAL BET</span>
-          <strong id="topTotalBet">0</strong>
-        </div>
-        <div class="hud-stat hud-history-stat">
-          <span>HISTORY</span>
-          <div id="history" class="history"></div>
+          <span>Renga DEBT REMAINING</span>
+          <strong id="debtRemaining">100,000,000</strong>
         </div>
       </div>
 
@@ -41,11 +45,16 @@
         <div class="moon-mark">☾</div>
         <div>
           <span>SURVIVAL</span>
-          <strong>DAY 1</strong>
+          <strong id="survivalDay">DAY 1</strong>
         </div>
       </div>
 
       <h1>Roulette</h1>
+
+      <div class="hud-panel history-panel">
+        <span>history</span>
+        <div id="history" class="history"></div>
+      </div>
     </section>
 
     <section class="main-area">
@@ -61,6 +70,13 @@
       </div>
 
       <div class="bet-panel">
+        <div id="specialBetDrawer" class="special-bet-drawer" aria-label="特殊ベット">
+          <button id="specialBetHandle" class="special-bet-handle" type="button" aria-label="特殊ベットを開く" aria-expanded="false" aria-controls="specialBetPanel">&gt;</button>
+          <div id="specialBetPanel" class="special-bet-panel">
+            <div id="specialBetTabs" class="special-bet-tabs" role="tablist"></div>
+            <div id="specialBetOptions" class="special-bet-options"></div>
+          </div>
+        </div>
         <div class="bet-grid" id="betGrid"></div>
       </div>
     </section>
@@ -88,7 +104,6 @@
         <div class="actions">
           <label>任意入力<input id="customBet" type="number" min="1" placeholder="0" /></label>
           <button id="clearBtn">クリア</button>
-          <button id="backBtn">戻る</button>
         </div>
       </div>
 
@@ -102,6 +117,63 @@
 
     <section class="message panel">
       <span id="message">ベットを選んで「スピン」を押してね…</span>
+    </section>
+
+    <div class="menu-overlay" aria-hidden="true"></div>
+    <aside class="side-menu" aria-hidden="true" aria-label="メニュー">
+      <div class="side-menu-inner">
+        <h2>MENU</h2>
+        <div class="side-menu-line"></div>
+        <section class="audio-settings" aria-label="音量設定">
+          <label class="audio-row" for="bgmVolume">
+            <span class="audio-label"><span class="audio-icon">♪</span>BGM 音量</span>
+            <span class="audio-value" id="bgmVolumeValue">50%</span>
+            <input id="bgmVolume" class="audio-range" type="range" min="0" max="100" value="50" />
+          </label>
+          <label class="audio-row" for="sfxVolume">
+            <span class="audio-label"><span class="audio-icon">🎲</span>効果音 音量</span>
+            <span class="audio-value" id="sfxVolumeValue">50%</span>
+            <input id="sfxVolume" class="audio-range" type="range" min="0" max="100" value="50" />
+          </label>
+        </section>
+        <nav class="side-menu-actions">
+          <a class="side-menu-item" href="../home/index.html">
+            <span class="side-menu-icon">🏠</span>
+            <span>HOME</span>
+          </a>
+          <button class="side-menu-item" id="rulesBtn" type="button">
+            <span class="side-menu-icon">📜</span>
+            <span>RULES</span>
+          </button>
+          <button class="side-menu-item" id="menuCloseBtn" type="button">
+            <span class="side-menu-icon">×</span>
+            <span>CLOSE</span>
+          </button>
+        </nav>
+      </div>
+    </aside>
+    <section class="rules-panel" aria-hidden="true" aria-label="ルーレットのルール">
+      <div class="rules-panel-inner">
+        <h3><span>📜</span> RULES</h3>
+        <div class="rules-scroll">
+          <h4>ルーレットのルール</h4>
+          <p>チップ、または任意入力でベット額を選び、数字・色・範囲・ダズン・カラム・特殊ベットに賭けます。スピン後、当選番号と賭け内容が一致すると配当を受け取れます。外れた場合、ベット分は戻りません。</p>
+          <div class="rules-grid">
+            <span>数字</span><strong>36倍</strong>
+            <span>スプリット</span><strong>18倍</strong>
+            <span>ストリート</span><strong>12倍</strong>
+            <span>コーナー</span><strong>9倍</strong>
+            <span>シックスライン</span><strong>6倍</strong>
+            <span>赤 / 黒</span><strong>2倍</strong>
+            <span>EVEN / ODD</span><strong>2倍</strong>
+            <span>1-18 / 19-36</span><strong>2倍</strong>
+            <span>ダズン</span><strong>3倍</strong>
+            <span>カラム</span><strong>3倍</strong>
+          </div>
+          <p>スプリットは隣り合う2数字、ストリートは横1列の3数字、コーナーは四角の4数字、シックスラインは隣り合う2列の6数字です。0は緑です。数字0へ直接ベットした場合と、0を含むスプリットに賭けた場合だけ当たり、それ以外の色・範囲・偶数奇数などは外れになります。</p>
+        </div>
+        <button class="rules-close-btn" id="rulesCloseBtn" type="button">CLOSE</button>
+      </div>
     </section>
   </main>
   <script src="script.js"></script>

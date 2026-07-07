@@ -14,25 +14,40 @@
     <div id="bg-overlay"></div>
 
     <!-- START SCREEN OVERLAY -->
+    <div id="dream-transition" class="hidden">
+        <div class="dream-cloud cloud1"></div>
+        <div class="dream-cloud cloud2"></div>
+        <div class="dream-cloud cloud3"></div>
+        <div class="dream-cloud cloud4"></div>
+        <div class="dream-cloud cloud5"></div>
+    </div>
+
     <div id="start-screen-overlay">
         <div class="start-screen-inner">
             <div class="start-title-area">
-                <h1 class="start-title">SMALL HOUSE</h1>
-                <p class="start-subtitle">夢と借金の果てに、あなたは何を掴む？</p>
             </div>
+
             <div class="start-buttons">
-                <button id="continue-btn" class="start-btn glow-btn" style="display: none;">
-                    <span class="start-btn-icon">▶</span>
-                    <span class="start-btn-text">CONTINUE</span>
-                    <span class="start-btn-desc">前回のデータから再開する</span>
+
+                <button id="continue-btn" class="start-btn glow-btn">
+                    <span class="start-btn-icon">⭐</span>
+
+                    <div class="start-btn-content">
+                        <span class="start-btn-text">CONTINUE</span>
+                        <span class="start-btn-desc">前回のデータから再開する</span>
+                    </div>
                 </button>
+
                 <button id="newgame-btn" class="start-btn glow-btn">
-                    <span class="start-btn-icon">✦</span>
-                    <span class="start-btn-text">NEW DREAM</span>
-                    <span class="start-btn-desc">失われた記憶から始める</span>
+                    <span class="start-btn-icon">🌙</span>
+
+                    <div class="start-btn-content">
+                        <span class="start-btn-text">NEW DREAM</span>
+                        <span class="start-btn-desc">失われた記憶から始める</span>
+                    </div>
                 </button>
+
             </div>
-            <div id="save-info" class="start-save-info" style="display: none;"></div>
         </div>
     </div>
 
@@ -240,12 +255,23 @@
                     <!-- Items will be injected here -->
                 </div>
                 
-                <div id="item-detail-area" class="hidden glass-panel item-detail">
-                    <h3 id="detail-name">ITEM NAME</h3>
-                    <p id="detail-desc">ITEM DESCRIPTION</p>
-                    <button id="use-item-btn" class="glow-btn">USE ITEM</button>
-                </div>
+                <div id="item-detail" class="hidden item-detail-card glass-panel">
 
+                    <div class="item-detail-header">
+                        <div id="detail-icon" class="detail-icon">🍱</div>
+
+                        <div class="detail-text">
+                            <h3 id="detail-name">ITEM NAME</h3>
+                            <p id="detail-desc">ITEM DESCRIPTION</p>
+                        </div>
+                    </div>
+
+                    <button id="use-item-btn"
+                            class="use-item-btn glow-btn">
+                        USE ITEM
+                    </button>
+
+                </div>
                 <button class="close-btn glow-btn" onclick="closeModal('inventory-modal')">CLOSE</button>
             </div>
         </div>
@@ -326,10 +352,10 @@
                         </div>
                     </div>
                     <!-- HIGH & LOW -->
-                    <div class="game-card glass-panel floating" onclick="playGame('highlow')">
+                    <div class="game-card glass-panel floating" onclick="playGame('high and low')">
                         <div class="card-inner">
                             <div class="card-image-placeholder">↕️</div>
-                            <h2 class="game-title">HIGH & LOW</h2>
+                            <h2 class="game-title">HIGH and LOW</h2>
                             <p class="game-desc">上か下か。それだけのこと。</p>
                             <button class="play-btn">PLAY</button>
                         </div>
@@ -395,6 +421,10 @@
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label">Settings</span>
                 </div>
+                <div class="nav-item">
+                    <span class="nav-icon">💾</span>
+                    <span class="nav-label">Save</span>
+                </div>
             </nav>
         </footer>
     </div>
@@ -448,6 +478,7 @@
             </div>
         </div>
 
+    <audio id="home-bgm" src="home_bgm.mp3" loop preload="auto"></audio>
     <script src="script.js"></script>
 </body>
 </html>

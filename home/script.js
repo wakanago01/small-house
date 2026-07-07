@@ -24,6 +24,9 @@ const uiElements = {
     detailName: document.getElementById('detail-name'),
     detailDesc: document.getElementById('detail-desc'),
     useItemBtn: document.getElementById('use-item-btn'),
+    homeBgm: document.getElementById('home-bgm'),
+    volumeControl: document.getElementById('volume-control'),
+    volumeValue: document.getElementById('volume-value'),
     
     // Clock
     clockProgress: document.getElementById('clock-progress')
@@ -47,35 +50,160 @@ const INITIAL_STATE = {
     fatigue: 10,
     motivation: 70,
     energy: 100,
-    condition: 100
+    condition: 100,
+    clockSeconds:0
+};
+const ITEMS = {
+    food: {
+        name: "高級弁当",
+        icon: "🍱",
+        price: 100,
+        desc: "満腹度を回復する。",
+        effect: {
+            hunger: 30
+        }
+    },
+
+    alcohol: {
+        name: "ヴィンテージワイン",
+        icon: "🍷",
+        price: 200,
+        desc: "ストレスを少し軽減する。",
+        effect: {
+            stress: -20,
+            alcohol: 20
+        }
+    },
+
+    smoke: {
+        name: "高級タバコ",
+        icon: "🚬",
+        price: 150,
+        desc: "ストレスを軽減する。",
+        effect: {
+            stress: -30,
+            cigarette: 20
+        }
+    }
 };
 
 let gameState = { ...INITIAL_STATE };
 let secondsPassed = 0;
+let selectedInventoryItemName = null;
 
 /**
  * State Persistence
  */
 const STORAGE_KEY = 'small_house_game_state';
+const BGM_VOLUME_KEY = 'small_house_bgm_volume';
+let bgmResumeHandler = null;
+
+function getSavedBgmVolume() {
+    const saved = localStorage.getItem(BGM_VOLUME_KEY);
+    const savedVolume = Number(saved);
+    if (saved !== null && Number.isFinite(savedVolume)) {
+        return Math.min(100, Math.max(0, savedVolume));
+    }
+    return 50;
+}
+
+function applyBgmVolume(volume) {
+    const nextVolume = Math.min(100, Math.max(0, Number(volume) || 0));
+
+    if (uiElements.homeBgm) {
+        uiElements.homeBgm.volume = nextVolume / 100;
+    }
+
+    if (uiElements.volumeControl) {
+        uiElements.volumeControl.value = String(nextVolume);
+    }
+
+    if (uiElements.volumeValue) {
+        uiElements.volumeValue.textContent = `${nextVolume}%`;
+    }
+}
+
+function setupBgmControls() {
+    const savedVolume = getSavedBgmVolume();
+    applyBgmVolume(savedVolume);
+
+    if (!uiElements.volumeControl || uiElements.volumeControl.dataset.bgmBound) {
+        return;
+    }
+
+    uiElements.volumeControl.dataset.bgmBound = 'true';
+    uiElements.volumeControl.addEventListener('input', () => {
+        const volume = Number(uiElements.volumeControl.value);
+        localStorage.setItem(BGM_VOLUME_KEY, String(volume));
+        applyBgmVolume(volume);
+    });
+}
+
+function queueBgmResumeOnInteraction() {
+    if (bgmResumeHandler) {
+        return;
+    }
+
+    bgmResumeHandler = () => {
+        document.removeEventListener('click', bgmResumeHandler, true);
+        document.removeEventListener('keydown', bgmResumeHandler, true);
+        bgmResumeHandler = null;
+        playHomeBgm(false);
+    };
+
+    document.addEventListener('click', bgmResumeHandler, true);
+    document.addEventListener('keydown', bgmResumeHandler, true);
+}
+
+function playHomeBgm(allowRetry = true) {
+    if (!uiElements.homeBgm) {
+        return;
+    }
+
+    uiElements.homeBgm.loop = true;
+
+    const playAttempt = uiElements.homeBgm.play();
+    if (playAttempt && typeof playAttempt.catch === 'function') {
+        playAttempt.catch(() => {
+            if (allowRetry) {
+                queueBgmResumeOnInteraction();
+            }
+        });
+    }
+}
 
 function saveGameState() {
+    gameState.clockSeconds = secondsPassed;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
 }
 
 function loadGameState() {
+
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-        try {
+
+    if(saved){
+
+        try{
+
             const parsed = JSON.parse(saved);
-            gameState = { ...INITIAL_STATE, ...parsed };
-        } catch (e) {
-            console.error("Failed to parse saved state:", e);
-            gameState = { ...INITIAL_STATE };
+
+            gameState = {
+                ...INITIAL_STATE,
+                ...parsed
+            };
+
+            secondsPassed = gameState.clockSeconds || 0;
+
+        }catch(e){
+            console.error(e);
+            gameState={...INITIAL_STATE};
         }
-    } else {
-        gameState = { ...INITIAL_STATE };
+
+    }else{
+
+        gameState={...INITIAL_STATE};
+
     }
-    console.log("Loaded State:", gameState);
 }
 
 /**
@@ -96,8 +224,10 @@ function updateUI() {
     if (!document.getElementById('status-modal').classList.contains('hidden')) {
         updateAAAStatusBars();
     }
-    
-    // saveGameState(); // Auto-save on UI update
+    gameState.clockSeconds = secondsPassed;
+
+    saveGameState();
+     // Auto-save on UI update
 }
 
 function updateProgressBar(el, value, isInverse = false) {
@@ -143,6 +273,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
             openModal('settings-modal');
         } else if (label === 'Info') {
             openModal('info-modal');
+        }else if (label === 'Save') {
+            saveAndExit();
         } else if (label === 'Shop') {
             openModal('shop-modal');
         } else if (label === 'Inventory') {
@@ -201,6 +333,7 @@ function confirmRepayment() {
     gameState.coins -= amount;
     gameState.remainingDebt -= amount;
     showToast(`${amount.toLocaleString()} COINS を返済しました。`);
+    saveGameState();
     updateUI();
     closeModal('repay-modal');
 }
@@ -267,7 +400,10 @@ function buyItem(type, qty = 1) {
         for (let i = 0; i < qty; i++) {
             gameState.inventory.push({ ...item });
         }
+        saveGameState();
+
         showToast(`${item.name} を ${qty} 個購入しました！`);
+        updateInventoryUI();
         updateUI();
     }
 }
@@ -277,26 +413,88 @@ function updateInventoryUI() {
     if (gameState.inventory.length === 0) {
         uiElements.inventoryList.innerHTML = '<div class="empty-inventory-msg">持ち物はありません...</div>';
         uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
         return;
     }
-    gameState.inventory.forEach((item, index) => {
+
+    const groupedItems = getGroupedInventoryItems();
+
+    groupedItems.forEach(({ item, count }) => {
         const itemEl = document.createElement('div');
         itemEl.className = 'inventory-item glass-panel';
-        itemEl.textContent = item.icon;
-        itemEl.onclick = () => showItemDetail(index);
+        itemEl.setAttribute('aria-label', `${item.name} ${count}個`);
+
+        const iconEl = document.createElement('span');
+        iconEl.className = 'inventory-item-icon';
+        iconEl.textContent = item.icon;
+
+        const countEl = document.createElement('span');
+        countEl.className = 'inventory-count-badge';
+        countEl.textContent = `×${count}`;
+
+        itemEl.appendChild(iconEl);
+        itemEl.appendChild(countEl);
+        itemEl.onclick = () => showItemDetail(item.name);
         uiElements.inventoryList.appendChild(itemEl);
     });
+
+    if (
+        selectedInventoryItemName &&
+        !groupedItems.some(({ item }) => item.name === selectedInventoryItemName)
+    ) {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+    }
 }
 
-function showItemDetail(index) {
-    const item = gameState.inventory[index];
+function getGroupedInventoryItems() {
+    const groups = new Map();
+
+    gameState.inventory.forEach((item) => {
+        const key = item.name;
+        if (!groups.has(key)) {
+            groups.set(key, {
+                item,
+                count: 0
+            });
+        }
+
+        groups.get(key).count += 1;
+    });
+
+    return Array.from(groups.values());
+}
+
+function showItemDetail(itemName) {
+    const group = getGroupedInventoryItems().find(({ item }) => item.name === itemName);
+    if (!group) {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+        return;
+    }
+
+    const { item, count } = group;
+    selectedInventoryItemName = item.name;
+
+    document.getElementById('detail-icon').textContent = item.icon;
+
     uiElements.detailName.textContent = item.name;
-    uiElements.detailDesc.textContent = item.desc;
+    uiElements.detailDesc.textContent = `${item.desc} 所持数：${count}`;
+
     uiElements.itemDetail.classList.remove('hidden');
-    uiElements.useItemBtn.onclick = () => useItem(index);
+
+    uiElements.useItemBtn.onclick = () => useItem(item.name);
 }
 
-function useItem(index) {
+function useItem(itemName) {
+    const index = gameState.inventory.findIndex((item) => item.name === itemName);
+    if (index === -1) {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+        updateInventoryUI();
+        return;
+    }
+
     const item = gameState.inventory[index];
     if (item.effect.hunger) gameState.hunger = Math.min(100, gameState.hunger + item.effect.hunger);
     if (item.effect.stress) gameState.stress = Math.max(0, gameState.stress + item.effect.stress);
@@ -306,8 +504,14 @@ function useItem(index) {
 
     showToast(`${item.name}を使用しました。`);
     gameState.inventory.splice(index, 1);
-    uiElements.itemDetail.classList.add('hidden');
+    saveGameState();
     updateInventoryUI();
+    if (gameState.inventory.some((inventoryItem) => inventoryItem.name === itemName)) {
+        showItemDetail(itemName);
+    } else {
+        uiElements.itemDetail.classList.add('hidden');
+        selectedInventoryItemName = null;
+    }
     updateUI();
 }
 
@@ -336,6 +540,7 @@ function updateSurvivalClock() {
     }
 
     secondsPassed++;
+    gameState.clockSeconds = secondsPassed;
     const progress = secondsPassed / DAY_DURATION_SEC;
     const offset = 283 * (1 - progress);
     if (uiElements.clockProgress) uiElements.clockProgress.style.strokeDashoffset = offset;
@@ -348,6 +553,7 @@ function updateSurvivalClock() {
 
 function advanceDay(isAllNighter = false) {
     secondsPassed = 0;
+    gameState.clockSeconds = 0;
     gameState.days += 1;
     
     let message = "新しい朝を迎えました。";
@@ -380,12 +586,20 @@ function showDayStartOverlay(day, message) {
 }
 
 function triggerGameOver() {
-    alert("【GAME OVER】\n生存の糸が切れてしまいました...\n全ての記録がリセットされます。");
+
+    alert("【GAME OVER】\n生存の糸が切れてしまいました...");
+
+    localStorage.removeItem(STORAGE_KEY);
+
     gameState = { ...INITIAL_STATE };
     secondsPassed = 0;
-    updateUI();
-}
 
+    updateUI();
+
+    sessionStorage.removeItem("small_house_started");
+
+    location.reload();
+}
 /**
  * Actions
  */
@@ -425,7 +639,14 @@ async function handleAction(type) {
 function playGame(gameId, filename = 'index.html') {
     saveGameState();
     document.body.style.opacity = '0';
-    setTimeout(() => { window.location.href = `../${gameId}/${filename}`; }, 500);
+
+    setTimeout(() => {
+        if (gameId === 'slot') {
+            window.location.href = `../slot/public/index.html`;
+        } else {
+            window.location.href = `../${gameId}/${filename}`;
+        }
+    }, 500);
 }
 
 function showToast(message) {
@@ -440,11 +661,56 @@ function showToast(message) {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
+function playDreamTransition(callback){
 
+    const layer = document.getElementById("dream-transition");
+
+    // 表示する
+    layer.classList.remove("hidden");
+    layer.classList.add("active");
+
+    // 雲が画面を覆ったタイミングでゲーム開始
+    setTimeout(() => {
+        callback();
+    },1200);
+
+    // アニメーション終了
+    setTimeout(() => {
+
+        layer.classList.remove("active");
+        layer.classList.add("hidden");
+
+    },1800);
+
+}
+function saveAndExit() {
+
+    const confirmed = confirm(
+        "ゲームを保存して終了しますか？"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    saveGameState();
+
+    sessionStorage.removeItem(
+        'small_house_started'
+    );
+
+    showToast("ゲームを保存しました");
+
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
 /**
  * Start Screen Logic
  */
 window.onload = () => {
+    setupBgmControls();
+
     const alreadyStarted =
         sessionStorage.getItem('small_house_started');
 
@@ -456,6 +722,12 @@ window.onload = () => {
             gameState
         );
         updateUI();
+        const progress = secondsPassed / DAY_DURATION_SEC;
+        const offset = 283 * (1 - progress);
+
+        if(uiElements.clockProgress){
+            uiElements.clockProgress.style.strokeDashoffset = offset;
+        }
 
         const startOverlay =
             document.getElementById('start-screen-overlay');
@@ -477,14 +749,13 @@ window.onload = () => {
         if(bottomNav){
             bottomNav.style.display = '';
         }
-
-        return;
+        playHomeBgm();
         setInterval(updateSurvivalClock, 1000);
+        return;
     }
     const startOverlay = document.getElementById('start-screen-overlay');
     const continueBtn = document.getElementById('continue-btn');
     const newgameBtn = document.getElementById('newgame-btn');
-    const saveInfo = document.getElementById('save-info');
     const appContainer = document.getElementById('app-container');
     const bottomNav = document.getElementById('bottom-nav');
 
@@ -499,32 +770,10 @@ window.onload = () => {
             const parsed = JSON.parse(saved);
             continueBtn.style.display = 'flex';
             // Show save summary
-            saveInfo.style.display = 'block';
             const savedCoins = (parsed.coins || 0).toLocaleString();
             const savedDays = parsed.days || 1;
             const savedHunger = Math.round(parsed.hunger || 0);
             const savedStress = Math.round(parsed.stress || 0);
-            saveInfo.innerHTML = saveInfo.innerHTML = `
-            <div class="dream-record-title">
-            ✦ Dream Record ✦
-            </div>
-
-            <div class="dream-record-row">
-            DAY ${savedDays}
-            </div>
-
-            <div class="dream-record-row">
-            🍱 Hunger ${savedHunger}%
-            </div>
-
-            <div class="dream-record-row">
-            🧠 Stress ${savedStress}%
-            </div>
-
-            <div class="dream-record-coins">
-            ${savedCoins} Coins
-            </div>
-            `;
         } catch (e) {
             continueBtn.style.display = 'none';
         }
@@ -544,19 +793,31 @@ window.onload = () => {
             'true'
         );
 
+        playHomeBgm();
+
         // Fade out start screen
-        startOverlay.style.opacity = '0';
-        setTimeout(() => {
-            startOverlay.style.display = 'none';
-            if (appContainer) appContainer.style.display = '';
-            if (bottomNav) bottomNav.style.display = '';
-        }, 600);
+        playDreamTransition(() => {
+
+            startOverlay.style.display = "none";
+
+            appContainer.style.display = "";
+            bottomNav.style.display = "";
+
+            updateUI();
+
+            setInterval(updateSurvivalClock,1000);
+
+        });
     }
+        
 
     continueBtn.addEventListener('click', () => startGame(false));
     newgameBtn.addEventListener('click', () => {
+
+        const saved = localStorage.getItem(STORAGE_KEY);
+
         if (saved) {
-            if (confirm('セーブデータが存在します。最初から始めると現在のデータは消去されます。よろしいですか？')) {
+            if (confirm("セーブデータが存在します。最初から始めると現在のデータは消去されます。よろしいですか？")) {
                 startGame(true);
             }
         } else {

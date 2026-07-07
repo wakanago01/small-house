@@ -16,6 +16,18 @@ const startBtn = document.getElementById("startBtn");
 const autoBtn = document.getElementById("autoBtn");
 const missionBtn = document.getElementById("missionBtn");
 const settingBtn = document.getElementById("settingBtn");
+const gameMenuButton = document.getElementById("gameMenuButton");
+const gameMenuOverlay = document.getElementById("gameMenuOverlay");
+const gamePopupOverlay = document.getElementById("gamePopupOverlay");
+const gameMenuMain = document.getElementById("gameMenuMain");
+const gameRulesPanel = document.getElementById("gameRulesPanel");
+const gamePayoutPanel = document.getElementById("gamePayoutPanel");
+const menuRulesBtn = document.getElementById("menuRulesBtn");
+const menuHomeBtn = document.getElementById("menuHomeBtn");
+const menuCloseBtn = document.getElementById("menuCloseBtn");
+const rulesCloseBtn = document.getElementById("rulesCloseBtn");
+const payoutCloseBtn = document.getElementById("payoutCloseBtn");
+const payoutOpenButton = document.getElementById("payoutOpenButton");
 const startScreen = document.getElementById("startScreen");
 const openGameBtn = document.getElementById("openGameBtn");
 const autoStartBtn = document.getElementById("autoStartBtn");
@@ -30,10 +42,18 @@ const countMeter = document.getElementById("countMeter");
 const payoutMeter = document.getElementById("payoutMeter");
 const missionArea = document.getElementById("missionArea");
 const starRain = document.getElementById("starRain");
+const slotGaugeHunger = document.getElementById("slotGaugeHunger");
+const slotGaugeStrenn = document.getElementById("slotGaugeStrenn");
+const slotStatCoins = document.getElementById("slotStatCoins");
+const slotStatDebt = document.getElementById("slotStatDebt");
+const slotStatRemaining = document.getElementById("slotStatRemaining");
+const slotStatDays = document.getElementById("slotStatDays");
+const slotClockProgress = document.getElementById("slotClockProgress");
 
 const SAVE_KEY = "smallHouseSlotData";
 const SAVE_VERSION = 2;
 const AUTO_BET_AMOUNT = 3;
+const CLOCK_CIRCUMFERENCE = 283;
 const DEFAULT_GAME_DATA = {
     renga:1000,
     gameCount:0,
@@ -44,6 +64,15 @@ const DEFAULT_GAME_DATA = {
     pendingBonus:null,
     bonusMode:null,
     bonusRemainingPayout:0,
+    statusHud:{
+        hunger:80,
+        strenn:20,
+        coins:1000,
+        debt:50000,
+        remaining:49000,
+        survivalDays:1,
+        dayProgress:0
+    },
     reelPositions:{
         reel1:0,
         reel2:0,
@@ -105,6 +134,7 @@ let bigTotal = 0;
 let regTotal = 0;
 let grapeTotal = 0;
 let lastPayout = 0;
+let statusHud = {...DEFAULT_GAME_DATA.statusHud};
 
 let autoMode = false;
 let autoTimer = null;
@@ -136,6 +166,7 @@ let reelStopped = {
 let isSpinning = false;
 let stopCount = 0;
 let isStartScreenOpen = true;
+let isGameMenuOpen = false;
 
 function saveGameData(){
 
@@ -150,6 +181,7 @@ function saveGameData(){
         pendingBonus:pendingBonus,
         bonusMode:bonusMode,
         bonusRemainingPayout:bonusRemainingPayout,
+        statusHud:{...statusHud},
         reelPositions:{...reelPositions}
     };
 
@@ -187,6 +219,7 @@ function loadGameData(){
 
         const data = JSON.parse(savedData);
         const savedReelPositions = data.reelPositions || DEFAULT_GAME_DATA.reelPositions;
+        const savedStatusHud = data.statusHud || DEFAULT_GAME_DATA.statusHud;
 
         renga = getNumber(data.renga,DEFAULT_GAME_DATA.renga);
         gameCount = getNumber(data.gameCount,DEFAULT_GAME_DATA.gameCount);
@@ -197,6 +230,15 @@ function loadGameData(){
         pendingBonus = getBonusType(data.pendingBonus);
         bonusMode = getBonusType(data.bonusMode);
         bonusRemainingPayout = getNumber(data.bonusRemainingPayout,DEFAULT_GAME_DATA.bonusRemainingPayout);
+        statusHud = {
+            hunger:getNumber(savedStatusHud.hunger,DEFAULT_GAME_DATA.statusHud.hunger),
+            strenn:getNumber(savedStatusHud.strenn,DEFAULT_GAME_DATA.statusHud.strenn),
+            coins:getNumber(savedStatusHud.coins,renga),
+            debt:getNumber(savedStatusHud.debt,DEFAULT_GAME_DATA.statusHud.debt),
+            remaining:getNumber(savedStatusHud.remaining,DEFAULT_GAME_DATA.statusHud.remaining),
+            survivalDays:getNumber(savedStatusHud.survivalDays,DEFAULT_GAME_DATA.statusHud.survivalDays),
+            dayProgress:getNumber(savedStatusHud.dayProgress,DEFAULT_GAME_DATA.statusHud.dayProgress)
+        };
         reelPositions = {
             reel1:getNumber(savedReelPositions.reel1,DEFAULT_GAME_DATA.reelPositions.reel1),
             reel2:getNumber(savedReelPositions.reel2,DEFAULT_GAME_DATA.reelPositions.reel2),
@@ -233,9 +275,73 @@ function restoreSavedEffects(){
 
 }
 
+function clampPercent(value){
+
+    return Math.max(0,Math.min(100,value));
+
+}
+
+function formatStatusNumber(value){
+
+    return Math.max(0,Math.floor(value)).toLocaleString();
+
+}
+
+function updateSlotStatusHud(nextStatus = {}){
+
+    statusHud = {
+        ...statusHud,
+        ...nextStatus
+    };
+
+    statusHud.hunger = clampPercent(getNumber(statusHud.hunger,DEFAULT_GAME_DATA.statusHud.hunger));
+    statusHud.strenn = clampPercent(getNumber(statusHud.strenn,DEFAULT_GAME_DATA.statusHud.strenn));
+    statusHud.coins = getNumber(statusHud.coins,renga);
+    statusHud.debt = getNumber(statusHud.debt,DEFAULT_GAME_DATA.statusHud.debt);
+    statusHud.remaining = getNumber(statusHud.remaining,DEFAULT_GAME_DATA.statusHud.remaining);
+    statusHud.survivalDays = Math.max(1,Math.floor(getNumber(statusHud.survivalDays,DEFAULT_GAME_DATA.statusHud.survivalDays)));
+    statusHud.dayProgress = clampPercent(getNumber(statusHud.dayProgress,DEFAULT_GAME_DATA.statusHud.dayProgress));
+
+    if(slotGaugeHunger){
+        slotGaugeHunger.style.width = statusHud.hunger + "%";
+    }
+
+    if(slotGaugeStrenn){
+        slotGaugeStrenn.style.width = statusHud.strenn + "%";
+    }
+
+    if(slotStatCoins){
+        slotStatCoins.textContent = formatStatusNumber(statusHud.coins);
+    }
+
+    if(slotStatDebt){
+        slotStatDebt.textContent = formatStatusNumber(statusHud.debt);
+    }
+
+    if(slotStatRemaining){
+        slotStatRemaining.textContent = formatStatusNumber(statusHud.remaining);
+    }
+
+    if(slotStatDays){
+        slotStatDays.textContent = "DAY " + statusHud.survivalDays;
+    }
+
+    if(slotClockProgress){
+        slotClockProgress.style.strokeDasharray = CLOCK_CIRCUMFERENCE;
+        slotClockProgress.style.strokeDashoffset = CLOCK_CIRCUMFERENCE * (1 - statusHud.dayProgress / 100);
+    }
+
+}
+
+window.updateSlotStatusHud = updateSlotStatusHud;
+document.addEventListener("slot-status-update",(event) => {
+    updateSlotStatusHud(event.detail || {});
+});
+
 function updateRenga(){
 
     rengaText.textContent = renga + " renga";
+    updateSlotStatusHud({coins:renga});
     updateMachineMeters();
 
 }
@@ -306,6 +412,72 @@ function closeStartScreen(){
 
 }
 
+function openStartScreen(){
+
+    isStartScreenOpen = true;
+    closeGameMenu();
+    closeGamePopup();
+    updateStartScreenStats();
+    startScreen.classList.remove("hidden");
+
+}
+
+function showGameMenuPanel(panel){
+
+    gameRulesPanel.classList.add("hidden");
+    gamePayoutPanel.classList.add("hidden");
+    panel.classList.remove("hidden");
+
+}
+
+function closeGamePopup(){
+
+    gamePopupOverlay.classList.add("hidden");
+    gamePopupOverlay.setAttribute("aria-hidden","true");
+    gameRulesPanel.classList.add("hidden");
+    gamePayoutPanel.classList.add("hidden");
+
+}
+
+function openGamePopup(panel){
+
+    closeGameMenu();
+    gamePopupOverlay.classList.remove("hidden");
+    gamePopupOverlay.setAttribute("aria-hidden","false");
+    gameRulesPanel.classList.add("hidden");
+    gamePayoutPanel.classList.add("hidden");
+    panel.classList.remove("hidden");
+
+}
+
+function openGameMenu(){
+
+    if(isStartScreenOpen){
+        return;
+    }
+
+    isGameMenuOpen = true;
+    gameMenuOverlay.classList.add("open");
+    gameMenuButton.classList.add("open");
+    gameMenuButton.textContent = "<";
+    gameMenuButton.setAttribute("aria-label","メニューを閉じる");
+    gameMenuOverlay.setAttribute("aria-hidden","false");
+    showGameMenuPanel(gameMenuMain);
+
+}
+
+function closeGameMenu(){
+
+    isGameMenuOpen = false;
+    gameMenuOverlay.classList.remove("open");
+    gameMenuButton.classList.remove("open");
+    gameMenuButton.textContent = ">";
+    gameMenuButton.setAttribute("aria-label","メニューを開く");
+    gameMenuOverlay.setAttribute("aria-hidden","true");
+    gameMenuMain.classList.remove("hidden");
+
+}
+
 function getBonusRate(){
 
     const bonusTotal = bigTotal + regTotal;
@@ -373,16 +545,16 @@ function setupStarRain(){
         return;
     }
 
-    for(let i=0;i<72;i++){
+    for(let i=0;i<120;i++){
 
         const star = document.createElement("span");
         star.className = "fallingStar";
         star.style.left = (8 + Math.random() * 86) + "%";
         star.style.animationDelay = (-Math.random() * 8).toFixed(2) + "s";
-        star.style.animationDuration = (3.2 + Math.random() * 4.8).toFixed(2) + "s";
+        star.style.animationDuration = (2.2 + Math.random() * 4.2).toFixed(2) + "s";
         star.style.opacity = (0.38 + Math.random() * 0.6).toFixed(2);
 
-        const size = (0.18 + Math.random() * 0.58).toFixed(2) + "vw";
+        const size = (0.2 + Math.random() * 0.72).toFixed(2) + "vw";
         star.style.width = size;
         star.style.height = size;
 
@@ -434,6 +606,7 @@ function triggerBonusEffects(){
     game.classList.add("bonusGlow");
     game.classList.remove("pekariGlow");
     pekariText.classList.remove("on");
+    showResultText("BONUS FEVER!");
 
 }
 
@@ -1312,6 +1485,7 @@ function resetGameData(){
     regTotal = 0;
     grapeTotal = 0;
     lastPayout = 0;
+    statusHud = {...DEFAULT_GAME_DATA.statusHud};
     reelPositions = {...DEFAULT_GAME_DATA.reelPositions};
 
     autoMode = false;
@@ -1411,6 +1585,38 @@ setButton(settingBtn,"SETTING",() => {
     resetGameData();
 });
 
+setButton(gameMenuButton,"MENU",() => {
+    if(isGameMenuOpen){
+        closeGameMenu();
+    }else{
+        openGameMenu();
+    }
+});
+
+setButton(menuRulesBtn,"RULES",() => {
+    openGamePopup(gameRulesPanel);
+});
+
+setButton(menuHomeBtn,"HOME",() => {
+    openStartScreen();
+});
+
+setButton(menuCloseBtn,"CLOSE",() => {
+    closeGameMenu();
+});
+
+setButton(payoutOpenButton,"PAYOUT",() => {
+    openGamePopup(gamePayoutPanel);
+});
+
+setButton(rulesCloseBtn,"RULES CLOSE",() => {
+    closeGamePopup();
+});
+
+setButton(payoutCloseBtn,"PAYOUT CLOSE",() => {
+    closeGamePopup();
+});
+
 setButton(openGameBtn,"START",() => {
     closeStartScreen();
 });
@@ -1429,6 +1635,28 @@ setButton(startResetBtn,"RESET DATA",() => {
 });
 
 document.addEventListener("keydown",(e)=>{
+
+    if(!gamePopupOverlay.classList.contains("hidden")){
+
+        if(e.code === "Escape"){
+            e.preventDefault();
+            closeGamePopup();
+        }
+
+        return;
+
+    }
+
+    if(isGameMenuOpen){
+
+        if(e.code === "Escape"){
+            e.preventDefault();
+            closeGameMenu();
+        }
+
+        return;
+
+    }
 
     if(isStartScreenOpen){
 

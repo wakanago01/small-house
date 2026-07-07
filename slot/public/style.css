@@ -21,6 +21,187 @@ body{
     max-height:1080px;
 }
 
+#slotStatusBar{
+    position:absolute;
+    top:20px;
+    left:20px;
+    right:20px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+
+    pointer-events:none;
+    z-index:34;
+}
+
+#slotStatusBar > *{
+    pointer-events:auto;
+}
+
+.slotGlassPanel{
+    background:rgba(40,20,50,0.4);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(255,153,204,0.3);
+    box-shadow:0 0 20px rgba(255,102,204,0.2);
+    border-radius:20px;
+}
+
+.slotStatusLeft{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    width:fit-content;
+    padding:15px 25px;
+
+    border:2px solid rgba(212,181,232,0.3);
+    background:rgba(30,10,45,0.45);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+    box-shadow:0 8px 32px 0 rgba(120,31,190,0.2);
+}
+
+.slotStatusRow{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    width:100%;
+}
+
+.slotStatusIcon{
+    width:22px;
+    text-align:center;
+    filter:drop-shadow(0 0 5px rgba(247,216,239,0.8));
+}
+
+.slotGaugeLabel{
+    width:90px;
+
+    color:#ffb3e6;
+    font-family:"Cinzel","Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif;
+    font-size:14px;
+    letter-spacing:2px;
+    text-align:left;
+}
+
+.slotMeterBar{
+    height:10px;
+    flex-grow:1;
+    overflow:hidden;
+
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:5px;
+    background:rgba(0,0,0,0.3);
+}
+
+.slotMeterBar.small{
+    width:300px;
+    height:16px;
+}
+
+.slotMeterFill{
+    height:100%;
+    background:linear-gradient(90deg, #b85cad, #ffb3e6);
+    box-shadow:0 0 10px #ffb3e6;
+    transition:width 0.5s ease-in-out;
+}
+
+.slotStatusRightGroup{
+    display:flex;
+    align-items:flex-start;
+    gap:20px;
+    margin-left:auto;
+}
+
+.slotStatusCenter{
+    display:flex;
+    align-items:center;
+    gap:30px;
+    padding:12px 40px;
+
+    border:2px double #ffb3e6;
+    border-radius:20px;
+    background:rgba(30,10,50,0.5);
+    box-shadow:0 0 20px rgba(212,181,232,0.3);
+}
+
+.slotStatusRight{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    padding:8px 25px;
+
+    border:2px solid rgba(212,181,232,0.3);
+    border-radius:20px;
+    background:rgba(30,10,50,0.5);
+}
+
+.slotStatusItem{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.slotStatusLabel{
+    margin-bottom:2px;
+
+    color:#f7d8ef;
+    font-family:"Cinzel","Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif;
+    font-size:11px;
+    letter-spacing:2px;
+    opacity:0.8;
+}
+
+.slotStatusValue{
+    color:#fff;
+    font-family:"Cinzel","Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif;
+    font-size:22px;
+    font-weight:700;
+    text-shadow:0 0 15px #ffb3e6;
+    white-space:nowrap;
+}
+
+.slotClockContainer{
+    position:relative;
+    width:55px;
+    height:55px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.slotClockSvg{
+    width:100%;
+    height:100%;
+    transform:rotate(-90deg);
+}
+
+.slotClockBg{
+    fill:rgba(0,0,0,0.3);
+    stroke:rgba(255,255,255,0.1);
+    stroke-width:8;
+}
+
+.slotClockProgress{
+    fill:none;
+    stroke:#ff66cc;
+    stroke-width:8;
+    stroke-linecap:round;
+    stroke-dasharray:283;
+    stroke-dashoffset:283;
+    filter:drop-shadow(0 0 8px #ff66cc);
+    transition:stroke-dashoffset 1s linear;
+}
+
+.slotClockIcon{
+    position:absolute;
+    font-size:22px;
+    filter:drop-shadow(0 0 5px #f7d8ef);
+}
+
 .gameLayer{
     position:absolute;
     top:0;
@@ -41,6 +222,15 @@ body{
     height:100%;
 
     z-index:1;
+}
+
+#pekaLamp,
+#bonusLamp,
+#kanbanPanel,
+#payoutTable,
+#rengaPanel,
+#rengaText{
+    display:none !important;
 }
 
 #pekaLamp,
@@ -80,10 +270,10 @@ body{
 }
 
 #slotMachine{
-    top:8%;
-    left:2%;
-    width:95%;
-    height:95%;
+    top:15%;
+    left:9%;
+    width:83%;
+    height:83%;
 
     z-index:5;
 }
@@ -132,7 +322,7 @@ body{
     overflow:hidden;
 
     pointer-events:none;
-    z-index:8;
+    z-index:12;
 }
 
 .segDigit{
@@ -448,6 +638,140 @@ body{
     opacity:0.95;
 }
 
+#bonusBurst,
+#bonusRays,
+#bonusRabbitGlow,
+#bonusCelebrationText{
+    position:absolute;
+    pointer-events:none;
+    opacity:0;
+}
+
+#bonusBurst{
+    inset:0;
+    z-index:11;
+    background:
+        radial-gradient(circle at 50% 22%, rgba(255,255,255,0.55), transparent 8%),
+        radial-gradient(circle at 50% 22%, rgba(255,214,92,0.34), transparent 18%),
+        radial-gradient(circle at 50% 22%, rgba(255,70,226,0.22), transparent 34%),
+        linear-gradient(120deg, transparent 0 42%, rgba(255,255,255,0.18) 48%, transparent 56% 100%);
+    mix-blend-mode:screen;
+}
+
+#bonusRays{
+    top:-18%;
+    left:14%;
+    width:72%;
+    height:72%;
+    z-index:12;
+    background:
+        conic-gradient(
+            from 0deg,
+            rgba(255,255,255,0.0),
+            rgba(255,246,174,0.5),
+            rgba(255,94,231,0.0),
+            rgba(255,255,255,0.42),
+            rgba(130,229,255,0.0),
+            rgba(255,246,174,0.5),
+            rgba(255,255,255,0.0)
+        );
+    border-radius:50%;
+    filter:blur(12px);
+    transform-origin:center;
+    mix-blend-mode:screen;
+}
+
+#bonusRabbitGlow{
+    top:13.8%;
+    left:44.1%;
+    width:11.5%;
+    height:16%;
+    z-index:14;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    transform:scale(0.72);
+}
+
+#bonusRabbitGlow::before,
+#bonusRabbitGlow::after{
+    content:"";
+    position:absolute;
+    inset:-28%;
+    border-radius:50%;
+    background:
+        radial-gradient(circle, rgba(255,255,255,0.92) 0 18%, rgba(255,224,104,0.58) 32%, rgba(255,71,218,0.26) 58%, transparent 72%);
+    filter:blur(2px);
+    animation:bonusRabbitPulse 0.9s ease-in-out infinite alternate;
+}
+
+#bonusRabbitGlow::after{
+    inset:-58%;
+    background:
+        radial-gradient(circle, rgba(255,255,255,0.0) 0 28%, rgba(255,242,126,0.42) 42%, rgba(255,71,218,0.2) 60%, transparent 75%);
+    animation:bonusRabbitHalo 1.45s ease-in-out infinite;
+}
+
+#bonusRabbitGlow img{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    filter:
+        drop-shadow(0 0 8px rgba(255,255,255,0.98))
+        drop-shadow(0 0 20px rgba(255,225,96,0.9))
+        drop-shadow(0 0 34px rgba(255,79,223,0.88));
+    animation:bonusRabbitBounce 0.82s ease-in-out infinite alternate;
+}
+
+#bonusCelebrationText{
+    top:25%;
+    left:50%;
+    width:42%;
+    z-index:15;
+    transform:translate(-50%,-50%) scale(0.8);
+
+    color:#fff8ff;
+    font-family:"Cinzel","Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif;
+    font-size:clamp(2.4rem,8vw,7.2rem);
+    font-weight:900;
+    letter-spacing:0.12em;
+    text-align:center;
+    text-shadow:
+        0 0 8px #fff,
+        0 0 18px #ffe76d,
+        0 0 30px #ff4be0,
+        0 0 54px #8ff4ff;
+}
+
+#game.bonusGlow #bonusBurst{
+    opacity:1;
+    animation:bonusBurstFlash 1.1s ease-in-out infinite alternate;
+}
+
+#game.bonusGlow #bonusRays{
+    opacity:0.76;
+    animation:bonusRaysSpin 8s linear infinite;
+}
+
+#game.bonusGlow #bonusRabbitGlow{
+    opacity:1;
+    animation:bonusRabbitEntrance 0.32s ease-out both;
+}
+
+#game.bonusGlow #bonusCelebrationText{
+    opacity:1;
+    animation:bonusTextPop 1.1s ease-in-out infinite alternate;
+}
+
+#game.bonusGlow #slotMachine{
+    filter:
+        drop-shadow(0 0 20px rgba(255,236,120,0.38))
+        drop-shadow(0 0 38px rgba(255,80,220,0.26));
+    animation:bonusMachineGlow 0.9s ease-in-out infinite alternate;
+}
+
 .fallingStar{
     position:absolute;
 
@@ -490,6 +814,95 @@ body{
     to{
         transform:translate3d(-4vw,110vh,0);
         opacity:0;
+    }
+}
+
+@keyframes bonusBurstFlash{
+    from{
+        filter:brightness(1);
+        opacity:0.54;
+    }
+    to{
+        filter:brightness(1.7);
+        opacity:0.95;
+    }
+}
+
+@keyframes bonusRaysSpin{
+    from{
+        transform:rotate(0deg) scale(0.92);
+    }
+    to{
+        transform:rotate(360deg) scale(1.06);
+    }
+}
+
+@keyframes bonusRabbitEntrance{
+    from{
+        transform:scale(0.35) translateY(12%);
+        filter:brightness(2);
+    }
+    to{
+        transform:scale(0.72) translateY(0);
+        filter:brightness(1);
+    }
+}
+
+@keyframes bonusRabbitBounce{
+    from{
+        transform:translateY(0) rotate(-2deg) scale(1);
+    }
+    to{
+        transform:translateY(-7%) rotate(2deg) scale(1.08);
+    }
+}
+
+@keyframes bonusRabbitPulse{
+    from{
+        transform:scale(0.92);
+        opacity:0.68;
+    }
+    to{
+        transform:scale(1.14);
+        opacity:1;
+    }
+}
+
+@keyframes bonusRabbitHalo{
+    0%{
+        transform:scale(0.78);
+        opacity:0.2;
+    }
+    45%{
+        opacity:0.85;
+    }
+    100%{
+        transform:scale(1.24);
+        opacity:0.05;
+    }
+}
+
+@keyframes bonusTextPop{
+    from{
+        transform:translate(-50%,-50%) scale(0.94);
+        filter:brightness(1);
+    }
+    to{
+        transform:translate(-50%,-50%) scale(1.06);
+        filter:brightness(1.55);
+    }
+}
+
+@keyframes bonusMachineGlow{
+    from{
+        filter:
+            drop-shadow(0 0 14px rgba(255,236,120,0.28))
+            drop-shadow(0 0 24px rgba(255,80,220,0.18));
+    }
+    to{
+        filter:
+            drop-shadow(0 0 26px rgba(255,236,120,0.55))
+            drop-shadow(0 0 52px rgba(255,80,220,0.36));
     }
 }
 
@@ -597,6 +1010,433 @@ body{
     height:8.55%;
 }
 
+.payoutOpenButton{
+    position:absolute;
+    right:3.5%;
+    bottom:4.5%;
+
+    min-width:148px;
+    min-height:48px;
+    padding:0 18px;
+
+    border:1px solid rgba(255,230,150,0.78);
+    border-radius:16px;
+    background:
+        linear-gradient(180deg, rgba(255,169,247,0.24), rgba(129,18,164,0.62)),
+        rgba(46,7,69,0.96);
+    box-shadow:
+        0 0 18px rgba(255,77,226,0.26),
+        inset 0 0 14px rgba(255,245,190,0.12);
+
+    color:#fff8dd;
+    cursor:pointer;
+    font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+    font-size:0.95rem;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-shadow:
+        0 0 9px rgba(255,255,255,0.38),
+        0 0 14px rgba(255,77,226,0.44);
+
+    z-index:30;
+    transition:transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.payoutOpenButton:hover,
+.payoutOpenButton.pressed{
+    transform:translateY(-1px);
+    box-shadow:
+        0 0 22px rgba(255,218,120,0.44),
+        0 0 34px rgba(255,120,255,0.32);
+}
+
+.gameMenuButton{
+    position:absolute;
+    left:0;
+    top:68%;
+
+    width:30px;
+    height:64px;
+    padding:0;
+
+    border:1px solid rgba(255,230,150,0.82);
+    border-left:none;
+    border-radius:0 8px 8px 0;
+    background:
+        linear-gradient(180deg, rgba(255,238,172,0.28), rgba(125,54,145,0.82)),
+        rgba(42,18,58,0.94);
+    box-shadow:
+        0 0 14px rgba(255,170,255,0.32),
+        inset 0 0 10px rgba(255,245,190,0.13);
+
+    color:#fff8dd;
+    cursor:pointer;
+    font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+    font-size:1.2rem;
+    font-weight:700;
+    line-height:1;
+    text-shadow:0 0 9px rgba(255,255,255,0.44);
+
+    z-index:38;
+    transition:left 0.36s ease, transform 0.12s, box-shadow 0.12s;
+}
+
+.gameMenuButton:hover,
+.gameMenuButton.pressed{
+    transform:translateX(1px);
+    box-shadow:
+        0 0 20px rgba(255,218,120,0.42),
+        0 0 30px rgba(255,120,255,0.34);
+}
+
+.gameMenuButton.open{
+    left:clamp(230px,24vw,318px);
+}
+
+.gameMenuOverlay{
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+
+    width:clamp(230px,24vw,318px);
+    padding:0;
+    box-sizing:border-box;
+
+    display:flex;
+    align-items:center;
+
+    background:
+        radial-gradient(circle at 50% 8%, rgba(255,112,230,0.14), transparent 36%),
+        linear-gradient(90deg, rgba(18,0,34,0.98), rgba(42,7,62,0.94) 78%, rgba(42,18,58,0.24));
+    backdrop-filter:blur(3px) saturate(1.1);
+    border-right:2px solid rgba(255,82,210,0.54);
+    box-shadow:
+        8px 0 28px rgba(18,8,30,0.5),
+        0 0 28px rgba(255,71,218,0.18),
+        inset -16px 0 26px rgba(255,120,255,0.1);
+
+    transform:translateX(-100%);
+    opacity:0.98;
+
+    z-index:35;
+    transition:transform 0.36s ease;
+}
+
+.gameMenuOverlay.open{
+    transform:translateX(0);
+}
+
+.gamePopupOverlay{
+    position:absolute;
+    inset:0;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:4vw;
+    box-sizing:border-box;
+
+    background:rgba(12,2,22,0.42);
+    backdrop-filter:blur(3px) saturate(1.08);
+
+    z-index:42;
+}
+
+.gamePopupOverlay.hidden,
+.gameMenuPanel.hidden{
+    display:none;
+}
+
+.gameMenuPanel{
+    width:100%;
+    max-height:78vh;
+    overflow:auto;
+
+    padding:28px 20px;
+    box-sizing:border-box;
+
+    border:1px solid rgba(255,82,210,0.5);
+    border-left:none;
+    border-radius:0 18px 18px 0;
+    background:
+        radial-gradient(circle at 50% 0, rgba(255,112,230,0.12), transparent 42%),
+        linear-gradient(145deg, rgba(34,4,51,0.95), rgba(18,0,34,0.94));
+    box-shadow:
+        inset 0 0 28px rgba(255,120,255,0.08),
+        0 0 22px rgba(255,71,218,0.14);
+
+    color:#fff7e7;
+    font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+    text-align:center;
+}
+
+.gameMenuPanelWide{
+    width:min(76vw,760px);
+    max-height:80vh;
+    padding:clamp(22px,2.7vw,36px);
+    border:2px solid rgba(255,82,210,0.66);
+    border-radius:20px;
+    background:
+        radial-gradient(circle at 50% 0, rgba(255,112,230,0.15), transparent 38%),
+        linear-gradient(145deg, rgba(34,4,51,0.98), rgba(18,0,34,0.98)),
+        rgba(18,0,34,0.98);
+    box-shadow:
+        0 0 30px rgba(255,71,218,0.28),
+        0 0 60px rgba(114,0,180,0.22),
+        inset 0 0 36px rgba(255,120,255,0.12);
+}
+
+.menuEyebrow{
+    margin:0 0 8px;
+
+    color:#f6d98b;
+    font-size:0.78rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+}
+
+.menuIcon{
+    margin:0 0 4px;
+
+    color:#ffe5ff;
+    font-size:clamp(1.45rem,2.4vw,2rem);
+    line-height:1;
+    text-shadow:
+        0 0 12px rgba(255,77,226,0.9),
+        0 0 24px rgba(255,197,96,0.42);
+}
+
+.gameMenuPanel h2{
+    margin:0 0 18px;
+
+    color:#ffd0ff;
+    font-size:clamp(1.6rem,2.7vw,2.25rem);
+    line-height:1.1;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.82),
+        0 0 18px rgba(255,77,226,0.9),
+        0 0 34px rgba(255,77,226,0.42);
+}
+
+.gameMenuPanelWide h2{
+    margin-bottom:clamp(18px,2.4vw,28px);
+
+    color:#ffd0ff;
+    font-size:clamp(1.8rem,3.5vw,2.65rem);
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.82),
+        0 0 18px rgba(255,77,226,0.9),
+        0 0 34px rgba(255,77,226,0.42);
+}
+
+.gameMenuActions{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+}
+
+.singleAction{
+    margin-top:16px;
+    display:flex;
+    justify-content:center;
+}
+
+.menuActionButton{
+    min-height:66px;
+    padding:0 24px;
+
+    border:1px solid rgba(255,230,150,0.78);
+    border-radius:16px;
+    background:
+        linear-gradient(180deg, rgba(255,169,247,0.24), rgba(129,18,164,0.62)),
+        rgba(46,7,69,0.96);
+    box-shadow:
+        0 0 18px rgba(255,77,226,0.26),
+        inset 0 0 14px rgba(255,245,190,0.12);
+
+    color:#fff8dd;
+    cursor:pointer;
+    font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+    font-size:1.14rem;
+    font-weight:700;
+    letter-spacing:0.06em;
+    text-shadow:
+        0 0 9px rgba(255,255,255,0.38),
+        0 0 14px rgba(255,77,226,0.44);
+
+    transition:transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.menuActionButton.primary{
+    min-width:168px;
+    min-height:56px;
+    border-radius:999px;
+    background:
+        linear-gradient(180deg, #b749df, #7a0da8 54%, #45115f);
+    color:#fff8ff;
+    font-size:1.05rem;
+    letter-spacing:0.08em;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.84),
+        0 0 16px rgba(255,77,226,0.72);
+    box-shadow:
+        0 0 24px rgba(255,77,226,0.42),
+        inset 0 0 18px rgba(255,255,255,0.16);
+}
+
+.menuActionButton:hover,
+.menuActionButton.pressed{
+    transform:translateY(-1px);
+    box-shadow:
+        0 0 22px rgba(255,218,120,0.44),
+        0 0 34px rgba(255,120,255,0.32);
+}
+
+.gameMenuPanelWide .menuRuleGrid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:clamp(16px,2.2vw,24px);
+
+    max-height:46vh;
+    overflow:auto;
+    margin-bottom:0;
+    padding-right:16px;
+    text-align:left;
+}
+
+.gameMenuPanelWide .menuRuleGrid::-webkit-scrollbar{
+    width:8px;
+}
+
+.gameMenuPanelWide .menuRuleGrid::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.06);
+    border-radius:999px;
+}
+
+.gameMenuPanelWide .menuRuleGrid::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, #ff69dc, #74269d);
+    border-radius:999px;
+}
+
+.gameMenuPanelWide .menuRuleGrid section{
+    padding:0 0 0 18px;
+
+    border:none;
+    border-left:4px solid #ff67d7;
+    border-radius:0;
+    background:transparent;
+}
+
+.gameMenuPanelWide .menuRuleGrid h2{
+    margin:0 0 8px;
+
+    color:#ffd0ff;
+    font-size:clamp(1.06rem,1.65vw,1.34rem);
+    letter-spacing:0.04em;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.52),
+        0 0 16px rgba(255,77,226,0.58);
+}
+
+.gameMenuPanelWide .menuRuleGrid p{
+    color:#f5e9ff;
+    font-size:clamp(0.9rem,1.22vw,1.04rem);
+    line-height:1.75;
+}
+
+.payoutList{
+    width:min(100%,580px);
+    margin:0 auto;
+    padding:8px 0 0;
+}
+
+.payoutListRow{
+    display:grid;
+    grid-template-columns:minmax(132px,1.1fr) minmax(110px,0.9fr) minmax(96px,0.7fr);
+    align-items:center;
+    gap:16px;
+
+    padding:12px 10px;
+
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    color:#f6ecff;
+    text-align:left;
+}
+
+.payoutListRow:last-of-type{
+    border-bottom:none;
+}
+
+.payoutListRow.jackpot .payoutSymbols span{
+    color:#ff8bd8;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.82),
+        0 0 18px rgba(255,77,226,0.9);
+}
+
+.payoutSymbols{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:0;
+}
+
+.payoutSymbols span{
+    min-width:34px;
+    min-height:34px;
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    border:1px solid rgba(255,153,204,0.34);
+    border-radius:10px;
+    background:rgba(255,255,255,0.06);
+    box-shadow:
+        inset 0 0 10px rgba(255,255,255,0.08),
+        0 0 10px rgba(255,102,204,0.18);
+
+    color:#fff8ff;
+    font-family:"Cinzel","Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif;
+    font-size:1.04rem;
+    font-weight:700;
+    line-height:1;
+    text-shadow:0 0 10px rgba(255,179,230,0.8);
+}
+
+.payoutName{
+    min-width:0;
+
+    color:#f7d8ef;
+    font-family:"Cinzel","Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif;
+    font-size:0.94rem;
+    letter-spacing:0.08em;
+}
+
+.payoutValue{
+    color:#ffd966;
+    font-size:1rem;
+    font-weight:700;
+    text-align:right;
+    white-space:nowrap;
+    text-shadow:0 0 10px rgba(255,217,102,0.74);
+}
+
+.payoutNote{
+    margin:14px 0 0;
+
+    color:#d9c1e8;
+    font-size:0.86rem;
+    letter-spacing:0.04em;
+    text-align:center;
+}
+
 .startScreen{
     position:absolute;
     inset:0;
@@ -609,10 +1449,9 @@ body{
     box-sizing:border-box;
 
     background:
-        radial-gradient(circle at 50% 18%, rgba(255,235,175,0.2), transparent 28%),
-        radial-gradient(circle at 16% 80%, rgba(255,120,255,0.18), transparent 26%),
-        rgba(18,8,30,0.78);
-    backdrop-filter:blur(5px) saturate(1.2);
+        radial-gradient(circle at 50% 14%, rgba(255,112,230,0.16), transparent 32%),
+        rgba(12,2,22,0.58);
+    backdrop-filter:blur(5px) saturate(1.15);
 
     z-index:40;
 }
@@ -622,21 +1461,23 @@ body{
 }
 
 .startPanel{
-    width:min(74vw,920px);
-    max-height:86vh;
+    width:min(76vw,760px);
+    max-height:80vh;
     overflow:auto;
 
-    padding:clamp(22px,3.2vw,44px);
+    padding:clamp(22px,2.7vw,36px);
     box-sizing:border-box;
 
-    border:1px solid rgba(255,230,150,0.72);
-    border-radius:8px;
+    border:2px solid rgba(255,82,210,0.66);
+    border-radius:20px;
     background:
-        linear-gradient(145deg, rgba(42,18,58,0.95), rgba(14,8,26,0.96)),
-        rgba(18,8,30,0.96);
+        radial-gradient(circle at 50% 0, rgba(255,112,230,0.15), transparent 38%),
+        linear-gradient(145deg, rgba(34,4,51,0.98), rgba(18,0,34,0.98)),
+        rgba(18,0,34,0.98);
     box-shadow:
-        0 0 28px rgba(255,190,92,0.25),
-        inset 0 0 38px rgba(255,120,255,0.14);
+        0 0 30px rgba(255,71,218,0.28),
+        0 0 60px rgba(114,0,180,0.22),
+        inset 0 0 36px rgba(255,120,255,0.12);
 
     color:#fff7e7;
     font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
@@ -646,7 +1487,7 @@ body{
 .startEyebrow{
     margin:0 0 0.5rem;
 
-    color:#f6d98b;
+    color:#ffe5ff;
     font-size:clamp(0.72rem,1.15vw,1rem);
     letter-spacing:0.18em;
     text-transform:uppercase;
@@ -655,16 +1496,17 @@ body{
 .startPanel h1{
     margin:0;
 
-    color:#fff8dc;
-    font-size:clamp(2.4rem,5.2vw,4.9rem);
+    color:#ffd0ff;
+    font-size:clamp(1.8rem,3.5vw,2.65rem);
     font-weight:700;
-    letter-spacing:0;
+    letter-spacing:0.12em;
     line-height:1;
+    text-transform:uppercase;
 
     text-shadow:
-        0 0 10px rgba(255,255,255,0.9),
-        0 0 24px rgba(255,160,255,0.72),
-        0 0 42px rgba(255,207,88,0.56);
+        0 0 8px rgba(255,255,255,0.82),
+        0 0 18px rgba(255,77,226,0.9),
+        0 0 34px rgba(255,77,226,0.42);
 }
 
 .startStats{
@@ -672,13 +1514,13 @@ body{
     grid-template-columns:repeat(3,1fr);
     gap:10px;
 
-    margin:clamp(18px,2.4vw,28px) auto;
-    width:min(100%,620px);
+    margin:clamp(14px,2vw,22px) auto;
+    width:min(100%,560px);
 }
 
 .startStats div{
     min-width:0;
-    padding:12px 10px;
+    padding:10px 8px;
 
     border:1px solid rgba(246,217,139,0.42);
     border-radius:6px;
@@ -699,62 +1541,83 @@ body{
 
 .startStats strong{
     color:white;
-    font-size:clamp(1rem,1.65vw,1.45rem);
+    font-size:clamp(0.94rem,1.4vw,1.24rem);
     text-shadow:0 0 12px rgba(255,138,255,0.78);
 }
 
 .ruleGrid{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:14px;
+    grid-template-columns:1fr;
+    gap:clamp(13px,1.8vw,20px);
 
+    max-height:46vh;
+    overflow:auto;
     margin:0 auto clamp(18px,2.6vw,30px);
+    padding-right:16px;
     text-align:left;
 }
 
-.ruleGrid section{
-    padding:16px;
+.ruleGrid::-webkit-scrollbar{
+    width:8px;
+}
 
-    border:1px solid rgba(255,255,255,0.18);
-    border-radius:6px;
-    background:rgba(255,255,255,0.065);
+.ruleGrid::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.06);
+    border-radius:999px;
+}
+
+.ruleGrid::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, #ff69dc, #74269d);
+    border-radius:999px;
+}
+
+.ruleGrid section{
+    padding:0 0 0 18px;
+
+    border:none;
+    border-left:4px solid #ff67d7;
+    border-radius:0;
+    background:transparent;
 }
 
 .ruleGrid h2{
     margin:0 0 8px;
 
-    color:#ffe8a8;
-    font-size:clamp(1rem,1.35vw,1.24rem);
-    letter-spacing:0;
+    color:#ffd0ff;
+    font-size:clamp(1.06rem,1.65vw,1.34rem);
+    letter-spacing:0.04em;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.52),
+        0 0 16px rgba(255,77,226,0.58);
 }
 
 .ruleGrid p{
     margin:0;
 
-    color:#fff7ee;
-    font-size:clamp(0.86rem,1.15vw,1rem);
+    color:#f5e9ff;
+    font-size:clamp(0.9rem,1.22vw,1.04rem);
     line-height:1.75;
 }
 
 .startActions{
     display:flex;
     justify-content:center;
-    gap:12px;
+    gap:14px;
     flex-wrap:wrap;
 }
 
 .startButton{
     min-width:142px;
-    min-height:46px;
-    padding:0 22px;
+    min-height:56px;
+    padding:0 20px;
 
     border:1px solid rgba(255,230,150,0.82);
-    border-radius:6px;
+    border-radius:16px;
     background:
-        linear-gradient(180deg, rgba(255,238,172,0.2), rgba(129,56,126,0.28)),
-        rgba(46,20,64,0.92);
+        linear-gradient(180deg, rgba(255,169,247,0.24), rgba(129,18,164,0.62)),
+        rgba(46,7,69,0.96);
     box-shadow:
-        0 0 16px rgba(255,170,255,0.3),
+        0 0 18px rgba(255,77,226,0.26),
         inset 0 0 12px rgba(255,245,190,0.14);
 
     color:#fff8dd;
@@ -763,20 +1626,26 @@ body{
     font-size:1rem;
     font-weight:700;
     letter-spacing:0.06em;
-    text-shadow:0 0 10px rgba(255,255,255,0.45);
+    text-shadow:
+        0 0 9px rgba(255,255,255,0.38),
+        0 0 14px rgba(255,77,226,0.44);
 
     transition:transform 0.12s, box-shadow 0.12s, background 0.12s;
 }
 
 .startButton.primary{
     min-width:176px;
+    min-height:58px;
+    border-radius:999px;
     background:
-        linear-gradient(180deg, #fff0a8, #d09332 42%, #8b3d79);
-    color:#2b1233;
-    text-shadow:0 1px 0 rgba(255,255,255,0.45);
+        linear-gradient(180deg, #b749df, #7a0da8 54%, #45115f);
+    color:#fff8ff;
+    text-shadow:
+        0 0 8px rgba(255,255,255,0.84),
+        0 0 16px rgba(255,77,226,0.72);
     box-shadow:
-        0 0 22px rgba(255,225,132,0.56),
-        0 0 34px rgba(255,120,255,0.28);
+        0 0 24px rgba(255,77,226,0.42),
+        inset 0 0 18px rgba(255,255,255,0.16);
 }
 
 .startButton.subtle{
@@ -793,6 +1662,26 @@ body{
 }
 
 @media (max-width:760px){
+    #slotStatusBar{
+        top:12px;
+        left:12px;
+        right:12px;
+        gap:10px;
+        flex-direction:column;
+    }
+
+    .slotStatusLeft,
+    .slotStatusCenter,
+    .slotStatusRight{
+        transform-origin:left top;
+        transform:scale(0.78);
+    }
+
+    .slotStatusRightGroup{
+        gap:10px;
+        margin-left:0;
+    }
+
     .startScreen{
         padding:18px;
         align-items:flex-start;
@@ -815,4 +1704,50 @@ body{
     .startButton{
         width:100%;
     }
+
+    .gameMenuButton{
+        left:0;
+        top:66%;
+        width:28px;
+        height:56px;
+        min-width:0;
+        min-height:0;
+        font-size:1rem;
+    }
+
+    .gameMenuButton.open{
+        left:min(72vw,240px);
+    }
+
+    .gameMenuOverlay{
+        width:min(72vw,240px);
+        padding:0;
+        align-items:center;
+    }
+
+    .gameMenuPanel{
+        width:100%;
+        max-height:82vh;
+    }
+
+    .gameMenuPanelWide{
+        width:100%;
+        max-height:calc(100vh - 36px);
+        margin-left:0;
+        padding:16px;
+    }
+
+    .gamePopupOverlay{
+        padding:18px;
+        align-items:center;
+    }
+
+    .gameMenuPanelWide h2{
+        font-size:clamp(1.5rem,7vw,2.05rem);
+    }
+
+    .gameMenuPanelWide .menuRuleGrid{
+        max-height:46vh;
+    }
+
 }

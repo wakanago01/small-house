@@ -12,6 +12,56 @@
 
     <div id="game">
 
+        <header id="slotStatusBar">
+            <div class="slotGlassPanel slotStatusLeft">
+                <div class="slotStatusRow">
+                    <span class="slotStatusIcon">🍱</span>
+                    <span class="slotGaugeLabel">HUNGER</span>
+                    <div class="slotMeterBar small">
+                        <div id="slotGaugeHunger" class="slotMeterFill" style="width:80%;"></div>
+                    </div>
+                </div>
+                <div class="slotStatusRow">
+                    <span class="slotStatusIcon">🧠</span>
+                    <span class="slotGaugeLabel">STRENN</span>
+                    <div class="slotMeterBar small">
+                        <div id="slotGaugeStrenn" class="slotMeterFill" style="width:20%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slotStatusRightGroup">
+                <div class="slotGlassPanel slotStatusCenter">
+                    <div class="slotStatusItem">
+                        <span class="slotStatusLabel">COINS</span>
+                        <span id="slotStatCoins" class="slotStatusValue">1,000</span>
+                    </div>
+                    <div class="slotStatusItem">
+                        <span class="slotStatusLabel">DEBUT</span>
+                        <span id="slotStatDebt" class="slotStatusValue">50,000</span>
+                    </div>
+                    <div class="slotStatusItem">
+                        <span class="slotStatusLabel">REMAINING</span>
+                        <span id="slotStatRemaining" class="slotStatusValue">49,000</span>
+                    </div>
+                </div>
+
+                <div class="slotGlassPanel slotStatusRight">
+                    <div class="slotClockContainer">
+                        <svg class="slotClockSvg" viewBox="0 0 100 100" aria-hidden="true">
+                            <circle class="slotClockBg" cx="50" cy="50" r="45"></circle>
+                            <circle id="slotClockProgress" class="slotClockProgress" cx="50" cy="50" r="45"></circle>
+                        </svg>
+                        <span class="slotClockIcon">🌙</span>
+                    </div>
+                    <div class="slotStatusItem survival">
+                        <span class="slotStatusLabel">SURVIVAL</span>
+                        <span id="slotStatDays" class="slotStatusValue">DAY 1</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
         <img src="../image/background.png" id="background" class="gameLayer">
         <img src="../image/peka.png" id="pekaLamp" class="gameLayer effectLayer">
         <img src="../image/bounus.png" id="bonusLamp" class="gameLayer effectLayer">
@@ -40,6 +90,12 @@
 
         <div id="pekariText">PEKARI!</div>
         <div id="starRain"></div>
+        <div id="bonusBurst"></div>
+        <div id="bonusRays"></div>
+        <div id="bonusRabbitGlow">
+            <img src="../image/rabbit.png" alt="">
+        </div>
+        <div id="bonusCelebrationText">BONUS</div>
 
         <button class="hotspot" id="bet1"></button>
         <button class="hotspot" id="bet2"></button>
@@ -49,6 +105,104 @@
         <button class="hotspot" id="autoBtn"></button>
         <button class="hotspot" id="missionBtn"></button>
         <button class="hotspot" id="settingBtn"></button>
+
+        <button type="button" id="payoutOpenButton" class="payoutOpenButton">配当表を見る</button>
+
+        <button type="button" id="gameMenuButton" class="gameMenuButton" aria-label="メニューを開く">&gt;</button>
+
+        <div id="gameMenuOverlay" class="gameMenuOverlay" aria-hidden="true">
+
+            <div id="gameMenuMain" class="gameMenuPanel" role="dialog" aria-modal="true" aria-labelledby="gameMenuTitle">
+                <p class="menuEyebrow">Small House Slot</p>
+                <h2 id="gameMenuTitle">メニュー</h2>
+
+                <div class="gameMenuActions">
+                    <button type="button" class="menuActionButton" id="menuRulesBtn">ルール説明</button>
+                    <button type="button" class="menuActionButton" id="menuHomeBtn">ホームに戻る</button>
+                    <button type="button" class="menuActionButton" id="menuCloseBtn">閉じる</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="gamePopupOverlay" class="gamePopupOverlay hidden" aria-hidden="true">
+
+            <div id="gameRulesPanel" class="gameMenuPanel gameMenuPanelWide hidden" role="dialog" aria-modal="true" aria-labelledby="gameRulesTitle">
+                <p class="menuIcon">📖</p>
+                <h2 id="gameRulesTitle">ルール説明</h2>
+
+                <div class="ruleGrid menuRuleGrid">
+                    <section>
+                        <h2>基本操作</h2>
+                        <p>1BET・2BET・3BET・MAX BETで賭け数を選び、STARTでリールを回します。回転中のSTARTで左から順にリールを止めます。</p>
+                    </section>
+                    <section>
+                        <h2>当たり</h2>
+                        <p>同じ図柄が一直線にそろうと配当です。7・7・7はBIG、7・7・BARはREG。CHANCE点灯中はボーナス成立中で、そろえるまで状態が続きます。</p>
+                    </section>
+                    <section>
+                        <h2>特殊役</h2>
+                        <p>うさぎはリトライ、ぶどうはカウント対象です。BONUS中はBET不要で、STARTだけで残り払い出しがなくなるまで続きます。</p>
+                    </section>
+                    <section>
+                        <h2>キーボード</h2>
+                        <p>1・2・3でBET、MでMAX BET、SpaceでSTART/STOP、AでAUTOです。開始画面ではEnterまたはSpaceでゲームへ進みます。</p>
+                    </section>
+                    <section>
+                        <h2>表示</h2>
+                        <p>CREDITは所持レンガ、COUNTは回転数、PAYOUTは直近の払い出しです。所持レンガ表示にも現在の残数が出ます。</p>
+                    </section>
+                </div>
+
+                <div class="gameMenuActions singleAction">
+                    <button type="button" class="menuActionButton primary" id="rulesCloseBtn">閉じる</button>
+                </div>
+            </div>
+
+            <div id="gamePayoutPanel" class="gameMenuPanel gameMenuPanelWide hidden" role="dialog" aria-modal="true" aria-labelledby="gamePayoutTitle">
+                <p class="menuIcon">✨</p>
+                <h2 id="gamePayoutTitle">配当表</h2>
+
+                <div class="payoutList" aria-label="配当表">
+                    <div class="payoutListRow jackpot">
+                        <div class="payoutSymbols"><span>7</span><span>7</span><span>7</span></div>
+                        <div class="payoutName">BIG BONUS</div>
+                        <div class="payoutValue">約340枚</div>
+                    </div>
+                    <div class="payoutListRow">
+                        <div class="payoutSymbols"><span>7</span><span>7</span><span>BAR</span></div>
+                        <div class="payoutName">REG BONUS</div>
+                        <div class="payoutValue">約120枚</div>
+                    </div>
+                    <div class="payoutListRow">
+                        <div class="payoutSymbols"><span>🔔</span><span>🔔</span><span>🔔</span></div>
+                        <div class="payoutName">ベル</div>
+                        <div class="payoutValue">15枚</div>
+                    </div>
+                    <div class="payoutListRow">
+                        <div class="payoutSymbols"><span>🍇</span><span>🍇</span><span>🍇</span></div>
+                        <div class="payoutName">ぶどう</div>
+                        <div class="payoutValue">10枚</div>
+                    </div>
+                    <div class="payoutListRow">
+                        <div class="payoutSymbols"><span>🍒</span><span>🍒</span></div>
+                        <div class="payoutName">チェリー</div>
+                        <div class="payoutValue">2枚</div>
+                    </div>
+                    <div class="payoutListRow">
+                        <div class="payoutSymbols"><span>🐰</span><span>🐰</span><span>🐰</span></div>
+                        <div class="payoutName">うさぎ</div>
+                        <div class="payoutValue">リトライ</div>
+                    </div>
+                    <p class="payoutNote">BET枚数で配当が変わります</p>
+                </div>
+
+                <div class="gameMenuActions singleAction">
+                    <button type="button" class="menuActionButton primary" id="payoutCloseBtn">閉じる</button>
+                </div>
+            </div>
+
+        </div>
 
         <div id="startScreen" class="startScreen">
 
@@ -107,7 +261,7 @@
 
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=slot-status-ui"></script>
 
 </body>
 

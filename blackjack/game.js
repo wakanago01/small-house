@@ -28,23 +28,34 @@ const INITIAL_STATE = {
     fatigue: 10,
     motivation: 70,
     energy: 100,
-    condition: 100
+    condition: 100,
+    clockSeconds:0
 };
 
 let gameState = { ...INITIAL_STATE };
 
 function loadGameState() {
     const saved = localStorage.getItem(STORAGE_KEY);
+
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
-            gameState = { ...INITIAL_STATE, ...parsed };
+
+            gameState = {
+                ...INITIAL_STATE,
+                ...parsed
+            };
+
+            secondsPassed = gameState.clockSeconds || 0;
+
         } catch (e) {
-            console.error("Failed to parse saved state:", e);
+            console.error(e);
+            gameState = { ...INITIAL_STATE };
         }
+    } else {
+        gameState = { ...INITIAL_STATE };
     }
 }
-
 function saveGameState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
 }
@@ -92,14 +103,13 @@ const resetBtn = document.getElementById('reset-btn');
 const particlesContainer = document.getElementById('particles-container');
 
 // メニュー要素
-const hamburgerMenu = document.getElementById('hamburger-menu');
-const sideMenu = document.getElementById('side-menu');
 const homeBtn = document.getElementById('home-btn');
-const rulesBtn = document.getElementById('rules-btn');
-const closeMenuBtn = document.getElementById('close-menu-btn');
+const ruleBtn = document.getElementById('rule-btn');
 const rulesOverlay = document.getElementById('rules-overlay');
 const closeRulesBtn = document.getElementById('close-rules-btn');
-
+const guideBtn = document.getElementById('guide-btn');
+const guideOverlay = document.getElementById('guide-overlay');
+const closeGuideBtn = document.getElementById('close-guide-btn');
 // 音源の定義
 const sounds = {
     click: new Audio('音源/カーソル移動6.mp3'),
@@ -389,8 +399,8 @@ async function startGame() {
     playSound('click');
     rabbitSpeak('start');
     
-    loadGameState();
-    
+    initialBet = currentBet;
+
     if (currentBet > gameState.coins) {
         currentBet = gameState.coins;
     }
@@ -770,20 +780,18 @@ betClear.addEventListener('click', () => {
 });
 
 // メニュー操作のロジック
-hamburgerMenu.addEventListener('click', () => {
-    playSound('click');
-    sideMenu.classList.remove('hidden-menu');
-});
 
-closeMenuBtn.addEventListener('click', () => {
+ruleBtn.addEventListener('click', () => {
     playSound('click');
-    sideMenu.classList.add('hidden-menu');
-});
-
-rulesBtn.addEventListener('click', () => {
-    playSound('click');
-    sideMenu.classList.add('hidden-menu');
     rulesOverlay.classList.remove('hidden');
+});
+guideBtn.addEventListener('click', () => {
+    playSound('click');
+    guideOverlay.classList.remove('hidden');
+});
+closeGuideBtn.addEventListener('click', () => {
+    playSound('click');
+    guideOverlay.classList.add('hidden');
 });
 
 closeRulesBtn.addEventListener('click', () => {
@@ -829,6 +837,7 @@ function updateSurvivalClock() {
     }
 
     secondsPassed++;
+    gameState.clockSeconds = secondsPassed;
     const progress = secondsPassed / DAY_DURATION_SEC;
     const offset = 283 * (1 - progress);
     const clockProgress = document.getElementById('clock-progress');
@@ -863,6 +872,7 @@ function triggerGameOver() {
 // Start survival loop in blackjack
 setInterval(updateSurvivalClock, 1000);
 
-// Initialize
-loadGameState();
-updateUI();
+window.addEventListener('load', () => {
+    loadGameState();
+    updateUI();
+});

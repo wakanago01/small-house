@@ -20,16 +20,25 @@ body {
     width: 100%; height: 100vh;
     background-image: url('../assets/poker背景2.png');
     background-size: cover;
-    background-position: center;
+    background-position: center -100px;
     position: relative;
     box-shadow: 0 0 50px rgba(0,0,0,1);
     overflow: hidden;
 }
 
+#game-container {
+    background-position: center -100px;
+}
+
+/* F11時 */
+body.fullscreen-active #game-container {
+    background-position: center center;
+}
+
 /* 音声切り替えボタン */
 #sound-toggle {
     position: absolute;
-    top: 20px;
+    top: 92px;
     right: 20px;
     width: 50px;
     height: 50px;
@@ -52,6 +61,87 @@ body {
 
 .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
 .hidden { display: none !important; }
+
+.settings-container {
+    width: min(600px, 90vw);
+    margin: 120px auto 0 auto;
+    padding: 25px;
+
+    color: white;
+
+    /* 役一覧と同じ系統 */
+    background: rgba(26, 11, 46, 0.75); /* ←深紫＋透明 */
+    border: 2px solid rgba(255, 215, 0, 0.25); /* ゴールド枠 */
+    border-radius: 15px;
+
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    backdrop-filter: blur(14px);
+}
+
+.settings-card {
+    border-left: 4px solid var(--star-gold);
+}
+
+.settings-title {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #000;
+}
+
+.settings-card {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+.settings-header {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #ffd700;
+}
+
+.settings-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.settings-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.settings-desc {
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+.settings-back-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: #333;
+    color: white;
+    border: 1px solid #666;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.settings-back-btn:hover {
+    background: #444;
+}
 
 .centered-content {
     display: flex;
@@ -78,7 +168,7 @@ body {
 
 #player-hand {
     position: absolute;
-    bottom: 120px;
+    bottom: 140px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -98,10 +188,10 @@ body {
     align-items: center;
 }
 
-.cpu-player.pos-0 { top: 15%; left: 15%; transform: rotate(-12deg); }
-.cpu-player.pos-1 { top: 10%; left: 50%; transform: translateX(-50%); }
-.cpu-player.pos-2 { top: 15%; right: 15%; transform: rotate(12deg); }
-.cpu-player.pos-easy { top: 12%; left: 50%; transform: translateX(-50%); }
+.cpu-player.pos-0 { top: 20%; left: 15%; transform: rotate(-12deg); }
+.cpu-player.pos-1 { top: 15%; left: 50%; transform: translateX(-50%); }
+.cpu-player.pos-2 { top: 20%; right: 15%; transform: rotate(12deg); }
+.cpu-player.pos-easy { top: 20%; left: 50%; transform: translateX(-50%); }
 
 .cpu-rank-label {
     background: rgba(0,0,0,0.6);
@@ -114,7 +204,7 @@ body {
 
 .player-rank-label {
     position: absolute;
-    bottom: 270px;
+    bottom: 300px;
     left: 50%;
     transform: translateX(-50%);
     color: var(--star-gold);
@@ -135,7 +225,7 @@ body {
 
 .betting-actions {
     position: absolute;
-    bottom: 50px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -285,7 +375,7 @@ body {
 /* 常設Renga表示 */
 #permanent-renga-display {
     position: absolute;
-    bottom: 65px;
+    bottom: 95px;
     right: 60px;
     width: auto;
     min-width: 250px;
@@ -304,6 +394,24 @@ body {
     transition: font-size 0.3s ease, bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), top 0.4s ease, right 0.3s ease;
 }
 
+/* 常設BET表示 */
+#permanent-bet-display {
+    position: absolute;
+    bottom: 250px;
+    right: 0px;
+    width: 350px;
+
+    color: var(--star-gold);
+    font-size: 1.2rem;
+    text-shadow: 2px 2px 4px #000;
+
+    display: block;
+    z-index: 100;
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap;
+}
+
 /* 全画面表示（F11や大画面）時の調整 */
 .fullscreen-active #permanent-renga-display {
         bottom: 120px;
@@ -311,6 +419,12 @@ body {
         height: 150px;
     }
 
+@media screen and (min-height: 950px) {
+    #permanent-bet-display {
+        bottom: 310px;
+        right:  0px;
+    }
+}
 
 #game-container:fullscreen #permanent-renga-display,
 #game-container:-webkit-full-screen #permanent-renga-display {
@@ -378,6 +492,86 @@ body {
     max-height: 85%;
     overflow-y: auto;
     color: white;
+}
+
+#settings-screen .overlay-content {
+    background: rgba(20, 10, 40, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    width: min(600px, 90vw);
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+/* タイトル */
+#settings-screen h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: var(--star-gold);
+    text-shadow: 0 0 10px black;
+}
+
+/* 各設定の箱（役一覧っぽい見た目） */
+#settings-screen label {
+    display: block;
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* スライダー */
+#settings-screen input[type="range"] {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* チェック */
+#settings-screen input[type="checkbox"] {
+    transform: scale(1.3);
+    margin-right: 10px;
+}
+
+/* 役一覧っぽい設定UI */
+#settings-screen .settings-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 15px;
+    margin: 12px 0;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+}
+
+#settings-screen .settings-card h3 {
+    color: var(--star-gold);
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+}
+
+#settings-screen .settings-card p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.85;
+}
+
+#settings-screen .settings-card:hover {
+    transform: translateY(-2px);
+    transition: 0.2s;
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.25);
+}
+
+/* 戻るボタン */
+#settings-screen button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #6c5ce7, #341f97);
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 .rank-item {
@@ -555,7 +749,4 @@ body {
     filter: drop-shadow(0 0 4px #f7d8ef);
 }
 
-/* ゲームコンテナの上部パディング（ステータスバー分のスペース確保） */
-#game-container .screen {
-    padding-top: 80px;
-}
+

@@ -64,21 +64,20 @@
             </div>
         </header>
 
-        <div id="hamburger-menu">☰</div>
-        
-        <div id="side-menu" class="hidden-menu">
-            <div id="menu-content">
-                <div class="menu-header">MENU</div>
-                <button id="home-btn" class="menu-item-btn">
-                    <span class="icon">🏠</span> HOME
-                </button>
-                <button id="rules-btn" class="menu-item-btn">
-                    <span class="icon">📜</span> RULES
-                </button>
-                <button id="close-menu-btn" class="menu-item-btn">
-                    <span class="icon">×</span> CLOSE
-                </button>
-            </div>
+        <div id="help-buttons">
+
+            <button id="home-btn" class="help-btn">
+                🏠 HOME
+            </button>
+
+            <button id="guide-btn" class="help-btn">
+                how to play
+            </button>
+
+            <button id="rule-btn" class="help-btn">
+                brackjack rule
+            </button>
+
         </div>
 
         <div id="play-area">
@@ -105,6 +104,35 @@
         </div>
 
         <div id="bottom-left-controls">
+            <div id="payout-table" class="glass-panel">
+                <div class="payout-title">PAYOUT</div>
+
+                <div class="payout-row">
+                    <span>BLACKJACK</span>
+                    <span class="value">2.5×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>WIN</span>
+                    <span class="value">2×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>PUSH</span>
+                    <span class="value">1×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>SURRENDER</span>
+                    <span class="value">0.5×</span>
+                </div>
+
+                <div class="payout-row">
+                    <span>LOSE</span>
+                    <span class="value">0×</span>
+                </div>
+            </div>
+
             <div id="bet-setup-area">
                 <div class="bet-row">
                     <button id="bet-m10" class="bet-btn">-10</button>
@@ -186,7 +214,54 @@
             <button id="close-rules-btn" class="glow-btn">CLOSE</button>
         </div>
     </div>
-    
+    <!-- How to Play Overlay -->
+    <div id="guide-overlay" class="hidden">
+        <div id="rules-content">
+            <h2>📖 HOW TO PLAY</h2>
+
+            <div class="rules-scroll-area">
+
+                <div class="guide-step">
+                    <h3>① BETを決める</h3>
+                    <p>
+                        左下のボタンで賭け金を決めます。<br>
+                        「ALL IN」で所持コインをすべて賭けることもできます。
+                    </p>
+                </div>
+
+                <div class="guide-step">
+                    <h3>② DEALを押す</h3>
+                    <p>
+                        DEALを押すとゲームが始まり、
+                        プレイヤーとディーラーに2枚ずつカードが配られます。
+                    </p>
+                </div>
+
+                <div class="guide-step">
+                    <h3>③ 行動を選ぶ</h3>
+                    <p>
+                        HIT・STAND・DOUBLE・SURRENDERから
+                        状況に応じて選択します。<br>
+                        ※ボタンのそれぞれの意味はRULEを参照ください
+                    </p>
+                </div>
+
+                <div class="guide-step">
+                    <h3>④ 勝敗決定</h3>
+                    <p>
+                        ディーラーとの勝負が終わると
+                        コインの増減が反映されます。
+                    </p>
+                </div>
+
+            </div>
+
+            <button id="close-guide-btn" class="glow-btn">
+                CLOSE
+            </button>
+
+        </div>
+    </div>
     <div id="game-over-overlay" class="hidden">
         <div class="game-over-text">GAME OVER</div>
         <button id="reset-btn" class="glow-btn">RETRY</button>
