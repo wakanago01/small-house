@@ -88,6 +88,18 @@
 
         <div id="resultText"></div>
 
+        <aside id="keyboardGuide" class="keyboardGuide" aria-label="キーボード操作">
+            <h2>KEYBOARD</h2>
+            <ul>
+                <li><span>1</span><span>1BET</span></li>
+                <li><span>2</span><span>2BET</span></li>
+                <li><span>3</span><span>3BET</span></li>
+                <li><span>M</span><span>MAX BET</span></li>
+                <li><span>Enter / Space</span><span>START / STOP</span></li>
+                <li><span>A</span><span>AUTO</span></li>
+            </ul>
+        </aside>
+
         <div id="pekariText">PEKARI!</div>
         <div id="starRain"></div>
         <div id="bonusBurst"></div>
@@ -116,6 +128,20 @@
                 <p class="menuIcon">✦</p>
                 <h2 id="gameMenuTitle">MENU</h2>
                 <p class="menuEyebrow">small-house slot</p>
+
+                <div class="menuVolumePanel">
+                    <label class="menuVolumeRow" for="menuBgmVolume">
+                        <span class="menuVolumeName"><span class="menuVolumeIcon">♪</span>BGM 音量</span>
+                        <span class="menuVolumeValue" id="menuBgmVolumeValue">50%</span>
+                    </label>
+                    <input type="range" id="menuBgmVolume" class="menuVolumeSlider" min="0" max="100" value="50">
+
+                    <label class="menuVolumeRow" for="menuSeVolume">
+                        <span class="menuVolumeName"><span class="menuVolumeIcon">🎲</span>効果音 音量</span>
+                        <span class="menuVolumeValue" id="menuSeVolumeValue">50%</span>
+                    </label>
+                    <input type="range" id="menuSeVolume" class="menuVolumeSlider" min="0" max="100" value="50">
+                </div>
 
                 <div class="gameMenuActions">
                     <button type="button" class="menuActionButton" id="menuRulesBtn">RULE</button>

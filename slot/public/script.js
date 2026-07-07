@@ -29,6 +29,10 @@ const menuCloseBtn = document.getElementById("menuCloseBtn");
 const rulesCloseBtn = document.getElementById("rulesCloseBtn");
 const payoutCloseBtn = document.getElementById("payoutCloseBtn");
 const payoutOpenButton = document.getElementById("payoutOpenButton");
+const menuBgmVolume = document.getElementById("menuBgmVolume");
+const menuBgmVolumeValue = document.getElementById("menuBgmVolumeValue");
+const menuSeVolume = document.getElementById("menuSeVolume");
+const menuSeVolumeValue = document.getElementById("menuSeVolumeValue");
 const startScreen = document.getElementById("startScreen");
 const openGameBtn = document.getElementById("openGameBtn");
 const autoStartBtn = document.getElementById("autoStartBtn");
@@ -53,6 +57,9 @@ const slotClockProgress = document.getElementById("slotClockProgress");
 
 const SAVE_KEY = "smallHouseSlotData";
 const HOME_SAVE_KEY = "small_house_game_state";
+const BGM_ENABLED_KEY = "smallHouseSlotBgmEnabled";
+const BGM_VOLUME_KEY = "smallHouseSlotBgmVolume";
+const SE_VOLUME_KEY = "smallHouseSlotSeVolume";
 const SAVE_VERSION = 2;
 const AUTO_BET_AMOUNT = 3;
 const CLOCK_CIRCUMFERENCE = 283;
@@ -488,12 +495,14 @@ function closeStartScreen(){
 
     isStartScreenOpen = false;
     startScreen.classList.add("hidden");
+    unlockMainBgm();
 
 }
 
 function openStartScreen(){
 
     isStartScreenOpen = true;
+    updateMainBgm();
     closeGameMenu();
     closeGamePopup();
     updateStartScreenStats();
@@ -504,6 +513,11 @@ function openStartScreen(){
 function returnToHome(){
 
     stopReelSpinLoop();
+    stopPekariAmbience();
+    stopBonusAmbience();
+    if(mainBgm){
+        mainBgm.pause();
+    }
     saveGameData();
     window.location.href = "../../home/index.html";
 
@@ -629,6 +643,249 @@ function showResultText(text){
 let slotAudioContext = null;
 let slotAudioMaster = null;
 let reelSpinSound = null;
+let mainBgm = null;
+let canPlayMainBgm = false;
+let pekariAmbienceTimer = null;
+let bonusAmbienceTimer = null;
+let mainBgmVolume = getStoredPercent(BGM_VOLUME_KEY,50);
+let seVolume = getStoredPercent(SE_VOLUME_KEY,50);
+let isBgmEnabled = localStorage.getItem(BGM_ENABLED_KEY) !== "false" && mainBgmVolume > 0;
+
+if(!isBgmEnabled){
+    mainBgmVolume = 0;
+}
+
+function getStoredPercent(key,defaultValue){
+
+    const value = Number(localStorage.getItem(key));
+
+    if(Number.isFinite(value)){
+        return Math.max(0,Math.min(100,value));
+    }
+
+    return defaultValue;
+
+}
+
+function paintVolumeSlider(slider,value){
+
+    if(!slider){
+        return;
+    }
+
+    slider.style.background = `linear-gradient(90deg, #ff4db3 0 ${value}%, #7614b9 ${value}% 100%)`;
+
+}
+
+function getBgmVolumeScale(){
+
+    return Math.max(0.08,mainBgmVolume / 50);
+
+}
+
+function getMainBgm(){
+
+    if(!mainBgm){
+
+        mainBgm = new Audio("../sounds/メインBGM.mp3");
+        mainBgm.loop = true;
+        mainBgm.volume = (mainBgmVolume / 100) * 0.72;
+        mainBgm.preload = "auto";
+
+    }
+
+    return mainBgm;
+
+}
+
+function shouldPlayMainBgm(){
+
+    return isBgmEnabled && !isStartScreenOpen && !pendingBonus && !bonusMode;
+
+}
+
+function stopPekariAmbience(){
+
+    if(pekariAmbienceTimer){
+        clearInterval(pekariAmbienceTimer);
+        pekariAmbienceTimer = null;
+    }
+
+}
+
+function stopBonusAmbience(){
+
+    if(bonusAmbienceTimer){
+        clearInterval(bonusAmbienceTimer);
+        bonusAmbienceTimer = null;
+    }
+
+}
+
+function playPekariAmbiencePhrase(){
+
+    if(!isBgmEnabled){
+        return;
+    }
+
+    playTone(659.25,0.28,{type:"triangle",gain:0.025 * getBgmVolumeScale(),release:0.18});
+    playTone(987.77,0.34,{type:"sine",gain:0.018 * getBgmVolumeScale(),delay:0.22,release:0.24});
+
+}
+
+function playBonusAmbiencePhrase(){
+
+    if(!isBgmEnabled){
+        return;
+    }
+
+    [523.25,659.25,783.99,1046.5,783.99,659.25].forEach((frequency,index) => {
+        playTone(frequency,0.22,{
+            type:"triangle",
+            gain:(index === 3 ? 0.038 : 0.03) * getBgmVolumeScale(),
+            delay:index * 0.18,
+            release:0.16
+        });
+    });
+
+}
+
+function startPekariAmbience(){
+
+    stopBonusAmbience();
+
+    if(pekariAmbienceTimer || !canPlayMainBgm || !isBgmEnabled){
+        return;
+    }
+
+    playPekariAmbiencePhrase();
+    pekariAmbienceTimer = setInterval(playPekariAmbiencePhrase,3200);
+
+}
+
+function startBonusAmbience(){
+
+    stopPekariAmbience();
+
+    if(bonusAmbienceTimer || !canPlayMainBgm || !isBgmEnabled){
+        return;
+    }
+
+    playBonusAmbiencePhrase();
+    bonusAmbienceTimer = setInterval(playBonusAmbiencePhrase,1500);
+
+}
+
+function updateSpecialAmbience(){
+
+    if(!canPlayMainBgm || !isBgmEnabled || isStartScreenOpen){
+        stopPekariAmbience();
+        stopBonusAmbience();
+        return;
+    }
+
+    if(bonusMode){
+        startBonusAmbience();
+        return;
+    }
+
+    if(pendingBonus){
+        startPekariAmbience();
+        return;
+    }
+
+    stopPekariAmbience();
+    stopBonusAmbience();
+
+}
+
+function updateMainBgm(){
+
+    updateMenuVolumeControls();
+
+    if(!canPlayMainBgm){
+        return;
+    }
+
+    const bgm = getMainBgm();
+    bgm.volume = (mainBgmVolume / 100) * 0.72;
+
+    if(shouldPlayMainBgm()){
+        updateSpecialAmbience();
+        bgm.play().catch(() => {});
+        return;
+    }
+
+    bgm.pause();
+    updateSpecialAmbience();
+
+}
+
+function unlockMainBgm(){
+
+    canPlayMainBgm = true;
+    updateMainBgm();
+    updateSpecialAmbience();
+
+}
+
+function updateMenuVolumeControls(){
+
+    if(menuBgmVolume){
+        menuBgmVolume.value = mainBgmVolume;
+        paintVolumeSlider(menuBgmVolume,mainBgmVolume);
+    }
+
+    if(menuBgmVolumeValue){
+        menuBgmVolumeValue.textContent = mainBgmVolume + "%";
+    }
+
+    if(menuSeVolume){
+        menuSeVolume.value = seVolume;
+        paintVolumeSlider(menuSeVolume,seVolume);
+    }
+
+    if(menuSeVolumeValue){
+        menuSeVolumeValue.textContent = seVolume + "%";
+    }
+
+    if(slotAudioMaster){
+        slotAudioMaster.gain.value = Math.min(1,(seVolume / 50) * 0.62);
+    }
+
+}
+
+function bindMenuVolumeControls(){
+
+    if(menuBgmVolume){
+        menuBgmVolume.addEventListener("input",() => {
+            mainBgmVolume = Math.max(0,Math.min(100,Number(menuBgmVolume.value) || 0));
+            isBgmEnabled = mainBgmVolume > 0;
+            localStorage.setItem(BGM_VOLUME_KEY,String(mainBgmVolume));
+            localStorage.setItem(BGM_ENABLED_KEY,String(isBgmEnabled));
+
+            if(!isBgmEnabled){
+                if(mainBgm){
+                    mainBgm.pause();
+                }
+                stopPekariAmbience();
+                stopBonusAmbience();
+            }
+
+            updateMainBgm();
+            updateSpecialAmbience();
+        });
+    }
+
+    if(menuSeVolume){
+        menuSeVolume.addEventListener("input",() => {
+            seVolume = Math.max(0,Math.min(100,Number(menuSeVolume.value) || 0));
+            localStorage.setItem(SE_VOLUME_KEY,String(seVolume));
+            updateMenuVolumeControls();
+        });
+    }
+
+}
 
 function getSlotAudioContext(){
 
@@ -642,7 +899,7 @@ function getSlotAudioContext(){
 
         slotAudioContext = new AudioContextClass();
         slotAudioMaster = slotAudioContext.createGain();
-        slotAudioMaster.gain.value = 0.62;
+        slotAudioMaster.gain.value = Math.min(1,(seVolume / 50) * 0.62);
         slotAudioMaster.connect(slotAudioContext.destination);
 
     }
@@ -920,6 +1177,7 @@ function triggerPekari(){
     game.classList.remove("bonusGlow");
     pekariText.classList.add("on");
     pekariText.textContent = "CHANCE";
+    updateMainBgm();
 
     if(!wasPekari){
         playPekariSound();
@@ -935,6 +1193,7 @@ function clearGameEffects(){
     game.classList.remove("pekariGlow");
     game.classList.remove("bonusGlow");
     pekariText.classList.remove("on");
+    updateMainBgm();
 
 }
 
@@ -945,6 +1204,7 @@ function clearPekari(){
 
     game.classList.remove("pekariGlow");
     pekariText.classList.remove("on");
+    updateMainBgm();
 
 }
 
@@ -957,6 +1217,7 @@ function triggerBonusEffects(){
     game.classList.add("bonusGlow");
     game.classList.remove("pekariGlow");
     pekariText.classList.remove("on");
+    updateMainBgm();
     showResultText("BONUS FEVER!");
 
 }
@@ -969,6 +1230,8 @@ function clearBonusEffects(){
 
     if(pendingBonus){
         triggerPekari();
+    }else{
+        updateMainBgm();
     }
 
 }
@@ -1587,6 +1850,10 @@ function checkResult(){
 
         }
 
+    }else{
+
+        result = findResult(lines,["bell","grape","cherry","rabbit"]);
+
     }
 
     if(result === "big"){
@@ -1710,6 +1977,7 @@ function startSpin(){
             triggerPekari();
         }else{
             clearPekari();
+            updateMainBgm();
         }
     }
 
@@ -1895,11 +2163,14 @@ updateRenga();
 updateMission();
 updateMachineMeters();
 updateStartScreenStats();
+updateMenuVolumeControls();
+bindMenuVolumeControls();
 
 function setButton(button,name,action){
 
     button.addEventListener("click",() => {
 
+        unlockMainBgm();
         pressButton(button);
         playUiClickSound();
 
