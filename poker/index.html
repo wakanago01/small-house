@@ -509,15 +509,35 @@
                     }
                     
                     // ストレス減少
-                    const awardBonus = Math.floor(finalAward / 1000);
-                    const totalReduction = (isSplit ? 5 : 10) + awardBonus;
-                    this.player.stress -= totalReduction;
+                    // 役ごとのストレス減少（勝利時）
+                    const stressTable = {
+                        0: 2,   // ハイカード
+                        1: 3,   // ワンペア
+                        2: 4,   // ツーペア
+                        3: 6,   // スリーカード
+                        4: 8,   // ストレート
+                        5: 10,  // フラッシュ
+                        6: 14,  // フルハウス
+                        7: 18,  // フォーカード
+                        8: 25,  // ストレートフラッシュ
+                        9: 40   // ロイヤル
+                        };
+
+let stressReduce = stressTable[pEval.rank] || 5;
+
+// 分配勝利なら少し弱くする
+if (isSplit) stressReduce = Math.floor(stressReduce * 0.6);
+
+this.player.stress -= stressReduce;
+
+
+
                 } else {
                     result = "LOSE";
                     const topCpu = winners[0];
                     winnerMsg = `CPU ${topCpu.id} が最強の役（${PokerHand.RANK_NAMES[topCpu.eval.rank]}）で勝利しました。`;
                     finalAward = 0;
-                    this.player.stress += 15;
+                    this.player.stress += 10;
                 }
 
                 document.getElementById('game-message').innerText = "手札を開示します...";
